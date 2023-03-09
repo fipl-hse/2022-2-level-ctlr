@@ -499,7 +499,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 #    needs: [ running-pos-pipeline-tests ]
-    if: env.REPOSITORY_TYPE == "public"
+    if: ${{ env.REPOSITORY_TYPE == "public" }}
     env:
       PR_NAME: ${{ github.event.pull_request.title }}
 
