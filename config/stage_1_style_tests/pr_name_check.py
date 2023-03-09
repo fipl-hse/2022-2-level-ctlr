@@ -20,7 +20,7 @@ def is_matching_name(pr_name: str, compiled_pattern: Pattern, example_name: str)
     return True
 
 
-def load_pr_name_regex():
+def load_pr_name_regex() -> Pattern:
     with (Path(__file__).parent / 'template_pr_name_regex.txt').open(encoding='utf-8') as f:
         lines = map(str.strip, f.readlines())
     return re.compile(next(lines))
