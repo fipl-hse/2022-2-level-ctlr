@@ -1,4 +1,4 @@
-name: HTML Corpus Collection and Annotation
+name: Corpus Collection and Annotation
 
 on:
   push:
@@ -155,7 +155,8 @@ jobs:
     name: Crawler checks config
     needs: [
       code-style,
-      mypy-checks
+      mypy-checks,
+      flake8-checks
     ]
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -173,7 +174,8 @@ jobs:
     name: Crawler checks
     needs: [
       code-style,
-      mypy-checks
+      mypy-checks,
+      flake8-checks
     ]
     runs-on: ubuntu-latest
     timeout-minutes: 4
@@ -190,7 +192,8 @@ jobs:
     name: Parser checks
     needs: [
       code-style,
-      mypy-checks
+      mypy-checks,
+      flake8-checks
     ]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -250,10 +253,7 @@ jobs:
   milestone-1-crawler-is-working:
     name: Crawler is accepted!
     needs: [
-      checking-articles-dataset,
-      requirements-check,
-      flake8-checks,
-      pr-name-check
+      checking-articles-dataset
     ]
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -492,8 +492,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [ running-pos-pipeline-tests ]
-    env:
-      PR_NAME: ${{ github.event.pull_request.title }}
 
     steps:
       - uses: actions/checkout@v3
