@@ -26,6 +26,8 @@ for LAB_NAME in $LABS; do
   if [[ ${TARGET_SCORE} -gt 7 ]]; then
     echo "Running mypy checks for marks 8 and 10"
     mypy ${LAB_NAME}
+  else
+    continue
   fi
 
   if [[ $? -ne 0 ]]; then
