@@ -513,7 +513,7 @@ jobs:
         with:
           name: processed-dataset
       - name: Run start
-        if: ${{ env.REPOSITORY_TYPE == "public" }}
+        if: ${{ env.REPOSITORY_TYPE == 'public' }}
         run: |
           bash config/unpack_archived_dataset.sh
           bash config/collect_coverage/run_coverage.sh "$PR_NAME"
