@@ -31,6 +31,14 @@ def load_pr_name_example() -> str:
     return next(lines)
 
 
+def is_author_admin(author_login: str) -> bool:
+    admins_path = Path(__file__).parent.parent / 'admins.txt'
+    with admins_path.open(encoding='utf-8') as f:
+        admins_logins = tuple(map(str.strip, f.readlines()))
+
+    return author_login in admins_logins
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Checks that PR name is done using the template')
     parser.add_argument('--pr-name', type=str, help='Current PR name')
@@ -41,11 +49,7 @@ if __name__ == '__main__':
         print("Skipping PR name checks.")
         sys.exit(0)
 
-    admins_path = Path(__file__).parent.parent / 'admins.txt'
-    with admins_path.open(encoding='utf-8') as f:
-        admins_logins = tuple(map(str.strip, f.readlines()))
-
-    if args.pr_author in admins_logins:
+    if is_author_admin(args.pr_author):
         print('Skipping PR name checks due to author.')
         sys.exit(0)
 
