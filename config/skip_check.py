@@ -31,7 +31,7 @@ def main() -> None:
         print('Skipping PR name checks due to label.')
         sys.exit(0)
 
-    if is_author_admin(args.pr_author):
+    if args.pr_author is not None and is_author_admin(args.pr_author):
         print('Skipping PR name checks due to author.')
         sys.exit(0)
 
