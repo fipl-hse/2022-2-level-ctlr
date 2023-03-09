@@ -15,20 +15,24 @@ env:
 
 jobs:
   # Stage 1. Style checks
-#  install-dependencies:
-#    name: Installing dependencies
-#    runs-on: ubuntu-latest
-#    timeout-minutes: 2
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Setup FIPL environment
-#        uses: fipl-hse/setup-env-action@v0.4
-#      - name: Confirming everything is OK
-#        run: |
-#          ls -la ~/.local/bin
-#          ls -la venv
-#
+  install-dependencies:
+    name: Installing dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup FIPL environment
+        uses: fipl-hse/setup-env-action@v0.4
+      - name: Confirming everything is OK
+        run: |
+          ls -la ~/.local/bin
+          ls -la venv
+      - name: Broadcast env to actions context
+        run: |
+          echo "REPOSITORY_TYPE=$REPOSITORY_TYPE" >> "$GITHUB_ENV"
+          
+
 #  requirements-check:
 #    name: Requirements check
 #    runs-on: ubuntu-latest
