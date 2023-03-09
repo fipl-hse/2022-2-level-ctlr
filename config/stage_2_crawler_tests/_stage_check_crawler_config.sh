@@ -7,4 +7,5 @@ if [ $? -eq 0 ]; then
   echo 'skip check due to special conditions...' && exit 0
 fi
 
+
 python -m pytest -m "mark10 and stage_2_1_crawler_config_check" --capture=no
