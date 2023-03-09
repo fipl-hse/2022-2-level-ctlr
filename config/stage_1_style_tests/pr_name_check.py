@@ -3,13 +3,14 @@ import argparse
 import re
 import sys
 from pathlib import Path
+from re import Pattern
 
 
 def convert_raw_pr_name(pr_name_raw: str) -> str:
     return pr_name_raw.replace('_', ' ')
 
 
-def is_matching_name(pr_name: str, compiled_pattern, example_name) -> bool:
+def is_matching_name(pr_name: str, compiled_pattern: Pattern, example_name: str) -> bool:
     if not re.search(compiled_pattern, pr_name):
         print('Your Pull Request title does not confirm to the template.')
         print(example_name, end='\n\n')
