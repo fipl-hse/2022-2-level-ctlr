@@ -5,6 +5,8 @@ echo "Parser checks"
 
 TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
 
+source venv/bin/activate
+
 IS_ADMIN=$(python config/is_admin.py --pr_name "$1")
 if [ "$REPOSITORY_TYPE" == "public" ] && [ "$IS_ADMIN" == 'YES' ] ; then
   echo '[skip-lab] option was enabled, skipping check...'
