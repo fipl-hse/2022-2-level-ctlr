@@ -495,7 +495,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 #    needs: [ running-pos-pipeline-tests ]
-    if: ${{env.REPOSITORY_TYPE}} == "admin"
+    if: env.REPOSITORY_TYPE == "admin"
     env:
       PR_NAME: ${{ github.event.pull_request.title }}
 
