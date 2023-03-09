@@ -508,7 +508,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Download previously collected dataset
         continue-on-error: true
-        if: ${{ env.REPOSITORY_TYPE == "public" }}
+        if: ${{ env.REPOSITORY_TYPE == 'public' }}
         uses: actions/download-artifact@v3
         with:
           name: processed-dataset
