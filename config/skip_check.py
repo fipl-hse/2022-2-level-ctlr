@@ -28,8 +28,8 @@ def main() -> None:
     args = ArgumentParser().parse_args()
 
     if args.pr_name is not None and '[skip-lab]' in args.pr_name:
-            print('Skipping PR name checks due to label.')
-            sys.exit(0)
+        print('Skipping PR name checks due to label.')
+        sys.exit(0)
 
     if args.pr_author and is_author_admin(args.pr_author):
         print('Skipping PR name checks due to author.')

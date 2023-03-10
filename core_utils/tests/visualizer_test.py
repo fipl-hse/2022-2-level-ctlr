@@ -5,6 +5,7 @@ import shutil
 import unittest
 
 import pytest
+
 try:
     from PIL import Image, ImageChops
 except ImportError:
