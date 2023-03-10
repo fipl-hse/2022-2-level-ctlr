@@ -16,4 +16,16 @@ mv *_raw.txt tmp/articles
 if [[ ${TARGET_SCORE} != 4 ]]; then
   mv *_meta.json tmp/articles
 fi
-bash config/stage_2_crawler_tests/s2_5_check_raw_data.sh
+
+TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
+python -m pytest -m "mark${TARGET_SCORE} and stage_2_5_dataset_validation" --capture=no
+
+ret=$?
+if [ "$ret" = 5 ]; then
+  echo "No tests collected.  Exiting with 0 (instead of 5)."
+  exit 0
+fi
+
+echo "Pytest results (should be 0): $ret"
+
+exit "$ret"
