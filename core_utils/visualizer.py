@@ -8,12 +8,12 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     import numpy as np  # type: ignore
+
+    matplotlib.use('agg')
 except ImportError:
     print('No libraries installed. Failed to import.')
 
 from core_utils.article.article import Article
-
-matplotlib.use('agg')
 
 
 def visualize(article: Article, path_to_save: Path) -> None:
