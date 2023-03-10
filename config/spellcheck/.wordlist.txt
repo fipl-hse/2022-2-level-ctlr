@@ -4,9 +4,11 @@ ci
 cli
 config
 CoNLL
+CrawlerRecursive
 dataset
 deprel
 DEPS
+DTO
 demidovskij
 deprel
 DEPREL
@@ -38,6 +40,7 @@ pdf
 POS
 preprocessed
 preprocessing
+py
 pycharm
 pymorphy
 pymystem
