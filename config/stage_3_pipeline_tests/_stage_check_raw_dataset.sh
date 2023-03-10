@@ -1,4 +1,4 @@
-set -ex
+set -e
 
 echo -e '\n'
 echo "Check raw dataset"
