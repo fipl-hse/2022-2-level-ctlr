@@ -16,7 +16,7 @@ class ArgumentParser(Tap):
     """
     Types for the argument parser
     """
-    pr_name: str
+    pr_name: Optional[str] = None
     pr_author: Optional[str] = None
     lab_path: Optional[Path] = None
 
@@ -27,11 +27,11 @@ def main() -> None:
     """
     args = ArgumentParser().parse_args()
 
-    if '[skip-lab]' in args.pr_name:
-        print('Skipping PR name checks due to label.')
-        sys.exit(0)
+    if args.pr_name is not None and '[skip-lab]' in args.pr_name:
+            print('Skipping PR name checks due to label.')
+            sys.exit(0)
 
-    if args.pr_author is not None and is_author_admin(args.pr_author):
+    if args.pr_author and is_author_admin(args.pr_author):
         print('Skipping PR name checks due to author.')
         sys.exit(0)
 

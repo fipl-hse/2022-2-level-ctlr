@@ -125,6 +125,8 @@ jobs:
     needs: [
       install-dependencies
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -134,7 +136,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Run crawler config checks
         run: |
-          bash config/core_utils_tests/_stage_core_utils_checks.sh
+          bash config/core_utils_tests/_stage_core_utils_checks.sh "$PR_AUTHOR"
 
   stubgen:
     name: Stub generation
@@ -162,6 +164,8 @@ jobs:
       mypy-checks,
       flake8-checks
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
 
@@ -171,7 +175,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_check_crawler_config.sh
+          bash config/stage_2_crawler_tests/_stage_check_crawler_config.sh "$PR_AUTHOR"
           ls -la ~/.local/bin
 
   checking-crawler:
@@ -181,6 +185,8 @@ jobs:
       mypy-checks,
       flake8-checks
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
 
@@ -190,7 +196,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_crawler_checks.sh
+          bash config/stage_2_crawler_tests/_stage_crawler_checks.sh "$PR_AUTHOR"
 
   checking-parser:
     name: Parser checks
@@ -199,6 +205,8 @@ jobs:
       mypy-checks,
       flake8-checks
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -208,7 +216,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Run crawler config checks
         run: |
-          bash config/stage_2_crawler_tests/_stage_parser_checks.sh
+          bash config/stage_2_crawler_tests/_stage_parser_checks.sh "$PR_AUTHOR"
 
   collecting-articles-from-internet:
     name: Download articles
@@ -217,6 +225,8 @@ jobs:
       checking-crawler,
       checking-parser
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -226,7 +236,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Crawl a raw dataset from web
         run: |
-          bash config/stage_2_crawler_tests/_stage_collect_articles.sh
+          bash config/stage_2_crawler_tests/_stage_collect_articles.sh "$PR_AUTHOR"
       - name: Archive raw dataset
         uses: actions/upload-artifact@v3
         with:
@@ -238,6 +248,8 @@ jobs:
   checking-articles-dataset:
     name: Validate dataset
     needs: [ collecting-articles-from-internet ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -252,13 +264,15 @@ jobs:
           name: raw-dataset
       - name: Run metadata validation
         run: |
-          bash config/stage_2_crawler_tests/_stage_validate_metadata.sh
+          bash config/stage_2_crawler_tests/_stage_validate_metadata.sh "$PR_AUTHOR"
 
   milestone-1-crawler-is-working:
     name: Crawler is accepted!
     needs: [
       checking-articles-dataset
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -273,7 +287,7 @@ jobs:
           name: raw-dataset
       - name: Congratulations
         run: |
-          bash config/stage_2_crawler_tests/_stage_accept_dataset.sh
+          bash config/stage_2_crawler_tests/_stage_accept_dataset.sh "$PR_AUTHOR"
 
   # Stage 3. Pipeline tests
   milestone-2-pipeline:
@@ -289,7 +303,11 @@ jobs:
 
   checking-raw-dataset-before-running-pipeline:
     name: Pipe verifies dataset
-    needs: milestone-2-pipeline
+    needs: [
+      milestone-2-pipeline
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -304,11 +322,15 @@ jobs:
           name: raw-dataset
       - name: Run crawler config checks
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_raw_dataset.sh
+          bash config/stage_3_pipeline_tests/_stage_check_raw_dataset.sh "$PR_AUTHOR"
 
   checking-corpus-manager-creates-instances-correctly:
     name: CorpusManager detects articles
-    needs: milestone-2-pipeline
+    needs: [
+      milestone-2-pipeline
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -323,11 +345,15 @@ jobs:
           name: raw-dataset
       - name: Run CorpusManager tests
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_corpus_manager.sh
+          bash config/stage_3_pipeline_tests/_stage_check_corpus_manager.sh "$PR_AUTHOR"
 
   checking-conllu-token-works-correctly:
     name: ConlluToken displays tokens
-    needs: milestone-2-pipeline
+    needs: [
+      milestone-2-pipeline
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -342,11 +368,15 @@ jobs:
           name: raw-dataset
       - name: Run Conllu tests
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_conllu_token.sh
+          bash config/stage_3_pipeline_tests/_stage_check_conllu_token.sh "$PR_AUTHOR"
 
   checking-student-processing-works-for-admin-dataset:
     name: Pipe processed admin data
-    needs: milestone-2-pipeline
+    needs: [
+      milestone-2-pipeline
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -361,11 +391,15 @@ jobs:
           name: raw-dataset
       - name: Run metadata validation
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_on_admin_dataset.sh
+          bash config/stage_3_pipeline_tests/_stage_check_on_admin_dataset.sh "$PR_AUTHOR"
 
   run-student-processing:
     name: Pipe processed student data
-    needs: milestone-2-pipeline
+    needs: [
+      milestone-2-pipeline
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -380,7 +414,7 @@ jobs:
           name: raw-dataset
       - name: Run validation of `_processed.txt` files
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_on_student_dataset.sh
+          bash config/stage_3_pipeline_tests/_stage_check_on_student_dataset.sh "$PR_AUTHOR"
       - name: Archive processed dataset
         continue-on-error: true
         uses: actions/upload-artifact@v3
@@ -392,7 +426,11 @@ jobs:
 
   checking-student-processing-works-for-student-dataset:
     name: Validate final dataset
-    needs: run-student-processing
+    needs: [
+      run-student-processing
+    ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -407,7 +445,7 @@ jobs:
           name: processed-dataset
       - name: Run validation of `_processed.txt` files
         run: |
-          bash config/stage_3_pipeline_tests/_stage_check_student_processing.sh
+          bash config/stage_3_pipeline_tests/_stage_check_student_processing.sh "$PR_AUTHOR"
       - name: Run validation of `.conllu` files
         run: |
           bash config/stage_3_pipeline_tests/s3_6_student_conllu_preprocess.sh
@@ -421,6 +459,8 @@ jobs:
       checking-corpus-manager-creates-instances-correctly,
       checking-conllu-token-works-correctly
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -435,7 +475,7 @@ jobs:
           name: processed-dataset
       - name: Run SyntaxPipeline
         run: |
-          bash config/stage_4_syntax_pipeline_tests/_stage_check_syntax_pipeline.sh
+          bash config/stage_4_syntax_pipeline_tests/_stage_check_syntax_pipeline.sh "$PR_AUTHOR"
       - name: Archive processed dataset
         continue-on-error: true
         uses: actions/upload-artifact@v3
@@ -455,6 +495,8 @@ jobs:
       checking-conllu-token-works-correctly,
       running-syntax-pipeline
     ]
+    env:
+      PR_AUTHOR: ${{ github.actor }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
 
@@ -469,7 +511,7 @@ jobs:
           name: processed-dataset
       - name: Congratulations
         run: |
-          bash config/stage_5_pos_frequency_pipeline_tests/_stage_check_pos_pipeline.sh
+          bash config/stage_5_pos_frequency_pipeline_tests/_stage_check_pos_pipeline.sh "$PR_AUTHOR"
       - name: Archive processed dataset
         continue-on-error: true
         uses: actions/upload-artifact@v3

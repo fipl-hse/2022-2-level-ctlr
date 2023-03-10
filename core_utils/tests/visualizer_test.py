@@ -5,7 +5,10 @@ import shutil
 import unittest
 
 import pytest
-from PIL import Image, ImageChops
+try:
+    from PIL import Image, ImageChops
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 from config.test_params import TEST_FILES_FOLDER, TEST_PATH
 from core_utils.article.article import Article
