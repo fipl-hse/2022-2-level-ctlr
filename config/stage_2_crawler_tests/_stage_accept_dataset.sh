@@ -1,12 +1,11 @@
-set -ex
+set -x
 
-echo -e '\n'
-echo "Accepting dataset"
+source venv/bin/activate
 
-TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
-
-if [[ ${TARGET_SCORE} != 0 ]]; then
-  echo "Crawler is working. Proceed to text processing pipeline."
-else
-  echo "Skipping stage"
+export PYTHONPATH=$(pwd):$PYTHONPATH
+python config/skip_check.py --pr_name "$1" --pr_author "$2" --lab_path "lab_5_scrapper"
+if [ $? -eq 0 ]; then
+  echo 'skip check due to special conditions...' && exit 0
 fi
+
+echo "Crawler is working. Proceed to text processing pipeline."

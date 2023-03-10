@@ -1,20 +1,11 @@
-set -ex
-
-echo -e '\n'
-echo "Parser checks"
-
-TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
+set -x
 
 source venv/bin/activate
 
-IS_ADMIN=$(python config/is_admin.py --pr_name "$1")
-if [ "$REPOSITORY_TYPE" == "public" ] && [ "$IS_ADMIN" == 'YES' ] ; then
-  echo '[skip-lab] option was enabled, skipping check...'
-  exit 0
+export PYTHONPATH=$(pwd):$PYTHONPATH
+python config/skip_check.py --pr_name "$1" --pr_author "$2" --lab_path "lab_5_scrapper"
+if [ $? -eq 0 ]; then
+  echo 'skip check due to special conditions...' && exit 0
 fi
 
-if [[ ${TARGET_SCORE} != 0 ]]; then
-  bash config/stage_2_crawler_tests/s2_3_check_parser.sh
-else
-  echo "Skipping stage"
-fi
+bash config/stage_2_crawler_tests/s2_3_check_parser.sh
