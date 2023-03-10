@@ -27,7 +27,7 @@ def main() -> None:
     """
     args = ArgumentParser().parse_args()
 
-    if args.pr_name is not None and '[skip-lab]' in args.pr_name:
+    if (args.pr_name is not None) and ('[skip-lab]' in str(args.pr_name)):
         print('Skipping PR name checks due to label.')
         sys.exit(0)
 
