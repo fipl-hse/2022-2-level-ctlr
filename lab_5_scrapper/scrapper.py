@@ -5,6 +5,9 @@ Crawler implementation
 
 
 def main() -> None:
+    """
+    Main entrypoint
+    """
     print('Hello, world!')
 
 
