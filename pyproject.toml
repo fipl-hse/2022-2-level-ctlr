@@ -67,5 +67,3 @@ disable_error_code  = [
     'call-overload',
     'operator'
 ]
-
-  
