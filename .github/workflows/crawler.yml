@@ -79,7 +79,7 @@ jobs:
   mypy-checks:
     name: Mypy checks
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 2
     needs: [ install-dependencies ]
 
     steps:
