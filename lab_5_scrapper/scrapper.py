@@ -163,6 +163,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
 
 def main() -> None:
+    """
+    Entrypoint for scrapper module
+    """
     # YOUR CODE GOES HERE
     pass
 
