@@ -182,15 +182,5 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
 
 if __name__ == "__main__":
-    configuration = Config(CRAWLER_CONFIG_PATH)
-    print(f"Need to find {configuration.get_num_articles()} articles")
-    prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config=configuration)
-    crawler.find_articles()
-    for i, article_url in enumerate(crawler.urls):
-        parser = HTMLParser(article_url, article_id=i + 1, config=configuration)
-        article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
-    print("Done")
+    # YOUR CODE GOES HERE
+    pass
