@@ -119,25 +119,6 @@ class Crawler:
         pass
 
 
-class CrawlerRecursive(Crawler):
-    """
-    Recursive implementation.
-    Gets one URL of the title page and finds requested number of articles recursively.
-    """
-
-    def __init__(self, config: Config) -> None:
-        """
-        Initializes an instance of the CrawlerRecursive class
-        """
-        pass
-
-    def find_articles(self) -> None:
-        """
-        Finds number of article urls requested
-        """
-        pass
-
-
 class HTMLParser:
     """
     ArticleParser implementation
