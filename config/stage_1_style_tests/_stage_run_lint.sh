@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 echo -e '\n'
 echo 'Running lint check...'
