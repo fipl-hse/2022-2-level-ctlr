@@ -162,6 +162,10 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     pass
 
 
-if __name__ == "__main__":
+def main() -> None:
     # YOUR CODE GOES HERE
     pass
+
+
+if __name__ == "__main__":
+    main()

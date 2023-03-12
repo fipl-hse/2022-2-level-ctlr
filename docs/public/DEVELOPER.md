@@ -125,8 +125,8 @@ python -m pip install -r requirements.txt
    diff -rq 2022-2-level-ctlr 2022-2-level-ctlr-admin/ \
           -x .git -x .idea -x .pytest_cache -x __pycache__ \
           -x venv -x tmp \
-          -x dictionary.dic -x target_score.txt \
-          -x scrapper_config.json -x scrapper.py \
+          -x dictionary.dic -x private -x target_score.txt \
+          -x scrapper_config.json -x scrapper.py -x scrapper_dynamic.py -x scrapper_dynamic_config.json\
           -x pipeline.py -x pos_frequency_pipeline.py \
           -x get_mark.sh -x requirements.txt \
           -x scrapper_config_test.json \
@@ -136,6 +136,6 @@ python -m pip install -r requirements.txt
           -x build -x replace_scrapper_implementation.sh \
           -x dynamic_crawler.yml -x labs.txt -x labs_coverage_thresholds.json \
           -x crawler.yml -x venv_setup.sh \
-          -x lab_5_scrapper -x lab_6_pipeline -x seminars -x README.md -x docs > hse.diff
+          -x lab_6_pipeline > hse.diff
    ```
    
