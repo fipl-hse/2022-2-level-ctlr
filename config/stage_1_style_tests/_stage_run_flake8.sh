@@ -17,7 +17,7 @@ for LAB_NAME in $LABS; do
   echo "Running flake8 for lab ${LAB_NAME}"
   TARGET_SCORE=$(bash config/get_mark.sh ${LAB_NAME})
 
-  if [[ ${TARGET_SCORE} -gt 6 ]]; then
+  if [[ ${TARGET_SCORE} -gt 5 ]]; then
     echo "Running flake8 checks for marks 6, 8 and 10"
     python -m flake8 --config ./config/stage_1_style_tests/.flake8 ${LAB_NAME}
   fi
