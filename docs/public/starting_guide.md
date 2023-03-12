@@ -23,7 +23,7 @@ We assume that after completing the **“Programming for Linguists”** course, 
 * PyCharm development environment
 * GitHub account
 
-If you do not have any of these, go back to steps 1-5 from [the last course document](https://github.com/vitazaytseva/2022-2-level-ctlr.git).
+If you do not have any of these, go back to steps 1-5 from [the last course document](https://github.com/fipl-hse/2022-2-level-labs/blob/main/docs/public/starting_guide_ru.md).
 
 ## <a name="creating-fork"></a>Fork the repository
 
@@ -90,7 +90,7 @@ To clone a fork to work locally, follow these steps:
 3. Open a terminal and navigate to a convenient folder
 
     * To move from folder to folder in the terminal, use the command `cd <folder-name>`
-    * If you do not know how to open a terminal, go to [this section](#open-terminal).
+    * If you do not know how to open a terminal, go to the [Open a terminal](#open-terminal) step.
 
 
 4. Run `git clone <link-to-your-fork>` to clone the repository. 

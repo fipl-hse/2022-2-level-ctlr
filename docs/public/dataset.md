@@ -31,7 +31,7 @@
 ```
 1. Volume: not less than 100 texts
 1. Tagged: each token has inplace tag with morphological information: 
-   1. Full description of working with UD format can be found [here](docs/ud_format.md).
+   1. Full description of working with UD format can be found [here](ud_format.md).
 1. Recoverability of information (meta-information):
    1. Article id
    1. Article title

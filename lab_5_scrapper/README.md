@@ -106,12 +106,8 @@ Start your implementation by selecting a website you are going to scrap. Pick th
 
 #### Stage 1.1 Use `ConfigDTO` abstraction
 
-You are provided with the `ConfigDTO` abstraction. Use it to store you scrapper configuration data from `scrapper_config.json`. Check class fields thoroughly and map each field to corresponding configuration parameter to set field value appropriately.
-
-```py
-class ConfigDTO:
-   pass
-```
+You are provided with the `ConfigDTO` abstraction. It is located in [`core_utils` folder](../core_utils/config_dto.py).
+Use it to store you scrapper configuration data from `scrapper_config.json`. Examine class fields closely.
 
 For more information about DTO object fields refer to description of scrapper configuration parameters above.
 
@@ -295,6 +291,29 @@ To perform scroll, execute the corresponding script:
 
 To extract resulting page HTML, refer to the driver's `page_source` attribute.
 
+##### What if my web source requires a user to click buttons to provide more URLs?
+
+In that case, you should take the following steps. Firstly, it is necessary to find the clickable buttons with `driver.find_elements` methods.
+Use [documentation](https://www.selenium.dev/documentation/webdriver/elements/finders/) to determine the arguments to be passed to find the desired elements.  Usually the elements corresponding to buttons possess `click` method. In some cases it is necessary to emulate key pressing. To do this, refer to `button.send_keys` method. 
+
+> HINT: to find the `send_keys` argument that corresponds to the desired key, refer [here](https://github.com/SeleniumHQ/selenium/blob/selenium-4.2.0/py/selenium/webdriver/common/keys.py#L23).
+
+Example usage:
+
+```py
+button = [button for button in self.driver.find_elements(
+          by=By.TAG_NAME, value="button") if button.text == "Ещё"][0]
+button.send_keys(Keys.RETURN)
+```
+
+Sometimes it is necessary to wait until the button becomes clickable. To perform this via `selenuim`, refer to `selenium.webdriver.support.wait.WebDriverWait` and `selenium.webdriver.support.expected_conditions`.
+
+Example usage:
+
+```py
+button = WebDriverWait(self.driver, 10).until(expected_conditions.element_to_be_clickable(button))
+```
+
 ### Stage 4. Extract data from every article page
 
 #### Stage 4.1 Introduce `HTMLParser` abstraction
@@ -303,7 +322,7 @@ To extract resulting page HTML, refer to the driver's `page_source` attribute.
 from a single article web page. Parser is initialized the following way:
 
 ```py
-parser = HTMLParser(article_url=full_url, article_id=i)
+parser = HTMLParser(article_url=full_url, article_id=i, config=configuration)
 ```
 
 `HTMLParser` instance saves all constructor arguments in attributes with
@@ -312,7 +331,7 @@ additional attribute `self.article`, initialized with a new instance of Article 
 
 Article is an abstraction that is implemented for you. You must use it in your
 implementation. A more detailed description of the Article class can be found
-[here](../docs/public/article.md).
+[here](../docs/public/article.md). 
 
 #### Stage 4.2 Implement main `HTMLParser` method
 
@@ -352,10 +371,10 @@ A call to this method results in filling the internal Article instance with text
 ### Stage 5. Save article (Stages 0-4 are required to get the mark 4)
 
 Make sure that you save each `Article` object as a text file on the file system by
-using the appropriate API method `save_raw`:
+using the appropriate API method `to_raw` from [IO module](](../docs/public/article.md):
 
 ```py
-article.save_raw()
+to_raw(article)
 ```
 
 As we return the `Article` instance from the `parse` method, saving the article is out of
@@ -382,6 +401,13 @@ A call to this method results in filling the internal Article instance with meta
 > NOTE: authors must be saved as a list of strings.
 > NOTE: if there is no author in your newspaper, fill the field with a list with a single string "NOT FOUND".
 
+To save the collected meta-information, refer to IO module method `to_meta`:
+
+```py
+to_meta(article)
+```
+
+Saving the meta-information must be performed outside of parser methods.
 
 ### Stage 7. Collect advanced metadata: publication date and topics
 
