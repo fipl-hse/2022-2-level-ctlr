@@ -28,18 +28,14 @@ def main() -> None:
     args = ArgumentParser().parse_args()
 
     if (args.pr_name is not None) and ('[skip-lab]' in str(args.pr_name)):
-        print('Skipping PR name checks due to label.')
-        sys.exit(0)
-
-    if args.pr_author and is_author_admin(args.pr_author):
-        print('Skipping PR name checks due to author.')
+        print('Skipping check due to label.')
         sys.exit(0)
 
     if args.lab_path:
         score_path = PROJECT_ROOT / args.lab_path
         score = get_target_score(lab_path=score_path)
         if score == 0:
-            print('Skipping PR due to no mark.')
+            print('Skipping check due to no mark.')
             sys.exit(0)
 
     print('No special reasons for skip!')
