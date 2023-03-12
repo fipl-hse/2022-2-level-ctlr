@@ -31,7 +31,7 @@ Instructors:
    1. Deadline: *TBD*
    1. Format: each student works in their own PR
    1. Dataset volume: 5-7 articles
-   1. Design document: [./lab_5_scrapper/README.md](./lab_5_scrapper/README.md)
+   1. Design document: [`./lab_5_scrapper/README.md`](./lab_5_scrapper/README.md)
    1. List of media websites to select from: at the `Resources` section on this page
 1. **Pipeline**
    1. Short summary: Your code can automatically process raw texts from previous step,
