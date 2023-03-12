@@ -164,4 +164,4 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
 if __name__ == "__main__":
     # YOUR CODE GOES HERE
-    pass
+    # check PR is created and CI checked
