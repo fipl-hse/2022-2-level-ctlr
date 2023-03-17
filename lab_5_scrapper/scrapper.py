@@ -9,6 +9,7 @@ class Config:
     Unpacks and validates configurations
     """
 
+#aaaaa
     seed_urls: list[str]
     total_articles_to_find_and_parse: int
     headers: dict[str, str]
