@@ -89,7 +89,7 @@ Order of handing over:
 A lab work is accepted for oral presentation if all the criteria below are satisfied:
 
 1. there is a Pull Request (PR) with a correctly formatted name:
-   `Scrapper, <SURNAME> <NAME> - <UNIVERSITY GROUP NAME>`. Example: `Scrapper, Kuznetsova Valeriya - 19FPL1`.
+   `Scrapper, <NAME> <SURNAME> - <UNIVERSITY GROUP NAME>`. Example: `Scrapper, Valeriya Kuznetsova - 19FPL1`.
 2. has a filled file `target_score.txt` with an expected mark. Acceptable values: 4, 6, 8, 10.
 3. has green status.
 4. has a label `done`, set by mentor.
@@ -100,5 +100,5 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 1. Media websites list: [link](https://docs.google.com/spreadsheets/d/11mmZCKW0WK7rZlpg3eOBA074zwWiXgJjivVUIdDe6-E)
 1. Python programming course from previous semester: [link](https://github.com/fipl-hse/2022-2-level-labs)
 1. Scrapping tutorials: [YouTube series (russian)](https://youtu.be/7hn1_t2ZtJQ)
-1. [HOWTO: Set up your fork](./docs/public/tests.md)
+1. [HOWTO: Set up your fork](./docs/public/starting_guide.md)
 1. [HOWTO: Running tests](./docs/public/tests.md)
