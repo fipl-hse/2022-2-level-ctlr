@@ -10,7 +10,12 @@ from core_utils.article.article import (Article, date_from_meta,
 from core_utils.article.constants import ArtifactType
 from core_utils.article.ud import (extract_sentences_from_raw_conllu,
                                    parse_conllu_token)
-from lab_6_pipeline.conllu import ConlluSentence
+
+try:
+    from lab_6_pipeline.conllu import ConlluSentence  # type: ignore
+except ImportError:
+    ConlluSentence = None
+    print('Unable to import: lab_6_pipeline.conllu.ConlluSentence')
 
 
 def to_raw(article: Article) -> None:

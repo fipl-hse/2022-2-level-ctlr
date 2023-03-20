@@ -3,8 +3,16 @@ Parsers for CONLL-U
 """
 import re
 
-from lab_6_pipeline.conllu import (ConlluToken, MorphologicalTokenDTO,
-                                   SyntacticTokenDTO)
+try:
+    from lab_6_pipeline.conllu import ConlluToken  # type: ignore
+    from lab_6_pipeline.conllu import MorphologicalTokenDTO  # type: ignore
+    from lab_6_pipeline.conllu import SyntacticTokenDTO  # type: ignore
+except ImportError:
+    ConlluToken = None
+    MorphologicalTokenDTO = None
+    SyntacticTokenDTO = None
+    print('Unable to import: lab_6_pipeline.conllu.ConlluToken,'
+          'MorphologicalTokenDTO,SyntacticTokenDTO')
 
 
 def parse_conllu_token(token_line: str) -> ConlluToken:
