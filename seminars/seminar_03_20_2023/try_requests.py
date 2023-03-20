@@ -4,7 +4,12 @@ import time
 import requests
 from requests import Timeout, HTTPError
 
-if __name__ == '__main__':
+
+def main() -> None:
+    """
+    Module entrypoint
+    """
+
     # 1. requests basics
     CORRECT_URL = 'https://pypi.org/project/requests/'
     INCORRECT_URL = f'{CORRECT_URL}garbagegarbage'
@@ -50,8 +55,9 @@ if __name__ == '__main__':
     print(response.headers)
 
     response = requests.get(CORRECT_URL, headers={
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-                      '(KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36'
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/111.0.0.0 Safari/537.36'
     })
     print(response.request.headers)
     print(response.headers)
@@ -62,13 +68,17 @@ if __name__ == '__main__':
     print(response.text)
 
     # 3.2 saving HTML page as a file
-    response = requests.get(CORRECT_URL)
+    response = requests.get('https://www.nn.ru/text/gorod/2023/03/19/72141902/')
 
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(response.text)
 
     # 3.3 saving binary files formats, such as images
-    response = requests.get('https://pypi.org/static/images/logo-small.95de8436.svg')
+    response = requests.get('https://pypi.org/static/images/logo-small.2a411bc6.svg')
 
-    with open('logo.svg', 'wb') as f:
+    with open('logo.png', 'wb') as f:
         f.write(response.content)
+
+
+if __name__ == '__main__':
+    main()
