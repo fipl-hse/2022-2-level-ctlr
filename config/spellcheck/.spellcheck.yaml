@@ -19,6 +19,5 @@ matrix:
   - 'lab*/*.md'
   - '*.md'
   - 'docs/**/*.md'
-  - 'lab_6_pipeline/universal_dependencies/*.md'
   - 'core_utils/**/*.md'
   default_encoding: utf-8

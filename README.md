@@ -47,7 +47,7 @@ Instructors:
 |:--:|:---|:---|
 |13.03.2022|**Lecture:** Introduction to technical track. | [Lab no. 5 description](./lab_5_scrapper/README.md) |
 |17.03.2022|**Seminar:** 3rd party libraries. | N/A |
-|20.03.2022|**Lecture:** Requests and `HTML`. | [listing](./seminars/seminar_03_20_2023/try_requests.py) |
+|20.03.2022|**Lecture:** Requests and `HTML`. | [Listing](./seminars/seminar_03_20_2023/try_requests.py) |
 
 You can find a more complete summary from lectures as a [list of topics](./docs). Более полное содержание пройденных занятий в виде списка ключевых тем.
 

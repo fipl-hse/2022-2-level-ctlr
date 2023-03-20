@@ -2,7 +2,7 @@ import random
 import time
 
 import requests
-from requests import Timeout, HTTPError
+from requests import HTTPError, Timeout
 
 
 def main() -> None:
