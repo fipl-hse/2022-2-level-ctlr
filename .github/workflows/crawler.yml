@@ -67,6 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     needs: [ install-dependencies ]
+    env:
+      PR_NAME: ${{ github.event.pull_request.title }}
+      PR_AUTHOR: ${{ github.actor }}
 
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +77,7 @@ jobs:
         uses: fipl-hse/setup-env-action@v0.4
       - name: Code Style
         run: |
-          bash config/stage_1_style_tests/_stage_run_lint.sh
+          bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
 
   mypy-checks:
     name: Mypy checks
