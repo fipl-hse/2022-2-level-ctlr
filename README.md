@@ -49,7 +49,8 @@ Instructors:
 |17.03.2022|**Seminar:** 3rd party libraries. | N/A |
 |20.03.2022|**Lecture:** Requests and `HTML`. | [Listing](./seminars/seminar_03_20_2023/try_requests.py) |
 
-You can find a more complete summary from lectures as a [list of topics](./docs). Более полное содержание пройденных занятий в виде списка ключевых тем.
+You can find a more complete summary from lectures as a [list of topics](./docs/public/lectures_content.md). 
+Более полное содержание пройденных занятий в виде списка ключевых тем.
 
 ## Technical solution
 
