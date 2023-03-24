@@ -13,6 +13,7 @@ class Config:
         """
         Initializes an instance of the Config class
         """
+        changes= "change"
         pass
 
     def _extract_config_content(self) -> ConfigDTO:
