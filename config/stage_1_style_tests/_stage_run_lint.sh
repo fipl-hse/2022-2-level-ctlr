@@ -9,6 +9,12 @@ source venv/bin/activate
 export PYTHONPATH="$(pwd):${PYTHONPATH}"
 
 python -m pylint --rcfile config/stage_1_style_tests/.pylintrc config core_utils seminars
+if [[ $? -ne 0 ]]; then
+  echo "Lint check failed for common files."
+  FAILED=1
+else
+  echo "Lint check passed for common files."
+fi
 
 FAILED=0
 LABS=$(cat config/labs.txt)
