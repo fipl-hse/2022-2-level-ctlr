@@ -5,8 +5,11 @@ Listing for practice with beautifulsoup4 library
 
 from urllib.parse import urlparse, urlunparse
 
-import requests
-from bs4 import BeautifulSoup
+try:
+    import requests
+    from bs4 import BeautifulSoup
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 
 def main() -> None:

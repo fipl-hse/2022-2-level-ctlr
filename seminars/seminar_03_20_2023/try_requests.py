@@ -5,8 +5,11 @@ Listing for practice with requests library
 import random
 import time
 
-import requests
-from requests import HTTPError, Timeout
+try:
+    import requests
+    from requests import HTTPError, Timeout
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 
 def main() -> None:

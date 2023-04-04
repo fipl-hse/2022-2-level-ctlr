@@ -32,7 +32,7 @@ of aforementioned approaches.
 Making requests with `requests` API. Extracting headers from browser. Making randomized sleeps 
 in code. `bs4`: installation, basic API. Finding elements in `HTML` page with `find`, `find_all`.
 
-## Lecture 3. Working with filesystem via `pathlib`
+## Lecture 3. Access file system via `pathlib`
 
 JSON as a format for storing configuration. Module `json` to read and write to a 
 file in `JSON` format. Basic API: `dump` and `load`. Advanced parameters: indentation and 
