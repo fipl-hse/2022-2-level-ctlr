@@ -245,32 +245,43 @@ class HTMLParser:
         self.article_url = full_url
         self.article_id = article_id
         self.config = config
-        self.article = Article()
+        self.article = Article(full_url, article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        text_blocks = article_soup.find_all(self.config.html_tags.text)
-        text = '\n\n'.join([block.get_text().strip() for block in text_blocks])
-        self.article.text = text
+        article_text = ""
+        paragraphs = article_soup.find_all("div", class_="article__paragraph")
+        for p in paragraphs:
+            text = p.find_all("p").text.strip()
+            article_text += text + " "
+        self.text = article_text.strip()
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-
+        pass
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
+        pass
 
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
+        response = requests.get(self.article_url)
+        response.raise_for_status()
+        article_bs = BeautifulSoup(response.text, 'html.parser')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
+
+        return self.article
 
 
 
