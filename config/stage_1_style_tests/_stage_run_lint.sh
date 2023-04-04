@@ -7,8 +7,14 @@ echo 'Running lint check...'
 
 source venv/bin/activate
 export PYTHONPATH="$(pwd):${PYTHONPATH}"
+FAILED=0
 
-python -m pylint --rcfile config/stage_1_style_tests/.pylintrc config core_utils seminars
+lint_output=$(python -m pylint --exit-zero --rcfile config/stage_1_style_tests/.pylintrc config core_utils seminars)
+
+python config/stage_1_style_tests/lint_level.py \
+  --lint-output "${lint_output}" \
+  --target-score "10"
+
 if [[ $? -ne 0 ]]; then
   echo "Lint check failed for common files."
   FAILED=1
@@ -16,7 +22,7 @@ else
   echo "Lint check passed for common files."
 fi
 
-FAILED=0
+
 LABS=$(cat config/labs.txt)
 
 for LAB_NAME in $LABS; do
