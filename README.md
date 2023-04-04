@@ -111,7 +111,7 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 
 1. Academic performance: [link][9]
 1. Media websites list: [link][10]
-1. Python programming course from previous semester: [link]
+1. Python programming course from previous semester: [link][11]
 1. Scrapping tutorials: [YouTube series (russian)](https://youtu.be/7hn1_t2ZtJQ)
 1. [HOWTO: Set up your fork](./docs/public/starting_guide.md)
 1. [HOWTO: Running tests](./docs/public/tests.md)
