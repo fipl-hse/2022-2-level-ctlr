@@ -1,18 +1,17 @@
 """
 Crawler implementation
 """
-from bs4 import BeautifulSoup
+import json
+import re
+import shutil
+from pathlib import Path
+from urllib.parse import urljoin
 from typing import Pattern, Union
 import datetime
-from core_utils.article.article import Article
-import re
-from urllib.parse import urljoin
-from pathlib import Path
-import shutil
 import requests
+from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-import json
-
+from core_utils.article.article import Article
 
 
 class IncorrectSeedURLError(Exception):
@@ -263,13 +262,29 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        # id
+        self.article.id = article_soup.find('meta', {'property': 'og:url'})['content'].split('/')[-1]
+
+        # title
+        self.article.title = article_soup.find('meta', {'property': 'og:title'})['content']
+
+        # author
+        author_tag = article_soup.find('div', {'class': 'article__footer'}).find('p', {'class': 'article__prepared'})
+        self.article.authors = [author_tag.text.strip()] if author_tag else ['NOT FOUND']
+
+        # publication date
+        date_str = article_soup.find("div", class_="time news-footer__time").string.strip()
+        self.publication_date = self.unify_date_format(date_str)
+
+
+
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
         pass
+
 
 
     def parse(self) -> Union[Article, bool, list]:
@@ -280,6 +295,7 @@ class HTMLParser:
         response.raise_for_status()
         article_bs = BeautifulSoup(response.text, 'html.parser')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
 
         return self.article
 
