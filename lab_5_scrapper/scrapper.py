@@ -2,11 +2,11 @@
 Crawler implementation
 """
 from typing import Pattern, Union
+import datetime
 import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 from core_utils.config_dto import ConfigDTO
-import datetime
 from core_utils.article.article import Article
 
 
