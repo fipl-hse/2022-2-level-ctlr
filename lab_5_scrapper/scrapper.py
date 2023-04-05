@@ -7,6 +7,10 @@ import re
 from bs4 import BeautifulSoup
 import os
 import requests
+from pathlib import Path
+import shutil
+import json
+from core_utils.article.article import Article
 
 
 class IncorrectSeedURLError:
@@ -46,97 +50,99 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        self.seed_urls = path_to_config.seed_urls
-        self.total_articles_to_find_and_parse = path_to_config.total_articles_to_find_and_parse
-        self.headers = path_to_config.headers
-        self.encoding = path_to_config.encoding
-        self.timeout = path_to_config.timeout
-        self.verify_certificate = path_to_config.verify_certificate
-        self.headless_mode = path_to_config.headless_mode
+        with open(path_to_config, 'r') as f:
+            config = json.load(f)
+            self._seed_urls = config['seed_urls']
+            self._total_articles_to_find_and_parse = config['total_articles_to_find_and_parse']
+            self._headers = config['headers']
+            self._encoding = config['encoding']
+            self._timeout = config['timeout']
+            self._verify_certificate = config['verify_certificate']
+            self._headless_mode = config['headless_mode']
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        return ConfigDTO(seed_urls=self.seed_urls,
-                         total_articles_to_find_and_parse=self.total_articles_to_find_and_parse,
-                         headers=self.headers,
-                         encoding=self.encoding,
-                         timeout=self.timeout,
-                         should_verify_certificate=self.verify_certificate,
-                         headless_mode=self.headless_mode)
+        return ConfigDTO(seed_urls=self._seed_urls,
+                         total_articles_to_find_and_parse=self._total_articles_to_find_and_parse,
+                         headers=self._headers,
+                         encoding=self._encoding,
+                         timeout=self._timeout,
+                         should_verify_certificate=self._verify_certificate,
+                         headless_mode=self._headless_mode)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        html_pattern = re.compile(r"https?://w?w?w?")
+        html_pattern = re.compile(r"https?://w?w?w?.")
 
-        for i in self.seed_urls:
+        for i in self._seed_urls:
             if re.match(html_pattern, i) is None:
                 raise IncorrectSeedURLError
             continue
 
-        if self.total_articles_to_find_and_parse > 150 or self.total_articles_to_find_and_parse < 1:
+        if self._total_articles_to_find_and_parse > 150 or self._total_articles_to_find_and_parse < 1:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(self.total_articles_to_find_and_parse, int):
+        if not isinstance(self._total_articles_to_find_and_parse, int):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(self.headers, dict):
+        if not isinstance(self._headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(self.encoding, str):
+        if not isinstance(self._encoding, str):
             raise IncorrectEncodingError
 
-        if (self.timeout > 0) and (self.timeout < 60):
+        if (self._timeout > 0) and (self._timeout < 60):
             raise IncorrectTimeoutError
 
-        if self.verify_certificate is not bool:
+        if self._verify_certificate is not bool:
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        return self.seed_urls
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        return self.total_articles_to_find_and_parse
+        return self._total_articles_to_find_and_parse
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        return self.headers
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        return self.encoding
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        return self.timeout
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self.verify_certificate
+        return self._verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        return self.headless_mode
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -163,26 +169,33 @@ class Crawler:
         """
         self.url_pattern = 'https://irkutskmedia.ru/news/'
         self.config = config
-        self.urls = []
+        self._urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        # using regex in string argument allows us to find only absolute links
+        # and return a list with them
+        return article_bs.find_all("a", string=re.compile(r'\bhttps?\b')).get('href')
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self.config.get_seed_urls():
-            self.urls.append(url)
+        # makes a get-response to a server
+        response = make_request(self.url_pattern, self._config)
+        # gets html page
+        main_bs = BeautifulSoup(response.text, 'lxml')
+        # extracts appropriate urls and adds them to seed
+        for url in self._extract_url(main_bs):
+            self._urls.append(url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._urls
 
 
 class HTMLParser:
@@ -194,13 +207,23 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self._article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text = article_soup.text
+        # break into lines and remove leading and trailing space on each
+        lines = (line.strip() for line in text.splitlines())
+        # break multi-headlines into a line each
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        # drop blank lines
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+        self._article.text = text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -218,19 +241,30 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self.full_url, self.config).text
+        self._fill_article_with_text(BeautifulSoup(response, 'lxml'))
+        return self._article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    if not os.path.exists(base_path):
-        os.mkdir(base_path)
+    project_path = Path(__file__).parent.parent / base_path
 
-    if len(os.listdir(base_path)) != 0:
-        os.rmdir(base_path)
-        os.mkdir(base_path)
+    # checks if the directory exists
+    if not project_path.exists():
+        # if it doesn't, directory is created
+        project_path.mkdir(parents=True)
+
+    else:
+        # if the directory exists, nested files are checked
+        for dirpath, dirnames, files in os.walk(project_path):
+            # if the directory has a nested directories or files, the program removes the folder
+            if files or dirnames:
+                shutil.rmtree(project_path)
+        # an empty folder is created
+        project_path.mkdir(parents=True)
 
 
 def main() -> None:
