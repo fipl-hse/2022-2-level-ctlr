@@ -10,6 +10,7 @@ from typing import Pattern, Union
 import datetime
 import requests
 from bs4 import BeautifulSoup
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 
@@ -263,18 +264,29 @@ class HTMLParser:
         Finds meta information of article
         """
         # id
-        self.article.id = article_soup.find('meta', {'property': 'og:url'})['content'].split('/')[-1]
+        id_tag = article_soup.find('meta', {'property': 'og:url'})
+        if id_tag:
+            self.article.id = id_tag['content'].split('/')[-1]
+        else:
+            self.article.id = 'NOT FOUND'
 
         # title
-        self.article.title = article_soup.find('meta', {'property': 'og:title'})['content']
+        title_tag = article_soup.find('meta', {'property': 'og:title'})
+        if title_tag:
+            self.article.title = title_tag['content']
+        else:
+            self.article.title = 'NOT FOUND'
 
         # author
         author_tag = article_soup.find('div', {'class': 'article__footer'}).find('p', {'class': 'article__prepared'})
-        self.article.authors = [author_tag.text.strip()] if author_tag else ['NOT FOUND']
+        if author_tag:
+            self.article.authors = [author_tag.text.strip()]
+        else:
+            self.article.authors = ['NOT FOUND']
 
         # publication date
         date_str = article_soup.find("div", class_="time news-footer__time").string.strip()
-        self.publication_date = self.unify_date_format(date_str)
+        self.article.publication_date = self.unify_date_format(date_str)
 
 
 
@@ -283,7 +295,21 @@ class HTMLParser:
         """
         Unifies date format
         """
-        pass
+        month_dict = {'янв': '01', 'фев': '02', 'мар': '03', 'апр': '04', 'май': '05', 'июн': '06',
+                      'июл': '07', 'авг': '08', 'сен': '09', 'окт': '10', 'ноя': '11', 'дек': '12'}
+
+        date_str = date_str.strip()
+
+        for month, value in month_dict.items():
+            date_str = date_str.replace(month, value)
+
+        date_format = '%Y-%m-%d %H:%M:%S'
+        try:
+            date = datetime.datetime.strptime(date_str, date_format)
+        except ValueError:
+            date = None
+
+        return date
 
 
 
