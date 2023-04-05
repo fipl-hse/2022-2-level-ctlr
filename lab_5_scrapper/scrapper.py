@@ -56,11 +56,12 @@ class Config:
         self.config_dto = self._extract_config_content()
         self._validate_config_content()
         self._get_seed_urls = self.get_seed_urls()
-        self._num_articles = self.get_num_articles()
         self._get_headers = self.get_headers()
+        self._num_articles = self.get_num_articles()
         self._get_encoding = self.get_encoding()
         self._get_timeout = self.get_timeout()
-        self._verify_certificate = self.get_verify_certificate()
+        self._should_verify_certificate = self.get_verify_certificate()
+        self._headless_mode = self.get_headless_mode()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -131,7 +132,7 @@ class Config:
         """
         Retrieve whether to verify certificate
         """
-        return self.config_dto.verify_certificate
+        return self.config_dto.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
