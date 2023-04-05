@@ -254,8 +254,9 @@ class HTMLParser:
         article_text = ""
         paragraphs = article_soup.find_all("div", class_="article__paragraph")
         for p in paragraphs:
-            text = p.find_all("p").text.strip()
-            article_text += text + " "
+            texts = p.find_all("p")
+            for text in texts:
+                article_text += text.text.strip() + " "
         self.text = article_text.strip()
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -279,7 +280,6 @@ class HTMLParser:
         response.raise_for_status()
         article_bs = BeautifulSoup(response.text, 'html.parser')
         self._fill_article_with_text(article_bs)
-        self._fill_article_with_meta_information(article_bs)
 
         return self.article
 
