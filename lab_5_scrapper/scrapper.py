@@ -55,11 +55,11 @@ class Config:
         self.path_to_config = path_to_config
         self.config_dto = self._extract_config_content()
         self._validate_config_content()
-        self._get_seed_urls = self.get_seed_urls()
-        self._get_headers = self.get_headers()
+        self._seed_urls = self.get_seed_urls()
+        self._headers = self.get_headers()
         self._num_articles = self.get_num_articles()
         self._get_encoding = self.get_encoding()
-        self._get_timeout = self.get_timeout()
+        self._timeout = self.get_timeout()
         self._should_verify_certificate = self.get_verify_certificate()
         self._headless_mode = self.get_headless_mode()
 
