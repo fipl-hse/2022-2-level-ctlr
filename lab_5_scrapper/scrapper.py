@@ -12,7 +12,9 @@ import time
 import datetime
 from requests import HTTPError
 from random import randint
-from core_utils.constants import TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
+    TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
+import shutil
 
 
 class IncorrectSeedURLError(Exception):
@@ -169,7 +171,7 @@ class Crawler:
         """
         self.config = config
         self.urls = []
-        self._seed_urls = config._seed_urls
+        self.seed_urls = config.seed_urls
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
@@ -245,14 +247,19 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path) #delete the current directory and all subdirectories
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
 
 
 if __name__ == "__main__":
