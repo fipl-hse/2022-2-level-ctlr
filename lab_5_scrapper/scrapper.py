@@ -2,8 +2,50 @@
 Crawler implementation
 """
 from typing import Pattern, Union
+from bs4 import BeautifulSoup
+import requests
+from core_utils.config_dto import ConfigDTO
+from core_utils.article.article import Article
+import json
+from pathlib import Path
+import time
+import datetime
+from requests import HTTPError
+from random import randint
+from core_utils.constants import TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 
-#a
+
+class IncorrectSeedURLError(Exception):
+    pass
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    pass
+
+
+class IncorrectHeadersError(Exception):
+    pass
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    pass
+
+
+class IncorrectEncodingError(Exception):
+    pass
+
+
+class IncorrectTimeoutError(Exception):
+    pass
+
+
+class IncorrectVerifyError(Exception):
+    pass
+
+
+class IncorrectHeadlessError(Exception):
+    pass
+
 
 class Config:
     """
@@ -14,62 +56,91 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        pass
+        self.path_to_config = path_to_config
+        self.content = self._extract_config_content()
+        self._validate_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
+            content = json.load(f)
+        return ConfigDTO(seed_urls=content['seed_urls'], headers=content['headers'],
+                         total_articles_to_find_and_parse=content['total_articles_to_find_and_parse'],
+                         encoding=content['encoding'],
+                         timeout=content['timeout'], should_verify_certificate=content['should_verify_certificate'],
+                         headless_mode=content['headless_mode'])
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
+            content = json.load(f)
+
+        if not content['seed_urls']:
+            raise IncorrectSeedURLError
+        if not isinstance(content['headers'], dict):
+            raise IncorrectHeadersError
+        if not isinstance(content['total_articles_to_find_and_parse'], int)\
+                or content['total_articles_to_find_and_parse'] <= 0:
+            raise NumberOfArticlesOutOfRangeError
+        if (not isinstance(content['total_articles_to_find_and_parse'], int)
+                or isinstance(content['total_articles_to_find_and_parse'], bool)
+                or content['total_articles_to_find_and_parse'] < 1):
+            raise IncorrectNumberOfArticlesError
+        if not isinstance(content['encoding'], str):
+            raise IncorrectEncodingError
+        if not isinstance(content['timeout'], int) or content['timeout'] <= 0:
+            raise IncorrectTimeoutError
+        if not isinstance(content['should_verify_certificate'], bool):
+            raise IncorrectVerifyError
+        if not isinstance(content['headless_mode'], bool):
+            raise IncorrectHeadlessError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self.content.seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self.content.total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self.content.headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self.content.encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self.content.timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self.content.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self.content.headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -77,7 +148,12 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
+    response = requests.get(url,
+                            headers=config.get_headers(),
+                            timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
+    return response
 
 
 class Crawler:
@@ -91,25 +167,42 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.config = config
+        self.urls = []
+        self._seed_urls = config._seed_urls
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        all_links_bs = article_bs.find_all('a')
+        for link_bs in all_links_bs:
+            href = link_bs.get('href')
+            if href is None:
+                continue
+            elif (href.startswith('/news/19')) and (href.count('/') == 3)\
+                    and (href.endswith('#comments') is False):
+                return 'https://gorod48.ru' + str(href)
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for url in self.config.get_seed_urls():
+            try:
+                response = make_request(url, config=self.config)
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                new_url = self._extract_url(main_bs)
+                if new_url not in self.urls:
+                    self.urls.append(new_url)
+            except HTTPError:
+                continue
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
