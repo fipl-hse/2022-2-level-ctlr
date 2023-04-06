@@ -236,7 +236,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self.config.seed_urls
+        return self.config._seed_urls
 
 
 
