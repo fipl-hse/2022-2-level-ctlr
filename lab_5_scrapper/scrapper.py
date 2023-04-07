@@ -55,7 +55,7 @@ class Config:
         self._validate_config_content()
         self._config_dto = self._extract_config_content()
         self._seed_urls = self._config_dto.seed_urls
-        self._total_articles = self._config_dto.total_articles
+        self._num_articles = self._config_dto.total_articles
         self._headers = self._config_dto.headers
         self._encoding = self._config_dto.encoding
         self._timeout = self._config_dto.timeout
@@ -70,8 +70,8 @@ class Config:
             info = json.load(file)
 
         config_dto = ConfigDTO(info['seed_urls'],
-                               info['headers'],
                                info['total_articles_to_find_and_parse'],
+                               info['headers'],
                                info['encoding'],
                                info['timeout'],
                                info['should_verify_certificate'],
@@ -85,6 +85,7 @@ class Config:
         are not corrupt
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as file:
+
             info = json.load(file)
         seed_urls = info['seed_urls']
         headers = info['headers']
@@ -138,7 +139,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
