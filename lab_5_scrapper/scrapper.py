@@ -248,7 +248,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
     if base_path.exists():
-        shutil.rmtree(base_path) #delete the current directory and all subdirectories
+        shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
 
