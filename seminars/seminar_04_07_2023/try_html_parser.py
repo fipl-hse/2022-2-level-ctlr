@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 """
 Seminar that kicks-off HTMLParser
 
