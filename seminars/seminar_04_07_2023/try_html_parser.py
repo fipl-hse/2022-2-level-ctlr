@@ -13,8 +13,11 @@ Seminar that kicks-off HTMLParser
 6. Find date of the Article # mark 8
 """
 
-import requests
-from bs4 import BeautifulSoup
+try:
+    import requests
+    from bs4 import BeautifulSoup
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 
 def main() -> None:
