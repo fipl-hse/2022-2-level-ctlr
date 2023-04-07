@@ -13,8 +13,9 @@ import datetime
 from requests import HTTPError
 from random import randint
 from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
-    TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
+    NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 import shutil
+import re
 
 
 class IncorrectSeedURLError(Exception):
@@ -82,25 +83,27 @@ class Config:
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             content = json.load(f)
 
-        if not content['seed_urls']:
+        if not isinstance(content['seed_urls'], list):
             raise IncorrectSeedURLError
+        for url in content['seed_urls']:
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+                raise IncorrectSeedURLError
         if not isinstance(content['headers'], dict):
             raise IncorrectHeadersError
-        if not isinstance(content['total_articles_to_find_and_parse'], int)\
-                or content['total_articles_to_find_and_parse'] <= 0:
-            raise NumberOfArticlesOutOfRangeError
         if (not isinstance(content['total_articles_to_find_and_parse'], int)
                 or isinstance(content['total_articles_to_find_and_parse'], bool)
                 or content['total_articles_to_find_and_parse'] < 1):
             raise IncorrectNumberOfArticlesError
+        if content['total_articles_to_find_and_parse'] > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError
         if not isinstance(content['encoding'], str):
             raise IncorrectEncodingError
-        if not isinstance(content['timeout'], int) or content['timeout'] <= 0:
+        if (not isinstance(content['timeout'], int)
+                or content['timeout'] < TIMEOUT_LOWER_LIMIT
+                or content['timeout'] > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
-        if not isinstance(content['should_verify_certificate'], bool):
+        if not isinstance(content['should_verify_certificate'], bool) or not isinstance(content['headless_mode'], bool):
             raise IncorrectVerifyError
-        if not isinstance(content['headless_mode'], bool):
-            raise IncorrectHeadlessError
 
     def get_seed_urls(self) -> list[str]:
         """
