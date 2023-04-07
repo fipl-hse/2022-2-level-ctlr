@@ -98,12 +98,10 @@ class Config:
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
 
-        correct = urlparse('https://progorod76.ru/news')
         for url in seed_urls:
             result = urlparse(url)
             if (not isinstance(url, str)
-                    or not result.netloc or not result.scheme
-                    or correct.netloc != result.netloc):
+                    or not result.netloc or not result.scheme):
                 raise IncorrectSeedURLError
 
         if (not isinstance(total_articles_to_find_and_parse, int)
@@ -129,7 +127,7 @@ class Config:
             raise IncorrectVerifyError
 
         if not isinstance(headless_mode, bool):
-            raise IncorrectSeedURLError
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
