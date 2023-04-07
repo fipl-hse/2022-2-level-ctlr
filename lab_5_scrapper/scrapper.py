@@ -208,16 +208,12 @@ class Crawler:
         
         pass
 
-    def _extract_url(self, article_bs: BeautifulSoup) -> list:
+    def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        urls_list = []
-        soup_text = article_bs.find_all('h4', {'class': 'news-card__title'})
-        for tag in soup_text:
-            urls_list.append('https://econs.online/' + tag.a.get('href'))
-        
-        return urls_list
+        return 'https://econs.online/' + article_bs.a.get('href')
+    
         pass
 
     def find_articles(self) -> None:
@@ -231,7 +227,8 @@ class Crawler:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 post = soup.find_all('h4', {'class': 'news-card__title'})
                 count_urls = len(post)
-        self.urls = self._extract_url(article_bs=soup)[:self.conf.get_num_articles()]
+        for article in post[:self.conf.get_num_articles()]:
+            self.urls.append(self._extract_url(article_bs=article))
         
         pass
 
