@@ -1,6 +1,11 @@
 {
-    "seed_urls": ["https://progorod76.ru/news"],
-    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36"},
+        "seed_urls": ["https://progorod76.ru/news", "https://progorod76.ru/news?page=2"],
+        "headers": {
+            "accept-encoding": "deflate, br",
+            "accept-language": "ru,en;q=0.9",
+            "cookie": "HSID=AzX85H91EaCwc0wwI; SSID=AzjAabC7eewqZ9K4U; APISID=Agil5UfoWuaTKy35/A_4TiT9SkhbgUwT2R; SAPISID=eT4u4ixCYc96CRtl/A6yr7ocv9VGOvXYNT; __Secure-1PAPISID=eT4u4ixCYc96CRtl/A6yr7ocv9VGOvXYNT; __Secure-3PAPISID=eT4u4ixCYc96CRtl/A6yr7ocv9VGOvXYNT; SID=UQjL6IcnTZ2bN-fxyAF_aW2IQBmjS17sosDm0gSBJN9LP3V7ip12P2udemZ69SN4HKWPQQ.; __Secure-1PSID=UQjL6IcnTZ2bN-fxyAF_aW2IQBmjS17sosDm0gSBJN9LP3V7grno3fbqx7I1C35QPWyUsg.; __Secure-3PSID=UQjL6IcnTZ2bN-fxyAF_aW2IQBmjS17sosDm0gSBJN9LP3V7kSEETBCw_WpIcanYobIyYg.; NID=511=olrtlwa0YI3bXg7zHfBZl8shPr73X4QS0EfzJanyIjRmhnpY57Sy7t6cDh-FfDViDsMNTA79irRoPu2zuuEZgDJ4wuGfBNNRhDJINYndCKFYcY7QbHh3XTQpSY6XSCqoGCTYVvULdGa3uUyEQ7ErLERK8VGC3qJMYsfFVQ1CDsLxNQsnaejCI2wEs5aGD-zkQScsMVwXRF8YtXcP1LzxrAsLBAMyTCu7bPmY_SbTbZ1qJ_JuajAJkTDT4Old9ZQdCCnvZIcbL6i-XSXkCQ42nnFQRM8ytYirk65aMbZQJP_wcNsJNTsGp2zvtXzsVmHV8D8NChEY3WgmEVGCZIlbYvKRbFZl; 1P_JAR=2023-04-07-07; AEC=AUEFqZfhgJrcROAU1PXDwrXjWSfeMi1CJh9uCcZVdDbqJGRap30VIXN2c28; SIDCC=AFvIBn-rZaCxkPoq46WxrnSlmC3pkmeUek2G-Oiv8McoXEFjXnl-l2Sn1OmmiCMnvxz9i_2IA98; __Secure-1PSIDCC=AFvIBn-w9ADijK1PKvFMXbx2ZoWiJblk_1sv9eHycKrb7SKKRIudEYnnx8HyQDeUEOgGFd4LHXgn; __Secure-3PSIDCC=AFvIBn-t-jMZ8W2WWJeuOPFKSKZyD4P8gd1ytWo2MEc9BJXXlGQTnMJW-Wzd_ogsP4Jxhk5FPAU",
+            "referer": "https://www.google.com/",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"},
     "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
     "timeout": 5,
