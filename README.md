@@ -43,13 +43,14 @@ Instructors:
 
 ## Lectures history
 
-|    Date    | Lecture topic                                   | Important links              |
-|:----------:|:------------------------------------------------|:-----------------------------|
-| 13.03.2022 | **Lecture:** Introduction to technical track.   | [Lab no. 5 description][7]   |
-| 17.03.2022 | **Seminar:** 3rd party libraries.               | N/A                          |
-| 20.03.2022 | **Lecture:** Requests and `HTML`.               | [Listing][8]                 |
-| 24.03.2022 | **Seminar:** Headers and introduction to `bs4`. | [Listing][12]                |
-| 03.04.2022 | **Lecture:** Access file system via `pathlib`.  | [Listing][13], [Listing][14] |
+|    Date    | Lecture topic                                    | Important links              |
+|:----------:|:-------------------------------------------------|:-----------------------------|
+| 13.03.2022 | **Lecture:** Introduction to technical track.    | [Lab no. 5 description][7]   |
+| 17.03.2022 | **Seminar:** 3rd party libraries.                | N/A                          |
+| 20.03.2022 | **Lecture:** Requests and `HTML`.                | [Listing][8]                 |
+| 24.03.2022 | **Seminar:** Headers and introduction to `bs4`.  | [Listing][12]                |
+| 03.04.2022 | **Lecture:** Access file system via `pathlib`.   | [Listing][13], [Listing][14] |
+| 03.07.2022 | **Seminar:** Early version of `HTMLParser`.      | [Listing][13], [Listing][14] |
 
 You can find a more complete summary from lectures as a 
 [list of topics](./docs/public/lectures_content.md). 
@@ -129,4 +130,4 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 [11]: https://github.com/fipl-hse/2022-2-level-labs
 [12]: ./seminars/seminar_03_24_2023/try_beautiful_soup.py
 [13]: ./seminars/seminar_04_03_2023/try_json.py
-[13]: ./seminars/seminar_04_03_2023/try_fs.py
+[14]: ./seminars/seminar_04_03_2023/try_fs.py
