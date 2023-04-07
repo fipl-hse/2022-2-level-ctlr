@@ -1,7 +1,16 @@
 """
 Crawler implementation
 """
+import json
+import requests
+import datetime
+import re
+import os
+import shutil
+import bs4 as BeautifulSoup
+from pathlib import Path
 from typing import Pattern, Union
+from core_utils.config_dto import ConfigDTO
 
 
 class Config:
@@ -21,63 +30,99 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        #
-        pass
+        self.path = path_to_config
+
+        with open(self.path) as j son_file:
+            self.content = json.loads(json_file)
+
+        for key, val in self.content.items():
+            setattr(self, key, val)
+
+        self.config_obj = self._extract_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        # with open(self.path) as json_file:
+        #     content = json.loads(json_file)
+
+        return ConfigDTO(self.content['seed_urls'],
+                         self.content['total_articles_to_find_and_parse'],
+                         self.content['headers'],
+                         self.content['encoding'],
+                         self.content['timeout'],
+                         self.content['should_verify_certificate'],
+                         self.content['headless_mode'])
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        for element in self.content['seed_urls']:
+            if not re.match(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+[^/]/', element):
+                raise IncorrectSeedURLError
+
+        if not isinstance((self.content['total_articles_to_find_and_parse']), int):
+            raise IncorrectNumberOfArticlesError
+
+        if self.content['total_articles_to_find_and_parse'] < 1 or self.content['total_articles_to_find_and_parse'] > 150:
+            raise NumberOfArticlesOutOfRangeError
+
+        if not isinstance(self.content['headers'], dict):
+            raise IncorrectHeadersError
+
+        if not isinstance(self.content['encoding'], str):
+            raise IncorrectEncodingError
+
+        if self.content['timeout'] <= 0 or self.content['timeout'] > 60:
+            raise IncorrectTimeoutError
+
+        if not isinstance(self.content['verify_certificate'], bool):
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self.config_obj.seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self.config_obj.total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self.config_obj.headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self.config_obj.encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self.config_obj.timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self.config_obj.verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self.config_obj.headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -85,7 +130,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    config.get_timeout()
 
 
 class Crawler:
@@ -118,6 +163,41 @@ class Crawler:
         Returns seed_urls param
         """
         pass
+
+
+class IncorrectSeedURLError(Exception):
+    def __init__(self):
+        print('Seed URL does not match standard pattern or does not correspond to the target website')
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    def __init__(self):
+        print('Total number of articles is out of range from 1 to 150')
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    def __init__(self):
+        print('Total number of articles to parse is not integer')
+
+
+class IncorrectHeadersError(Exception):
+    def __init__(self):
+        print('Headers are not in a form of dictionary')
+
+
+class IncorrectEncodingError(Exception):
+    def __init__(self):
+        print('Encoding must be specified as a string')
+
+
+class IncorrectTimeoutError(Exception):
+    def __init__(self):
+        print('Timeout value must be a positive integer less than 60')
+
+
+class IncorrectVerifyError(Exception):
+    def __init__(self):
+        print('Verify certificate value must either be True or False')
 
 
 class HTMLParser:
@@ -160,7 +240,15 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if isinstance(base_path, str):
+        way = os.path.join(Path(base_path), 'ASSETS_PATH')
+    else:
+        way = os.path.join(base_path, 'ASSETS_PATH')
+
+    if os.path.exists(way):
+        shutil.rmtree(way)
+
+    os.makedirs(way)
 
 
 def main() -> None:
@@ -169,7 +257,6 @@ def main() -> None:
     """
     # YOUR CODE GOES HERE
     pass
-
 
 if __name__ == "__main__":
     main()
