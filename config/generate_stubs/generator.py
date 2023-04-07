@@ -3,7 +3,6 @@ Generator of stubs for existing lab implementation
 """
 
 import ast
-import re
 from _ast import alias, stmt
 from pathlib import Path
 from typing import Optional
@@ -37,6 +36,7 @@ def remove_implementation_from_function(original_declaration: ast.stmt,
     original_declaration.body[1:] = []
 
 
+# pylint: disable=too-many-branches
 def cleanup_code(source_code_path: Path) -> str:
     """
     Removing implementation based on AST parsing of code
@@ -86,10 +86,7 @@ def cleanup_code(source_code_path: Path) -> str:
                 decl = []  # type: ignore
 
         if isinstance(decl, ast.ClassDef):
-            for ind, class_decl in enumerate(decl.body):
-                if isinstance(class_decl, ast.FunctionDef) and \
-                        re.match(r'_[^_]', class_decl.name):
-                    decl.body[ind] = []  # type: ignore
+            for class_decl in decl.body:
                 remove_implementation_from_function(class_decl, parent=decl)
         remove_implementation_from_function(decl)
         new_decl.append(decl)
