@@ -191,44 +191,25 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self._seed_urls = config.get_seed_urls()
-        self._config = config
-        self.urls = []
+        pass
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        all_links = []
-        all_links.extend(article_bs.find_all('a', class_="article-list__title"))
-        all_links.extend(article_bs.find_all('a', class_="article__embedded"))
-        all_links.extend(article_bs.find_all('a', class_="card__title"))
-        for link in all_links:
-            try:
-                address = link['href']
-            except KeyError:
-                continue
-            yield address
+        pass
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self._seed_urls:
-            res = make_request(url, self._config)
-            soup = BeautifulSoup(res.content, "html.parser")
-            new_urls = self._extract_url(soup)
-            while len(self.urls) < self._config.get_num_articles():
-                try:
-                    self.urls.append(next(new_urls))
-                except StopIteration:
-                    break
+        pass
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self._seed_urls
+        pass
 
 
 class HTMLParser:
