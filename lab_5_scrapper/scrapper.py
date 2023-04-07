@@ -86,7 +86,6 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as file:
             info = json.load(file)
-
         seed_urls = info['seed_urls']
         headers = info['headers']
         total_articles_to_find_and_parse = info['total_articles_to_find_and_parse']
