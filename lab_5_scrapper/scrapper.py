@@ -62,6 +62,13 @@ class Config:
         self.path_to_config = path_to_config
         self.content = self._extract_config_content()
         self._validate_config_content()
+        self._seed_urls = self.content.seed_urls
+        self._num_articles = self.content.total_articles
+        self._headers = self.content.headers
+        self._encoding = self.content.encoding
+        self._timeout = self.content.timeout
+        self._should_verify_certificate = self.content.should_verify_certificate
+        self._headless_mode = self.content.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -69,11 +76,7 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             content = json.load(f)
-        return ConfigDTO(seed_urls=content['seed_urls'], headers=content['headers'],
-                         total_articles_to_find_and_parse=content['total_articles_to_find_and_parse'],
-                         encoding=content['encoding'],
-                         timeout=content['timeout'], should_verify_certificate=content['should_verify_certificate'],
-                         headless_mode=content['headless_mode'])
+        return ConfigDTO(**content)
 
     def _validate_config_content(self) -> None:
         """
@@ -83,26 +86,34 @@ class Config:
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             content = json.load(f)
 
-        if not isinstance(content['seed_urls'], list):
+        seed_urls = content['seed_urls']
+        headers = content['headers']
+        total_articles_to_find_and_parse = content['total_articles_to_find_and_parse']
+        encoding = content['encoding']
+        timeout = content['timeout']
+        should_verify_certificate = content['should_verify_certificate']
+        headless_mode = content['headless_mode']
+
+        if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
-        for url in content['seed_urls']:
+        for url in seed_urls:
             if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
-        if not isinstance(content['headers'], dict):
+        if not isinstance(headers, dict):
             raise IncorrectHeadersError
-        if (not isinstance(content['total_articles_to_find_and_parse'], int)
-                or isinstance(content['total_articles_to_find_and_parse'], bool)
-                or content['total_articles_to_find_and_parse'] < 1):
+        if (not isinstance(total_articles_to_find_and_parse, int)
+                or isinstance(total_articles_to_find_and_parse, bool)
+                or total_articles_to_find_and_parse < 1):
             raise IncorrectNumberOfArticlesError
-        if content['total_articles_to_find_and_parse'] > NUM_ARTICLES_UPPER_LIMIT:
+        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
-        if not isinstance(content['encoding'], str):
+        if not isinstance(encoding, str):
             raise IncorrectEncodingError
-        if (not isinstance(content['timeout'], int)
-                or content['timeout'] < TIMEOUT_LOWER_LIMIT
-                or content['timeout'] > TIMEOUT_UPPER_LIMIT):
+        if (not isinstance(timeout, int)
+                or timeout < TIMEOUT_LOWER_LIMIT
+                or timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
-        if not isinstance(content['should_verify_certificate'], bool) or not isinstance(content['headless_mode'], bool):
+        if not isinstance(should_verify_certificate, bool) or not isinstance(headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
