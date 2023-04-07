@@ -185,7 +185,7 @@ class Crawler:
         """
         self.config = config
         self.urls = []
-        self.seed_urls = config.seed_urls
+        self.seed_urls = config._seed_urls
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
