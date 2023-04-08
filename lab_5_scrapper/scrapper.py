@@ -201,9 +201,9 @@ class Crawler:
         """
         for url in self.get_search_urls():
             response = make_request(url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml')
-            for a in article_bs.find_all('a'):
-                article_url = 'https://gorod48.ru' + str(self._extract_url(a))
+            article_bs = BeautifulSoup(response.text, 'lxml').find_all('a')
+            for art in article_bs:
+                article_url = 'https://gorod48.ru' + str(self._extract_url(art))
                 self.urls.append(article_url)
                 if len(self.urls) >= self._config.get_num_articles():
                     return
