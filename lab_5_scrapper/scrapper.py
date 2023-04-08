@@ -196,7 +196,9 @@ class Crawler:
                 continue
             if (href.startswith('/news/19')) and (href.count('/') == 3)\
                     and (href.endswith('#comments') is False):
-                return href
+                start_link = str(self._config.get_seed_urls())
+                start_link = start_link[:-6]
+                return start_link + str(href)
         return ''
 
     def find_articles(self) -> None:
