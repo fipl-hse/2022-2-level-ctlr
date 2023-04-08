@@ -2,17 +2,31 @@
 Crawler implementation
 """
 from typing import Pattern, Union
-import requests
-import re
-from bs4 import BeautifulSoup
-from pathlib import Path
+
 import json
+
+import re
+
+import datetime
+import time
+
+from bs4 import BeautifulSoup
+import requests
+
+from fake_useragent import UserAgent
+import random
+
+from pathlib import Path
 import shutil
-from core_utils.constants import CRAWLER_CONFIG_PATH
+
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 from core_utils.config_dto import ConfigDTO
 
+from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
 
-class IncorrectURLError(Exception):
+
+class IncorrectSeedURLError(Exception):
     
     """
     Seed URL does not match standard pattern
@@ -66,8 +80,6 @@ class Config:
         """
         self.path_to_config = path_to_config
         self.config_content = self._extract_config_content()
-        
-        pass
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -85,8 +97,6 @@ class Config:
             should_verify_certificate=config['should_verify_certificate'],
             headless_mode=config['headless_mode']
         )
-        
-        pass
 
     def _validate_config_content(self) -> None:
         """
@@ -122,64 +132,48 @@ class Config:
             
         if not isinstance(config['should_verify_certificate'], bool):
             raise IncorrectVerifyError       
-        
-        pass
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
         return self.config_content.seed_urls
-        
-        pass
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
         return self.config_content.total_articles_to_find_and_parse
-        
-        pass
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
         return self.config_content.headers
-        
-        pass
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
         return self.config_content.encoding
-        
-        pass
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
         return self.config_content.timeout
-        
-        pass
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
         return self.config_content.should_verify_certificate
-        
-        pass
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
         return self.config_content.headless_mode
-        
-        pass
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -187,10 +181,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(), verify=config.get_verify_certificate())
-
-    pass
-
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(), verify=config.get_verify_certificate())
+    response.encoding = response.apparent_encoding
+    return response
 
 class Crawler:
     """
@@ -205,16 +198,12 @@ class Crawler:
         """
         self.conf = config
         self.urls = []
-        
-        pass
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
         return 'https://econs.online/' + article_bs.a.get('href')
-    
-        pass
 
     def find_articles(self) -> None:
         """
@@ -229,16 +218,12 @@ class Crawler:
                 count_urls = len(post)
         for article in post[:self.conf.get_num_articles()]:
             self.urls.append(self._extract_url(article_bs=article))
-        
-        pass
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
         return self.urls
-        
-        pass
 
 
 class HTMLParser:
@@ -250,31 +235,40 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(url=self.full_url, article_id=self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        content_body = article_soup.find('section', {'class': 'article-body'})
+        paragraphs_body = content_body.find_all('p')
+        text_body = ''.join(i.text for i in paragraphs_body)
+        self.article.text = text_body
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
-        pass
+        response = make_request(url=self.full_url, config=self.config)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        self._fill_article_with_text(article_soup=soup)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -286,21 +280,22 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     if path_for_environment.exists():
         shutil.rmtree(path_for_environment)
     path_for_environment.mkdir(parents=True)
-    
-    pass
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
-    """    
-    conf = Config(CRAWLER_CONFIG_PATH)
+    """
+    config = Config(CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
-    craw = Crawler(config=conf)
-    craw.find_articles()
-    
-    pass
+    crawler = Crawler(config=config)
+    crawler.find_articles()
+    for i, url in enumerate(crawler.get_search_urls(), start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=config)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
 
-
+            
 if __name__ == "__main__":
     main()
