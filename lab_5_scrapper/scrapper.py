@@ -9,11 +9,15 @@ from bs4 import BeautifulSoup
 
 import re
 import json
+import time
+import random
+import shutil
 
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
-from core_utils.constants import CRAWLER_CONFIG_PATH
-
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
+from core_utils.article.io import to_raw
+import datetime
 
 class IncorrectSeedURLError(Exception):
     pass
@@ -53,9 +57,10 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
+        self._validate_config_content()
         self.seed_urls = self._extract_config_content().seed_urls
         self.headers = self._extract_config_content().headers
-        self.num_of_articles = self._extract_config_content().total_articles_to_find_and_parse
+        self.num_of_articles = self._extract_config_content().total_articles
         self.encoding = self._extract_config_content().encoding
         self.timeout = self._extract_config_content().timeout
         self.should_verify_certificate = self._extract_config_content().should_verify_certificate
@@ -75,7 +80,7 @@ class Config:
             timeout = config_content['timeout']
             should_verify_certificate = config_content['should_verify_certificate']
             headless_mode = config_content['headless_mode']
-        return ConfigDTO(seed_urls, headers,num_of_articles, encoding,
+        return ConfigDTO(seed_urls, headers, num_of_articles, encoding,
                          timeout, should_verify_certificate, headless_mode)
 
     def _validate_config_content(self) -> None:
@@ -97,7 +102,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for url in seed_urls:
-            if not re.fullmatch(r'https://w{0,3}[a-z0-9./-]', url):
+            if not re.fullmatch(r'https://w?w?w?.+', url):
                 raise IncorrectSeedURLError
 
         if total_articles_to_find_and_parse < 1 or total_articles_to_find_and_parse > 150:
@@ -130,7 +135,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self.total_articles_to_find_and_parse
+        return self.num_of_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -169,6 +174,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
     response = requests.get(url,headers=config.get_headers(),
                             timeout=config.get_timeout())
     return response
@@ -243,8 +249,7 @@ class HTMLParser:
         """
         pass
 
-    def unify_date_format(self, date_str: str):
-            #-> datetime.datetime:
+    def unify_date_format(self, date_str: str)-> datetime.datetime:
         """
         Unifies date format
         """
@@ -261,7 +266,10 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    #или попробовать через трай эксепты?
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 
@@ -269,7 +277,12 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+
+
+
+    #не забудь выполнить здесь пятый шаг
 
 
 if __name__ == "__main__":
