@@ -10,7 +10,6 @@ import json
 from pathlib import Path
 import time
 import datetime
-from requests import HTTPError
 from random import randint
 from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
     NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
@@ -183,42 +182,43 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
+        self._config = config
         self.urls = []
-        self.seed_urls = config._seed_urls
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        all_links_bs = article_bs.find_all('a')
-        for link_bs in all_links_bs:
+        links_bs = article_bs.find_all('a')
+        for link_bs in links_bs:
             href = link_bs.get('href')
             if href is None:
                 continue
-            elif (href.startswith('/news/19')) and (href.count('/') == 3)\
+            if (href.startswith('/news/19')) and (href.count('/') == 3)\
                     and (href.endswith('#comments') is False):
-                return 'https://gorod48.ru' + str(href)
+                return href
+        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self.config.get_seed_urls():
-            try:
-                response = make_request(url, config=self.config)
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                new_url = self._extract_url(main_bs)
-                if new_url not in self.urls:
-                    self.urls.append(new_url)
-            except HTTPError:
-                continue
+        for url in self.get_search_urls():
+            response = make_request(url, self._config)
+            main_bs = BeautifulSoup(response.text, 'lxml')
+            content_bs = main_bs.find('div', {"class": "news-text_wrapper"})
+            paragraphs = content_bs.find_all('p')
+            for paragraph in paragraphs:
+                new_url = self._extract_url(paragraph)
+                self.urls.append(new_url)
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self._config.get_seed_urls()
 
 
 class HTMLParser:
