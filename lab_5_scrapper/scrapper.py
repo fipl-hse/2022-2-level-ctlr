@@ -202,7 +202,7 @@ class Crawler:
             response = make_request(url, self._config)
             article_bs = BeautifulSoup(response.text, 'lxml')
             for a in article_bs.find_all('a'):
-                article_url = self._extract_url(a)
+                article_url = 'https://gorod48.ru' + str(self._extract_url(a))
                 if article_url is None:
                     continue
                 self.urls.append(article_url)
