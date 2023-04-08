@@ -15,6 +15,7 @@ from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
     NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 import shutil
 import re
+from core_utils.article.io import to_raw
 
 
 class IncorrectSeedURLError(Exception):
@@ -223,13 +224,17 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text_elements = article_soup.find('div', {"class": "news-text_wrapper"}).find_all('p')
+        self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -247,7 +252,10 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        page = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(page.content, "lxml")
+        self._fill_article_with_text(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -267,6 +275,11 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
+    for ind, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, ind, configuration)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
 
 
 if __name__ == "__main__":
