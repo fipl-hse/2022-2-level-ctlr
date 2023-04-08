@@ -10,6 +10,7 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 import requests
+import shutil
 
 
 class IncorrectSeedURLError(Exception):
@@ -99,7 +100,7 @@ class Config:
         headless_mode = config['headless_mode']
 
         for url in seed_urls:
-            if not re.match(r'https?://.*/', url):
+            if not re.match(re.compile(r"https?://w?w?w?."), url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(total_articles_to_find_and_parse, int)
@@ -169,7 +170,11 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+
+    response = requests.get(url, headers=headers, timeout=timeout)
+    return response
 
 
 class Crawler:
@@ -244,7 +249,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
