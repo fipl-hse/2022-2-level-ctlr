@@ -189,15 +189,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        links_bs = article_bs.find_all('a')
-        for link_bs in links_bs:
-            href = link_bs.get('href')
-            if href is None:
-                continue
-            if (href.startswith('/news/19')) and (href.count('/') == 3)\
-                    and (href.endswith('#comments') is False):
-                return href
-        return ''
+        href = article_bs.get('href')
+        if (href is not None) and (href.startswith('/news/19'))\
+                and (href.count('/') == 3) and (href.endswith('#comments') is False):
+            return href
 
     def find_articles(self) -> None:
         """
@@ -205,11 +200,12 @@ class Crawler:
         """
         for url in self.get_search_urls():
             response = make_request(url, self._config)
-            main_bs = BeautifulSoup(response.text, 'lxml')
-            contents_bs = main_bs.find_all('div', {"class": "item link"})
-            for content_bs in contents_bs:
-                new_url = 'https://gorod48.ru' + str(self._extract_url(content_bs))
-                self.urls.append(new_url)
+            article_bs = BeautifulSoup(response.text, 'lxml')
+            for a in article_bs.find_all('a'):
+                article_url = self._extract_url(a)
+                if article_url is None:
+                    continue
+                self.urls.append(article_url)
                 if len(self.urls) >= self._config.get_num_articles():
                     return
 
