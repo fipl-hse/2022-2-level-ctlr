@@ -211,7 +211,8 @@ class Crawler:
                 paragraphs = content_bs.find_all('div', {"class": "item link"})
                 for paragraph in paragraphs:
                     new_url = self._extract_url(paragraph)
-                    self.urls.append(new_url)
+                    url_to_the_list = 'https://gorod48.ru' + str(new_url)
+                    self.urls.append(url_to_the_list)
                     if len(self.urls) >= self._config.get_num_articles():
                         return
 
