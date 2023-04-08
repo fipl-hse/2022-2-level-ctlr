@@ -2,7 +2,10 @@
 Crawler implementation
 """
 from typing import Pattern, Union
-
+import json
+from bs4 import BeautifulSoup
+import requests
+from core_utils.config_dto import ConfigDTO
 
 
 class Config:
@@ -14,13 +17,24 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        pass
+        self.path_to_config = path_to_config
+        self._validate_config_content()
+        self._config_dto = self._extract_config_content()
+        self._seed_urls = self._config_dto.seed_urls
+        self._num_articles = self._config_dto.total_articles
+        self._headers = self._config_dto.headers
+        self._encoding = self._config_dto.encoding
+        self._timeout = self._config_dto.timeout
+        self._should_verify_certificate = self._config_dto.should_verify_certificate
+        self._headless_mode = self._config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config, 'r') as f:
+            configuration = json.load(f)
+            return ConfigDTO(**configuration)
 
     def _validate_config_content(self) -> None:
         """
