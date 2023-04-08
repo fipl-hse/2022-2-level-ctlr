@@ -18,31 +18,31 @@ from core_utils.article.io import to_raw
 
 
 class IncorrectSeedURLError(Exception):
-    pass
+    """Invalid url type"""
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    pass
+    """Incorrect input of articles' number"""
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    pass
+    """Incorrect type of articles' number"""
 
 
 class IncorrectHeadersError(Exception):
-    pass
+    """Incorrect type of request's headers"""
 
 
 class IncorrectEncodingError(Exception):
-    pass
+    """Invalid encoding type"""
 
 
 class IncorrectTimeoutError(Exception):
-    pass
+    """Timeout number is out of range"""
 
 
 class IncorrectVerifyError(Exception):
-    pass
+    """verification is not a boolean type"""
 
 
 class Config:
@@ -94,7 +94,7 @@ class Config:
         encoding = config['encoding']
         timeout = config['timeout']
         verify_certificate = config['should_verify_certificate']
-        headless_mode = config['headless_mode']
+        # headless_mode = config['headless_mode']
 
         html_pattern = re.compile(r"https?://w?w?w?.")
 
@@ -115,7 +115,7 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if (timeout > 0) and (timeout < 60):
+        if (timeout < 0) and (timeout > 60):
             raise IncorrectTimeoutError
 
         if not isinstance(verify_certificate, bool):
@@ -190,13 +190,12 @@ class Crawler:
         self.config = config
         self.urls = []
 
-    def _extract_url(self, article_bs: BeautifulSoup) -> str:
+    @staticmethod
+    def _extract_url(article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        # using regex in string argument allows us to find only absolute links
-        # and return a list with them
-        return article_bs.find_all("a", string=re.compile(r'\bhttps?\b')).get('href')
+        return article_bs.get('href')
 
     def find_articles(self) -> None:
         """
@@ -207,8 +206,10 @@ class Crawler:
         # gets html page
         main_bs = BeautifulSoup(response.text, 'lxml')
         # extracts appropriate urls and adds them to seed
-        for url in self._extract_url(main_bs):
-            self.urls.append(url)
+        all_tags_bs = main_bs.find_all("a", string=re.compile(r'\bhttps?\b'))
+        for tag in all_tags_bs:
+            clean_link = self._extract_url(tag)
+            self.urls.append(clean_link)
 
     def get_search_urls(self) -> list:
         """
@@ -280,10 +281,8 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
         # if the directory exists, nested files are checked
         for dirpath, dirnames, files in os.walk(project_path):
             # if the directory has a nested directories or files, the program removes the folder
-            if files or dirnames:
+            if dirpath or files or dirnames:
                 shutil.rmtree(project_path)
-        # an empty folder is created
-        project_path.mkdir(parents=True)
 
 
 def main() -> None:
