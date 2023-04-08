@@ -208,14 +208,12 @@ class Crawler:
             main_bs = BeautifulSoup(response.text, 'lxml')
             contents_bs = main_bs.find_all('div', {"class": "news-block_wrapper"})
             for content_bs in contents_bs:
-                links_bs = content_bs.find_all('div', {"class": "item link"})
-                for link_bs in links_bs:
-                    paragraphs = link_bs.find_all('a')
-                    for paragraph in paragraphs:
-                        new_url = self._extract_url(paragraph)
-                        self.urls.append(new_url)
-                        if len(self.urls) >= self._config.get_num_articles():
-                            return
+                paragraphs = content_bs.find_all('div', {"class": "item link"})
+                for paragraph in paragraphs:
+                    new_url = self._extract_url(paragraph)
+                    self.urls.append(new_url)
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
 
     def get_search_urls(self) -> list:
         """
