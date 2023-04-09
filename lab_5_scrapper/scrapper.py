@@ -13,8 +13,8 @@ from bs4 import BeautifulSoup
 from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
-from core_utils.constants import CRAWLER_CONFIG_PATH, \
-                                 ASSETS_PATH
+from core_utils.constants import (CRAWLER_CONFIG_PATH,
+                                 ASSETS_PATH)
 
 
 
@@ -200,6 +200,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
+        self.seed_urls = config.get_seed_urls()
         self.config = config
         self.urls = []
 
@@ -219,24 +220,21 @@ class Crawler:
         """
         Finds articles
         """
-        count = 0
-        for seed_url in self.get_search_urls():
+        for seed_url in self.seed_urls:
             response = make_request(seed_url, self.config)
             if response.status_code == 200:
                 html = response.text
                 main_bs = BeautifulSoup(html, 'html.parser')
                 urls = self._extract_url(main_bs)
                 self.urls.append(urls)
-                count += len(urls)
-                if count >= 100:
-                    break
-            continue
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config._seed_urls
+        return self.seed_urls
 
 
 
@@ -252,72 +250,78 @@ class HTMLParser:
         self.article_url = full_url
         self.article_id = article_id
         self.config = config
-        self.article = Article(full_url, article_id)
+        self.article = Article(self.article_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        article_text = []
-        paragraphs = article_soup.find_all("div", class_="article__paragraph")
-        for p in paragraphs:
-            texts = p.find_all("p")
-            for text in texts:
-                article_text.append(text.text.strip())
-        self.text = " ".join(article_text).strip()
+        text_elements = article_soup.find_all("div", class_="article__paragraph article__paragraph_second")
+        text_list = [element.get_text(strip=True) for element in text_elements]
+        text = "\n".join(text_list)
+        self.article.text = text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        # id
-        id_tag = article_soup.find('meta', {'property': 'og:url'})
-        if id_tag:
-            self.article.id = id_tag['content'].split('/')[-1]
-        else:
-            self.article.id = ['NOT FOUND']
-
-        # title
-        title_tag = article_soup.find('meta', {'property': 'og:title'})
+        title_tag = article_soup.find_all('h1', {'class': 'article__title'})[0]
         if title_tag:
-            self.article.title = title_tag['content']
+            title = title_tag.get_text(strip=True)
         else:
-            self.article.title = 'NOT FOUND'
+            title =  "NOT FOUND"
+        self.article.title = title
 
-        # authors
-        author_tags = article_soup.find('div', {'class': 'article__footer'}).find_all('p',
-                                                                                      {'class': 'article__prepared'})
-        if author_tags:
-            self.article.authors = [tag.text.strip() for tag in author_tags]
+        author_tag = article_soup.find_all('p', {'class': 'article__prepared'})
+        if author_tag:
+            authors = author_tag[0].get_text(strip=True)
         else:
-            self.article.authors = ['NOT FOUND']
+            authors = "NOT FOUND"
+        self.article.author = authors
 
-        # category
-        category_tag = article_soup.find('div', {'class': 'article__category'}).find('a')
-        if category_tag:
-            self.article.categories = [category_tag.text.strip()]
+        topic_tag = article_soup.find('div', {'class': 'article__category'}).find('a')
+        if topic_tag:
+            topic = topic_tag.get_text(strip=True)
         else:
-            self.article.categories = 'NOT FOUND'
+            topic = "NOT FOUND"
+        self.article.topic = topic
 
-
-
+        date_tag = article_soup.find('div', {'class': 'article__date'})
+        if date_tag:
+            date_str = date_tag.get_text(strip=True)
+        else:
+            date_str = "NOT FOUND"
+        date = self.unify_date_format(date_str)
+        if date:
+            self.article.date = date
+        else:
+            self.article.date = datetime.datetime.now()
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        month_dict = {'янв': '01', 'фев': '02', 'мар': '03', 'апр': '04', 'май': '05', 'июн': '06',
-                      'июл': '07', 'авг': '08', 'сен': '09', 'окт': '10', 'ноя': '11', 'дек': '12'}
-
-        date_str = date_str.strip()
-
-        for month, value in month_dict.items():
-            date_str = date_str.replace(month, value)
-
-        date_format = '%Y-%m-%d %H:%M:%S'
-        date = datetime.datetime.strftime(date_str, date_format)
-        return date
+        ru_eng_months = {
+            "янв": "jan",
+            "фев": "feb",
+            "мар": "mar",
+            "апр": "apr",
+            "мая": "may",
+            "июн": "jun",
+            "июл": "jul",
+            "авг": "aug",
+            "сен": "sep",
+            "окт": "oct",
+            "ноя": "nov",
+            "дек": "dec"
+        }
+        ru_month = re.search(r"[А-Яа-я]{3}", date_str).group()
+        date_str = date_str.replace(ru_month, ru_eng_months[ru_month])
+        try:
+            return datetime.datetime.strptime(date_str, '%d %b %Y, %H:%M')
+        except ValueError:
+            return None
 
 
 
@@ -325,11 +329,10 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.article_url)
-        article_bs = BeautifulSoup(response.text, 'html.parser')
-        self._fill_article_with_text(article_bs)
-        self._fill_article_with_meta_information(article_bs)
-
+        response = make_request(self.article_url, self.config)
+        article_soup = BeautifulSoup(response.text, 'html.parser')
+        self._fill_article_with_text(article_soup)
+        self._fill_article_with_meta_information(article_soup)
         return self.article
 
 
@@ -338,24 +341,26 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    assets_path = Path(base_path, ASSETS_PATH)
-    if assets_path.exists() and assets_path.is_dir():
-        shutil.rmtree(assets_path)
-    assets_path.mkdir(parents=True)
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(CRAWLER_CONFIG_PATH)
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config)
+    crawler = Crawler(config=configuration)
     crawler.find_articles()
-    for ind, url in enumerate(crawler.urls, 1):
-        parser = HTMLParser(url, ind, config)
+    for i, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=configuration)
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
+
+
 
 
 if __name__ == "__main__":
