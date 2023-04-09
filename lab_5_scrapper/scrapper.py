@@ -170,9 +170,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
                                 headers=config.get_headers(),
                                 timeout=config.get_timeout(),
                                 verify=config.get_verify_certificate())
+        return response
     except requests.exceptions.ConnectionError:
-        response.status_code = "Connection refused"
-    return response
+        requests.status_code = "Connection refused"
 
 
 class Crawler:
