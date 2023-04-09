@@ -1,9 +1,11 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://www.vgoroden.ru/"],
+    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'",
+        "cookie": "yandexuid=4621644381680190447; i=ihUXNaU4AqWc0ZlykyabZYhNlVoMWNFDbqdsoscu0HPnpLygepmPaDU2c9kdLqb8trqEMhdgyvviTTO9B4RAdSIH3gg=; yuidss=4621644381680190447; ymex=1995550451.yrts.1680190451; _ym_uid=1680190456714130151; is_gdpr=0; gdpr=0; is_gdpr_b=CKC8ChC6rwEoAg==; _ym_d=1680449808; yp=1995809853.udn.cDprbW5pZ2FtZWR6eWFub3ZhQGVkdS5oc2UucnU%3D#1995809824.pcs.0#1681054624.mcv.0#1681054624.mcl.s6xlzp#1681054624.szm.1_25:1536x960:1536x810#1711985824.p_sw.1680449824#1683128244.hdrc.0#1995809853.multib.1; yandex_login=kmnigamedzyanova@edu.hse.ru; bh=EkAiR29vZ2xlIENocm9tZSI7dj0iMTExIiwgIk5vdChBOkJyYW5kIjt2PSI4IiwgIkNocm9taXVtIjt2PSIxMTEiGgUieDg2IiIQIjExMS4wLjU1NjMuMTQ3IioCPzA6CSJXaW5kb3dzIkIIIjE1LjAuMCJKBCI2NCJSWyJHb29nbGUgQ2hyb21lIjt2PSIxMTEuMC41NTYzLjE0NyIsIk5vdChBOkJyYW5kIjt2PSI4LjAuMC4wIiwiQ2hyb21pdW0iO3Y9IjExMS4wLjU1NjMuMTQ3IiI=; Session_id=3:1680780502.5.1.1680190460380:EwMoTQ:35.1.2:1|1511609620.0.2.3:1680190460|1130000059538895.-1.0.2:259393.3:1680449853|3:10268017.764799.ZUczU2dttRuugjjnNxv8I1J6kEw; sessionid2=3:1680780502.5.1.1680190460380:EwMoTQ:35.1.2:1|1511609620.0.2.3:1680190460|1130000059538895.-1.0.2:259393.3:1680449853|3:10268017.764799.fakesign0000000000000000000; cycada=rl07eW0BIov1jXHSwfLI++u/dyUsZBx/WN+VG24LIow=; _ym_isad=2,"
+    },
+    "total_articles_to_find_and_parse": 100,
+    "encoding": "utf-8",
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
