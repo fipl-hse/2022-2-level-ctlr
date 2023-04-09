@@ -165,14 +165,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
-    try:
-        response = requests.get(url,
-                                headers=config.get_headers(),
-                                timeout=config.get_timeout(),
-                                verify=config.get_verify_certificate())
-        return response
-    except requests.exceptions.ConnectionError:
-        requests.status_code = "Connection refused"
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+    return requests.get(url, headers=headers, timeout=timeout)
 
 
 class Crawler:
