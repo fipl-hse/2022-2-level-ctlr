@@ -165,10 +165,13 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
-    response = requests.get(url,
-                            headers=config.get_headers(),
-                            timeout=config.get_timeout(),
-                            verify=config.get_verify_certificate())
+    try:
+        response = requests.get(url,
+                                headers=config.get_headers(),
+                                timeout=config.get_timeout(),
+                                verify=config.get_verify_certificate())
+    except requests.exceptions.ConnectionError:
+        response.status_code = "Connection refused"
     return response
 
 
