@@ -1,9 +1,12 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://chelny-biz.ru/news/", "https://chelny-biz.ru/news/?PAGEN_1=2", "https://chelny-biz.ru/news/?PAGEN_1=3", "https://chelny-biz.ru/news/?PAGEN_1=4", "https://chelny-biz.ru/news/?PAGEN_1=5"],
+    "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "Cookie": "_ym_uid=1679635746101152203; _ym_d=1679635746; name=FULL_SCREEN_BAN_MOBILE; PHPSESSID=zrpGSXU8mr0n5k7Ity7VCv9IKIJ5PAuY; _ym_visorc=w; _ym_isad=2"
+    },
+    "total_articles_to_find_and_parse": 10,
+    "encoding": "utf-8",
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
