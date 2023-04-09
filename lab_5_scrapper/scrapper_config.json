@@ -1,5 +1,9 @@
 {
-        "seed_urls": ["https://progorod76.ru/news", "https://progorod76.ru/news?page=2"],
+        "seed_urls": ["https://progorod76.ru/news", "https://progorod76.ru/news?page=2",
+                        "https://progorod76.ru/news?page=3", "https://progorod76.ru/news?page=4",
+                        "https://progorod76.ru/news?page=5", "https://progorod76.ru/news?page=6",
+                        "https://progorod76.ru/news?page=7", "https://progorod76.ru/news?page=8",
+                        "https://progorod76.ru/news?page=9", "https://progorod76.ru/news?page=10"],
         "headers": {
             "accept-encoding": "deflate, br",
             "accept-language": "ru,en;q=0.9",
