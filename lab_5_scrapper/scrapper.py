@@ -316,8 +316,8 @@ class HTMLParser:
             "ноя": "nov",
             "дек": "dec"
         }
-        rus_months = re.search(r"[А-Яа-я]{3}", date_str).group()
-        date_str = date_str.replace(rus_months, months[rus_months])
+        for k, v in months.items():
+            date_str = date_str.replace(k, v)
         try:
             return datetime.datetime.strptime(date_str, '%d %b %Y, %H:%M')
         except ValueError:
