@@ -11,14 +11,12 @@ import time
 from pathlib import Path
 from typing import Pattern, Union
 
-
 import requests
 from bs4 import BeautifulSoup
 
 import core_utils.constants as const
 from core_utils.article.article import Article
 from core_utils.config_dto import ConfigDTO
-
 
 
 class IncorrectSeedURLError(Exception):
