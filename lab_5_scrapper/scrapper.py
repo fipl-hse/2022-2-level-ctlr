@@ -4,9 +4,31 @@ Crawler implementation
 from typing import Pattern, Union
 import json
 from bs4 import BeautifulSoup
-import requests
 from core_utils.config_dto import ConfigDTO
+import re
+import requests
 
+
+class IncorrectSeedURLError(Exception):
+    pass
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    pass
+
+class IncorrectNumberOfArticlesError(Exception):
+    pass
+
+class IncorrectHeadersError(Exception):
+    pass
+
+class IncorrectEncodingError(Exception):
+    pass
+
+class IncorrectTimeoutError(Exception):
+    pass
+
+class IncorrectVerifyError(Exception):
+    pass
 
 class Config:
     """
@@ -41,7 +63,37 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        with open(self._config_file_path, 'r') as f:
+            configuration = json.load(f)
+
+        seed_url = configuration.get('seed_url')
+        if not seed_url or not re.match(r'^https?://w?w?w?.', seed_url):
+            raise IncorrectSeedURLError
+        num_articles = configuration.get('num_articles')
+
+        if not isinstance(num_articles, int):
+            raise IncorrectNumberOfArticlesError
+
+        if num_articles < 1 or num_articles > 150:
+            raise NumberOfArticlesOutOfRangeError
+
+        headers = configuration.get('headers')
+        if not isinstance(headers, dict):
+            raise IncorrectHeadersError
+
+        encoding = configuration.get('encoding')
+        if not isinstance(encoding, str):
+            raise IncorrectEncodingError
+
+        timeout = configuration.get('timeout')
+        if not isinstance(timeout, int) or timeout <= 0 or timeout >= 60:
+            raise IncorrectTimeoutError
+
+        verify = configuration.get('verify')
+        if not isinstance(verify, bool):
+            raise IncorrectVerifyError
+
+
 
     def get_seed_urls(self) -> list[str]:
         """
