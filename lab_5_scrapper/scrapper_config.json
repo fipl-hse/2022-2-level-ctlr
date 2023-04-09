@@ -1,9 +1,9 @@
 {
-    "seed_urls": ["https://econs.online/?more=1", "https://econs.online/?more=2", "https://econs.online/?more=3"],
+    "seed_urls": ["https://econs.online/?more=1", "https://econs.online/?more=2", "https://econs.online/?more=3", "https://econs.online/?more=4", "https://econs.online/?more=5", "https://econs.online/?more=6", "https://econs.online/?more=7", "https://econs.online/?more=8", "https://econs.online/?more=9", "https://econs.online/?more=10", "https://econs.online/?more=11"],
     "headers": {"User-Agent": "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.0.14) Gecko/2009090217 Ubuntu/9.04 (jaunty) Firefox/3.0.14"},
-    "total_articles_to_find_and_parse": 5,
+    "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
-    "timeout": 5,
+    "timeout": 30,
     "should_verify_certificate": true,
     "headless_mode": true
 }
