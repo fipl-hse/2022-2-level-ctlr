@@ -1,19 +1,20 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
 import datetime
 import json
 import re
-import requests
 import shutil
-from urllib.parse import urljoin
 from pathlib import Path
+from typing import Pattern, Union
+
+import requests
 from bs4 import BeautifulSoup
-from core_utils.config_dto import ConfigDTO
+
 from core_utils.article.article import Article
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH)
 
 
 
@@ -213,7 +214,7 @@ class Crawler:
             href = link.get('href')
             if href:
                 return urljoin(current_url, href)
-        return urljoin(current_url, "")
+        return urljoin(current_url, '')
 
     def find_articles(self) -> None:
         """
