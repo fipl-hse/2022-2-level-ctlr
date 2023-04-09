@@ -168,7 +168,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
     headers = config.get_headers()
     timeout = config.get_timeout()
-    response = requests.get(url, verify=False, headers=headers, timeout=timeout)
+    response = requests.get(url, headers=headers, timeout=timeout)
     return response
 
 
