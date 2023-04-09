@@ -250,7 +250,7 @@ class HTMLParser:
                 curr_year = ' ' + str(datetime.date.today().year)
                 data_text = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', curr_year, data_text)
                 self.article.date = self.unify_date_format(data_text)
-        topics = [topic.text for topic in article_soup.find_all('a', class_="article-list__tag")]
+        topics = article_soup.find('a', class_="iconElement").get('href')
         self.article.author = ["NOT FOUND"]
         if topics:
             self.article.topics = topics
