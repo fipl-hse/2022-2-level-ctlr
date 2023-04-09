@@ -177,7 +177,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                        verify=config.get_verify_certificate())
 
 
 class Crawler:
@@ -191,25 +192,33 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.urls = []
+        self._config = config
+        self._seed_urls = config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        url = article_bs['href']
+        return url
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for seed in self._seed_urls:
+            response = make_request(seed, self._config)
+            soup = BeautifulSoup(response.text, 'lxml')
+            for url in soup.find_all('a', class_="news-line_newsLink__e0zuO"):
+                if len(self.urls) < self._config.get_num_articles():
+                    self.urls.append('https://progorod76.ru' + self._extract_url(url))
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -252,7 +261,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        base_path.rmdir()
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
