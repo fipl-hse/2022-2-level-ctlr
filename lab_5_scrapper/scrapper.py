@@ -3,7 +3,6 @@ Crawler implementation
 """
 from pathlib import Path
 from typing import Pattern, Union
-
 import datetime
 import json
 import random
@@ -61,7 +60,7 @@ class Config:
         self._validate_config_content()
         self._seed_urls = self._extract_config_content().seed_urls
         self._headers = self._extract_config_content().headers
-        self._num_of_articles = self._extract_config_content().total_articles
+        self._num_articles = self._extract_config_content().total_articles
         self._encoding = self._extract_config_content().encoding
         self._timeout = self._extract_config_content().timeout
         self._should_verify_certificate = self._extract_config_content().should_verify_certificate
@@ -90,39 +89,31 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_content = json.load(f)
-            seed_urls = config_content['seed_urls']
-            headers = config_content['headers']
-            num_of_articles = config_content['total_articles_to_find_and_parse']
-            encoding = config_content['encoding']
-            timeout = config_content['timeout']
-            should_verify_certificate = config_content['should_verify_certificate']
-            headless_mode = config_content['headless_mode']
+        config = self._extract_config_content()
 
-        if not isinstance(seed_urls, list):
+        if not isinstance(config.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
+        for url in config.seed_urls:
             if not re.fullmatch(r'https://w?w?w?.+', url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(num_of_articles, int):
+        if not isinstance(config.total_articles, int) or config.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if num_of_articles > 150:
+        if config.total_articles > 150:
             raise NumberOfArticlesOutOfRangeError
 
-        if num_of_articles < 1 or not isinstance(headers, dict):
+        if not isinstance(config.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if not isinstance(config.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or timeout < 0 or timeout > 60:
+        if not isinstance(config.timeout, int) or config.timeout < 0 or config.timeout > 60:
             raise IncorrectTimeoutError
 
-        if not isinstance(should_verify_certificate, bool) or not isinstance(headless_mode, bool):
+        if not isinstance(config.should_verify_certificate, bool) or not isinstance(config.headless_mode, bool):
             raise IncorrectVerifyError
 
 
@@ -137,7 +128,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._num_of_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -199,27 +190,27 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_links_bs = article_bs.find_all('a')
-        for link_bs in all_links_bs:
-            if re.fullmatch(r'/novosti/[0-9a-z-]+', link_bs['href']):
-                return 'https://www.vgoroden.ru' + link_bs['href']
+        if re.fullmatch(r'/novosti/.+', article_bs['href']):
+            return 'https://www.vgoroden.ru' + article_bs['href']
+
+
 
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        #смотри гайд для dynamic scrapping
+        #считывает только 36 ссылок, нужно исправить
         for url in self.config.get_seed_urls():
             response = make_request(url, self.config)
             res_bs = BeautifulSoup(response.text, 'lxml')
-            article_urls = self._extract_url(res_bs)
-            while len(self.urls) <= self.config.get_num_articles():
-                self.urls.append(article_urls)
-
-
-
-
+            for link in res_bs.find_all('a'):
+                article_url = self._extract_url(link)
+                if article_url is None:
+                    continue
+                self.urls.append(article_url)
+                if len(self.urls) == self.config.get_num_articles():
+                    break
 
 
     def get_search_urls(self) -> list:
@@ -241,7 +232,7 @@ class HTMLParser:
         self.full_url = full_url
         self.article_id = article_id
         self.config = config
-        self.article = Article
+        self.article = Article(full_url, article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -249,6 +240,8 @@ class HTMLParser:
         """
         article_body = article_soup.find('div', {'class': 'article__body'})
         article_text = article_body.find_all(['p', 'div', {'class': 'quote-text'}])
+        art_text = [i.text for i in article_text]
+        self.article.text = '\n'.join(art_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -266,14 +259,16 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        soup = make_request(self.config)
+        article_bs = BeautifulSoup(soup.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    #или попробовать через трай эксепты?
     if base_path.exists():
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
@@ -289,11 +284,11 @@ def main() -> None:
     crawler = Crawler(configuration)
     crawler.find_articles()
     print(crawler.get_search_urls())
-
-
-
-
-    #не забудь выполнить здесь пятый шаг
+    print(len(crawler.get_search_urls()))
+    for i, full_url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
+        article = parser.parse()
+        to_raw(article)
 
 
 if __name__ == "__main__":
