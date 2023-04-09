@@ -191,7 +191,7 @@ class Crawler:
         """
         href = article_bs.get('href')
         if (href is not None) and (href.startswith('/news/19'))\
-                and (href.count('/') == 3) and (href.endswith('#comments') is False):
+                and (href.endswith('#comments') is False):
             return href
 
     def find_articles(self) -> None:
@@ -200,8 +200,8 @@ class Crawler:
         """
         for url in self.get_search_urls():
             response = make_request(url, self._config)
-            soup = BeautifulSoup(response.content, "lxml")
-            for paragraph in soup.find_all('a'):
+            main_bs = BeautifulSoup(response.content, "lxml")
+            for paragraph in main_bs.find_all('a'):
                 if self._extract_url(paragraph) is not None:
                     new_url = 'https://gorod48.ru' + str(self._extract_url(paragraph))
                     self.urls.append(new_url)
@@ -284,8 +284,8 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
-    for ind, url in enumerate(crawler.urls, 1):
-        parser = HTMLParser(url, ind, configuration)
+    for index, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, index, configuration)
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
