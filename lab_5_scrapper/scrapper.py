@@ -255,17 +255,6 @@ class HTMLParser:
         if topics:
             self.article.topics = topics
 
-        try:
-            author = article_soup.find_all('span', {'class': 'author'})
-            self.article.author = author[0].text[7:].strip(', ')
-        except IndexError:
-            self.article.author = ['NOT FOUND']
-
-        article_date = article_soup.find(itemprop='datePublished').get('content')
-        article_time = article_soup.find_all('span', {'class': 'date'})[0].text[-6:]
-        date_n_time = self.unify_date_format(article_date + article_time)
-        self.article.date = date_n_time
-
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
