@@ -233,14 +233,38 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_elements = article_soup.find('div', {"class": "news-text_wrapper"}).find_all('p')
-        self.article.text = "\n".join([p.get_text(strip=True) for p in text_elements])
+        text = article_soup.find('div', {"class": "news-text_wrapper"}).find_all('p')
+        self.article.text = "\n".join([p.get_text(strip=True) for p in text])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('h1')
+        if title:
+            self.article.title = title.text
+        data = article_soup.find('p', {"class": "dateElement"})
+        if data:
+            data_text = data.text
+            if not re.search(r'\d{4}', data_text):
+                curr_year = ' ' + str(datetime.date.today().year)
+                data_text = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', curr_year, data_text)
+                self.article.date = self.unify_date_format(data_text)
+        topics = [topic.text for topic in article_soup.find_all('a', class_="article-list__tag")]
+        self.article.author = ["NOT FOUND"]
+        if topics:
+            self.article.topics = topics
+
+        try:
+            author = article_soup.find_all('span', {'class': 'author'})
+            self.article.author = author[0].text[7:].strip(', ')
+        except IndexError:
+            self.article.author = ['NOT FOUND']
+
+        article_date = article_soup.find(itemprop='datePublished').get('content')
+        article_time = article_soup.find_all('span', {'class': 'date'})[0].text[-6:]
+        date_n_time = self.unify_date_format(article_date + article_time)
+        self.article.date = date_n_time
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
