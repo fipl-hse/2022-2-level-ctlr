@@ -6,8 +6,8 @@ import json
 import os
 import random
 import re
-import shutil
 import time
+import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
