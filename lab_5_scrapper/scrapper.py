@@ -16,6 +16,7 @@ from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
 import shutil
 import re
 from core_utils.article.io import to_raw
+from requests.adapters import HTTPAdapter, Retry
 
 
 class IncorrectSeedURLError(Exception):
@@ -164,6 +165,11 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
     time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
     headers = config.get_headers()
     timeout = config.get_timeout()
