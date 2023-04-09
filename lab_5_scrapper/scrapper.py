@@ -16,7 +16,6 @@ from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
 import shutil
 import re
 from core_utils.article.io import to_raw
-from requests.adapters import HTTPAdapter, Retry
 
 
 class IncorrectSeedURLError(Exception):
@@ -201,11 +200,11 @@ class Crawler:
         """
         for url in self.get_search_urls():
             response = make_request(url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml').find_all('a')
-            for art in article_bs:
-                if article_bs is not None:
-                    article_url = 'https://gorod48.ru' + str(self._extract_url(art))
-                    self.urls.append(article_url)
+            soup = BeautifulSoup(response.content, "lxml")
+            for paragraph in soup.find_all('a'):
+                if self._extract_url(paragraph) is not None:
+                    new_url = 'https://gorod48.ru' + str(self._extract_url(paragraph))
+                    self.urls.append(new_url)
                     if len(self.urls) >= self._config.get_num_articles():
                         return
 
