@@ -250,10 +250,6 @@ class HTMLParser:
                 curr_year = ' ' + str(datetime.date.today().year)
                 data_text = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', curr_year, data_text)
                 self.article.date = self.unify_date_format(data_text)
-        topics = article_soup.find('a', class_="iconElement").get('href')
-        self.article.author = ["NOT FOUND"]
-        if topics:
-            self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
