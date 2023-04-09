@@ -276,7 +276,7 @@ class HTMLParser:
         if author_tag:
             authors = author_tag[0].get_text(strip=True)
         else:
-            authors = "NOT FOUND"
+            authors = ["NOT FOUND"]
         self.article.author = authors
 
         topic_tag = article_soup.find('div', {'class': 'article__category'}).find('a')
@@ -349,13 +349,16 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config=configuration)
-    crawler.find_articles()
-    for i, url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(full_url=url, article_id=i, config=configuration)
+
+    crawler = Crawler(config=config)
+    articles = crawler.find_articles()
+
+    for i, url in enumerate(articles, start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=config)
         article = parser.parse()
+
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
