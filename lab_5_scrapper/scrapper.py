@@ -10,9 +10,14 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+from time import sleep
+from random import randint
+# from urllib.error import HTTPError
 
 
 class IncorrectSeedURLError(Exception):
@@ -54,7 +59,7 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._extract_config_content()
+        self.config_content = self._extract_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -64,21 +69,19 @@ class Config:
             config = json.load(f)
 
         self._seed_urls = config["seed_urls"]
-        self._total_articles_to_find_and_parse = config[
-            "total_articles_to_find_and_parse"
-        ]
+        self._num_articles = config["total_articles_to_find_and_parse"]
         self._headers = config["headers"]
         self._encoding = config["encoding"]
         self._timeout = config["timeout"]
-        self._verify_certificate = config["should_verify_certificate"]
+        self._should_verify_certificate = config["should_verify_certificate"]
         self._headless_mode = config["headless_mode"]
         return ConfigDTO(
             seed_urls=self._seed_urls,
-            total_articles_to_find_and_parse=self._total_articles_to_find_and_parse,
+            total_articles_to_find_and_parse=self._num_articles,
             headers=self._headers,
             encoding=self._encoding,
             timeout=self._timeout,
-            should_verify_certificate=self._verify_certificate,
+            should_verify_certificate=self._should_verify_certificate,
             headless_mode=self._headless_mode,
         )
 
@@ -96,22 +99,21 @@ class Config:
         encoding = config["encoding"]
         timeout = config["timeout"]
         verify_certificate = config["should_verify_certificate"]
-        # headless_mode = config['headless_mode']
+        headless_mode = config['headless_mode']
 
-        html_pattern = re.compile(r"https?://w?w?w?.")
+        if not isinstance(seed_urls, list):
+            raise IncorrectSeedURLError
 
-        for i in seed_urls:
-            if re.match(html_pattern, i) is None:
+        for url in seed_urls:
+            if not re.match(r"https?://w?w?w?.", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
-            continue
 
-        if (
-            total_articles_to_find_and_parse > 150
-            or total_articles_to_find_and_parse < 1
-        ):
+        if not 1 < total_articles_to_find_and_parse < NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(total_articles_to_find_and_parse, int):
+        if (
+                not isinstance(total_articles_to_find_and_parse, int)
+        ):
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(headers, dict):
@@ -120,10 +122,11 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if 0 > timeout > 60:
+        if (not isinstance(timeout, int)
+                or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool):
+        if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -136,7 +139,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_articles_to_find_and_parse
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -160,7 +163,7 @@ class Config:
         """
         Retrieve whether to verify certificate
         """
-        return self._verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
@@ -168,12 +171,17 @@ class Config:
         """
         return self._headless_mode
 
+    def seed_urls(self):
+        return self._seed_urls
+
 
 def make_request(url: str, config: Config) -> requests.models.Response:
     """
     Delivers a response from a request
     with given configuration
     """
+    sleep_time = randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+    sleep(sleep_time)
     return requests.get(
         url,
         headers=config.get_headers(),
@@ -202,27 +210,29 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return article_bs.get("href")
+        all_tags_bs = article_bs.find_all("a", string=re.compile(r'https://irkutskmedia\.ru/news/.'))
+        for tag in all_tags_bs:
+            return tag.get("href")
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        # makes a get-response to a server
-        response = make_request(url='https://irkutskmedia.ru', config=self.config)
-        # gets html page
-        main_bs = BeautifulSoup(response.text, "lxml")
-        # extracts appropriate urls and adds them to seed
-        all_tags_bs = main_bs.find_all("a", string=self.url_pattern)
-        for tag in all_tags_bs:
-            clean_link = self._extract_url(tag)
-            self.urls.append(clean_link)
+        for url in self.get_search_urls():
+            # makes a get-response to a server
+            response = make_request(url=url, config=self.config)
+            if response.status_code != 200 or response.status_code == 404:
+                continue
+            # gets html page
+            main_bs = BeautifulSoup(response.text, "lxml")
+            link = self._extract_url(main_bs)
+            self.urls.append(link)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.urls
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:

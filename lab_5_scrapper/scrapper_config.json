@@ -1,9 +1,9 @@
 {
-    "seed_urls": [],
+    "seed_urls": ["https://irkutskmedia.ru/news/hashtag/1247/", "https://irkutskmedia.ru/news/hashtag/1517/", "https://irkutskmedia.ru/news/hashtag/1940/"],
     "headers": {
         "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
     },
-    "total_articles_to_find_and_parse": 15,
+    "total_articles_to_find_and_parse": 30,
     "encoding": "utf-8",
     "timeout": 5,
     "should_verify_certificate": true,
