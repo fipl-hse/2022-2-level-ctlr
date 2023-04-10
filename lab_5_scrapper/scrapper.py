@@ -121,13 +121,11 @@ class Config:
                     and isinstance(url, str)):
                 raise IncorrectSeedURLError
 
-        if not isinstance(dto.total_articles, int) or \
-                dto.total_articles > NUM_ARTICLES_UPPER_LIMIT or \
-                dto.total_articles <= 0:
+        if dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(dto.total_articles, int) or \
-                isinstance(dto.total_articles, bool):
+                dto.total_articles <= 0 or isinstance(dto.total_articles, bool):
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(dto.headers, dict):
@@ -136,12 +134,11 @@ class Config:
         if not isinstance(dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(dto.timeout, int) or dto.timeout < TIMEOUT_LOWER_LIMIT or \
+        if not isinstance(dto.timeout, int) or dto.timeout <= TIMEOUT_LOWER_LIMIT or \
                 dto.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        if not (isinstance(dto.should_verify_certificate, bool)
-                and isinstance(dto.headless_mode, bool)):
+        if not isinstance(dto.should_verify_certificate, bool) or not isinstance(dto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
