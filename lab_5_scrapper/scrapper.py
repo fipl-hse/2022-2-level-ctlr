@@ -14,11 +14,9 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH,
-                                  CRAWLER_CONFIG_PATH,
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
-                                  TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT)
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -112,19 +110,13 @@ class Config:
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config = json.load(f)
 
-        if not config['seed_urls']:
+        if not config['seed_urls'] or not isinstance(config['seed_urls'], list):
             raise IncorrectSeedURLError
 
         for url in config['seed_urls']:
-            if not (isinstance(url, str) and re.match(r'https?://.*/', url)):
+            if not (isinstance(url, str)
+                    and re.match(r'https?://.*/', url)) or "econs.online" not in url:
                 raise IncorrectSeedURLError
-
-        for url in config['seed_urls']:
-            if "econs.online" not in url:
-                raise IncorrectSeedURLError
-
-        if not isinstance(config['seed_urls'], list):
-            raise IncorrectSeedURLError
 
         if not isinstance(config['total_articles_to_find_and_parse'], int):
             raise IncorrectNumberOfArticlesError
@@ -290,7 +282,7 @@ class HTMLParser:
             author_cleared = [str(tag) for tag in author][0].strip()
             authors_list.append(author_cleared)
         self.article.author = authors_list
-        self.article.date = self.unify_date_format(date_str=str(info.span['date-time']))
+        self.article.date = self.unify_date_format(date_str=str(info.span.get('date-time')))
         tags_list = []
         tags = article_soup.find_all('div', {'class':'article-footer__hashtags-item'})
         if tags:
