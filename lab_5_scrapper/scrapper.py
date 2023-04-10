@@ -307,8 +307,7 @@ class HTMLParser:
             if element.isdigit() and element not in digits:
                 day += element
 
-        correct_date = year + '-' + month + '-' + day + ' ' + time
-        self.article.date = self.unify_date_format(correct_date)
+        self.article.date = self.unify_date_format(year + '-' + month + '-' + day + ' ' + time)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
