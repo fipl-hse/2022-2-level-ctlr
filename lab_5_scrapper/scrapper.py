@@ -16,46 +16,52 @@ from core_utils.constants import CRAWLER_CONFIG_PATH
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
 
+
 class IncorrectSeedURLError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+      Exception raised when seed_urls value in configuration
+      file is not a list of strings or a string is not a valid URL
+      """
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+        Exception raised when total_articles_to_find_and_parse value
+        in configuration file is out of range
+        """
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+     Exception raised when total_articles_to_find_and_parse
+     value in configuration file is not an integer greater than 0
+     """
 
 
 class IncorrectHeadersError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+    Exception raised when headers value in configuration file is not a dictionary
+    """
 
 
 class IncorrectEncodingError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+    Exception raised when encoding value in configuration file is not a string
+    """
 
 
 class IncorrectTimeoutError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+    Exception raised when timeout value in configuration file
+    is not an integer between 1 and 60
+    """
 
 
 class IncorrectVerifyError(Exception):
-    pass
-    # def __init__(self):
-    #     pass
+    """
+    Exception raised when should_verify_certificate
+    value in configuration file is not a boolean
+    """
 
 
 class Config:
@@ -103,32 +109,40 @@ class Config:
         """
         if not isinstance(self._seed_urls, list):
             raise IncorrectSeedURLError
+
         for element in self._seed_urls:
-            if not re.match(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+[^/]/', element) \
-                    or not isinstance(element, str):
-                raise IncorrectSeedURLError('Seed URL does not match standard pattern or does not correspond to the target website')
+            if not isinstance(element, str):
+                raise IncorrectSeedURLError
+
+            if 'https://' not in element:
+            #if not re.match(r'https://', element):
+                raise IncorrectSeedURLError
 
         if not isinstance(self._num_articles, int)\
-                or isinstance(self._num_articles, bool):
-            raise IncorrectNumberOfArticlesError('Total number of articles to parse is not integer')
+                or isinstance(self._num_articles, bool) or self._num_articles <= 0:
+            raise IncorrectNumberOfArticlesError("Total number of articles to parse is not integer")
 
         if self._num_articles < 1 \
                 or self._num_articles > 150:
-            raise NumberOfArticlesOutOfRangeError('Total number of articles is out of range from 1 to 150')
+            raise NumberOfArticlesOutOfRangeError("Total number of articles is out of range from 1 to 150")
 
         if not isinstance(self._headers, dict):
-            raise IncorrectHeadersError('Headers are not in a form of dictionary')
+            raise IncorrectHeadersError("Headers are not in a form of dictionary")
 
         if not isinstance(self._encoding, str):
-            raise IncorrectEncodingError('Encoding must be specified as a string')
+            raise IncorrectEncodingError("Encoding must be specified as a string")
+
+        if not isinstance(self._timeout, int):
+            raise IncorrectTimeoutError
 
         if self._timeout <= 0 or self._timeout > 60:
-            raise IncorrectTimeoutError('Timeout value must be a positive integer less than 60')
+            raise IncorrectTimeoutError("Timeout value must be a positive integer less than 60")
 
         if not isinstance(self._headless_mode, bool):
             raise IncorrectVerifyError
+
         if not isinstance(self._should_verify_certificate, bool):
-            raise IncorrectVerifyError('Verify certificate value must either be True or False')
+            raise IncorrectVerifyError("Verify certificate value must either be True or False")
 
     def get_seed_urls(self) -> list[str]:
         """
@@ -164,7 +178,7 @@ class Config:
         """
         Retrieve whether to verify certificate
         """
-        return self.config_obj.verify_certificate
+        return self.config_obj.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
@@ -243,7 +257,7 @@ class HTMLParser:
         self.full_url = full_url
         self.article_id = article_id
         self.config = config
-        self.article = Article()
+        self.article = Article(url=full_url, article_id=article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -308,9 +322,11 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    if os.path.exists(base_path):
+
+    if base_path.exists():
         shutil.rmtree(base_path)
-    os.makedirs(base_path)
+    base_path.mkdir(parents=True)
+    #os.makedirs(base_path)
 
 
 def main() -> None:
@@ -320,10 +336,11 @@ def main() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
-    parser = HTMLParser(article_url=full_url, article_id=i, config=configuration)
-    article = parser.parse()
-    to_raw(article)
-    to_meta(article)
+    for i, full_url in enumerate(configuration.get_seed_urls(), 1):
+        parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
+        article = parser.parse()
+        to_raw(article)
+        to_meta(article)
 
 if __name__ == "__main__":
     main()
