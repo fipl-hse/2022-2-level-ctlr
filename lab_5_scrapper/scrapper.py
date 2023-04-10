@@ -19,30 +19,51 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
 
 
 class IncorrectSeedURLError(Exception):
+    """
+    Validates a seed url format
+    """
     pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Validates the number of articles within the necessary range
+    """
     pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
+    """
+    Validates the type of number of articles
+    """
     pass
 
 
 class IncorrectHeadersError(Exception):
+    """
+    Validates the type of header
+    """
     pass
 
 
 class IncorrectEncodingError(Exception):
+    """
+    Validates the type of encoding
+    """
     pass
 
 
 class IncorrectTimeoutError(Exception):
+    """
+    Validates timeout
+    """
     pass
 
 
 class IncorrectVerifyError(Exception):
+    """
+    Validates the verify attribute
+    """
     pass
 
 
@@ -205,7 +226,8 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs['href']
-        return url
+        if isinstance(url, str):
+            return url
 
     def find_articles(self) -> None:
         """
@@ -261,8 +283,10 @@ class HTMLParser:
         topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
         self.article.topics = [topic.text for topic in topics]
 
-        months_collection = {"Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06",
-                             "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"}
+        months_collection = {"Jan": "01", "Feb": "02", "Mar": "03",
+                             "Apr": "04", "May": "05", "Jun": "06",
+                             "Jul": "07", "Aug": "08", "Sep": "09",
+                             "Oct": "10", "Nov": "11", "Dec": "12"}
 
         date = article_soup.find('span', attrs={'itemprop': 'datePublished'})['content']
         date.split()
@@ -313,11 +337,10 @@ def main() -> None:
     for idx, url in enumerate(crawler.urls):
         parser = HTMLParser(full_url=url, article_id=idx+1, config=config)
         text = parser.parse()
-        to_raw(text)
-        to_meta(text)
+        if isinstance(text, Article):
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
     main()
-
-
