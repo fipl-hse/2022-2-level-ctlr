@@ -13,6 +13,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
 
@@ -198,13 +199,18 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.article = Article(full_url, article_id)
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text_divs = article_soup.find(
+            'div', {'class': 'field field-name-body field-type-text-with-summary field-label-hidden'})
+        self.article.text = '\n'.join(text for paragraph in text_divs.find_all('p') if (text := paragraph.text.strip()))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -222,7 +228,10 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        page = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(page.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -245,7 +254,14 @@ def main() -> None:
     """
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=configuration)
+    print('Searching')
     crawler.find_articles()
+    print('Parsing')
+    for i, full_url in enumerate(crawler.urls):
+        print(i)
+        parser = HTMLParser(article_url=full_url, article_id=i, config=configuration)
+        article = parser.parse()
+        to_raw(article)
 
 
 if __name__ == "__main__":
