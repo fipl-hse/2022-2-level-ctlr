@@ -73,32 +73,36 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        pattern = r"^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"
-        if not self._config_dto.seed_urls or not isinstance(self._config_dto.seed_urls, list) \
-                or not all(isinstance(url, str) for url in self._config_dto.seed_urls) \
-                or not all(re.fullmatch(pattern, url) for url in self._config_dto.seed_urls):
+        config_dto = self._extract_config_content()
+
+        if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        if not isinstance(self._config_dto.total_articles, int) \
-                or self._config_dto.total_articles < 1:
+        for url in config_dto.seed_urls:
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+                raise IncorrectSeedURLError
+
+        if (not isinstance(config_dto.total_articles, int)
+                or isinstance(config_dto.total_articles, bool)
+                or config_dto.total_articles < 1):
             raise IncorrectNumberOfArticlesError
 
-        if self._config_dto.total_articles > const.NUM_ARTICLES_UPPER_LIMIT:
+        if config_dto.total_articles > const.NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(self._config_dto.headers, dict) \
-                and not all(isinstance(key, str) and isinstance(value, str)
-                            for key, value in self._config_dto.headers.items()):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(self._config_dto.encoding, str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(self._config_dto.timeout, int) or self._config_dto.timeout < const.TIMEOUT_LOWER_LIMIT \
-                or self._config_dto.timeout > const.TIMEOUT_UPPER_LIMIT:
+        if (not isinstance(config_dto.timeout, int)
+                or config_dto.timeout < const.TIMEOUT_LOWER_LIMIT
+                or config_dto.timeout > const.TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(self._config_dto.should_verify_certificate, bool):
+        if (not isinstance(config_dto.should_verify_certificate, bool)
+                or not isinstance(config_dto.headless_mode, bool)):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
