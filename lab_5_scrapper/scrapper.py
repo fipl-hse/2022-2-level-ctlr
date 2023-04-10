@@ -221,8 +221,8 @@ class Crawler:
         current_url = article_bs.find('meta', property='og:url').get('content')
         for link in article_bs.find_all('a',
                                         class_=lambda value: value and ('mininews' in
-                                        value or 'midinews' in value)):
-            href = link.get('href')
+                                                                        value or 'midinews' in value)):
+            href = link.get('href') or ''
             if href:
                 return urljoin(current_url, href)
         return urljoin(current_url, '')
