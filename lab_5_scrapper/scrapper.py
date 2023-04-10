@@ -111,7 +111,8 @@ class Config:
     "Invalid seed URL in configuration file"
     )
 
-        if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse < 1:
+        if not isinstance(total_articles_to_find_and_parse, int) \
+                or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
@@ -221,7 +222,7 @@ class Crawler:
         current_url = article_bs.find('meta', property='og:url').get('content')
         for link in article_bs.find_all('a',
                                         class_=lambda value: value and ('mininews' in
-                                                                        value or 'midinews' in value)):
+                                        value or 'midinews' in value)):
             href = link.get('href') or ''
             if href:
                 return urljoin(current_url, href)
@@ -267,7 +268,9 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_elements = article_soup.find_all("div", class_="article__paragraph article__paragraph_second")
+        text_elements = article_soup.find_all(
+            "div", class_="article__paragraph article__paragraph_second"
+        )
         text_list = [element.get_text(strip=True) for element in text_elements]
         text = "\n".join(text_list)
         self.article.text = text
