@@ -172,8 +172,9 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
-        self._urls = []
+        self._seed_urls = config.get_seed_urls()
+        self._config = config
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
@@ -186,22 +187,22 @@ class Crawler:
         """
         Finds articles
         """
-        for url in self.config.get_seed_urls():
-            page = make_request(url, config=self.config)
-            page.encoding = self.config.get_encoding()
+        for url in self._config.get_seed_urls():
+            page = make_request(url, config=self._config)
+            page.encoding = self._config.get_encoding()
             soup = BeautifulSoup(page.text, features="html.parser")
             for elem in soup.find_all('a', class_='news-list__title'):
                 current_url = url + self._extract_url(elem)
                 if current_url is not None:
-                    self._urls.append(current_url)
-                if len(self._urls) >= self.config.get_num_articles():
+                    self.urls.append(current_url)
+                if len(self.urls) >= self._config.get_num_articles():
                     return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self._urls
+        return self.urls
 
 
 class HTMLParser:
