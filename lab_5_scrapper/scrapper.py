@@ -270,7 +270,7 @@ class HTMLParser:
         """
         title = article_soup.find("meta", attrs={"itemprop": "name"})
         if title:
-            self.article.title = title.get('content')
+            self.article.title = str(title.get('content'))
 
         author = article_soup.find("meta", attrs={"itemprop": "author"})
         if author:
@@ -289,7 +289,7 @@ class HTMLParser:
 
         date_all = article_soup.find('span', attrs={'itemprop': 'datePublished'})
         if date_all:
-            date = date_all['content']
+            date = str(date_all['content'])
             date.split()
             date = date.split()
 
