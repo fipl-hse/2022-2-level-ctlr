@@ -22,49 +22,42 @@ class IncorrectSeedURLError(Exception):
     """
     Validates a seed url format
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Validates the number of articles within the necessary range
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Validates the type of number of articles
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Validates the type of header
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Validates the type of encoding
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
     """
     Validates timeout
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
     Validates the verify attribute
     """
-    pass
 
 
 class Config:
@@ -228,6 +221,7 @@ class Crawler:
         url = article_bs['href']
         if isinstance(url, str):
             return url
+        return url[0]
 
     def find_articles(self) -> None:
         """
@@ -237,8 +231,10 @@ class Crawler:
             response = make_request(seed, self._config)
             soup = BeautifulSoup(response.text, 'lxml')
             for url in soup.find_all('a', class_="news-line_newsLink__e0zuO"):
-                if len(self.urls) < self._config.get_num_articles():
-                    self.urls.append('https://progorod76.ru' + self._extract_url(url))
+                part_of_url = self._extract_url(url)
+                if (len(self.urls) < self._config.get_num_articles()
+                        and 'specials' not in part_of_url):
+                    self.urls.append('https://progorod76.ru' + part_of_url)
 
     def get_search_urls(self) -> list:
         """
@@ -273,32 +269,37 @@ class HTMLParser:
         Finds meta information of article
         """
         title = article_soup.find("meta", attrs={"itemprop": "name"})
-        self.article.title = title.get('content')
+        if title:
+            self.article.title = title.get('content')
 
         author = article_soup.find("meta", attrs={"itemprop": "author"})
+        if author:
+            self.article.author = [author.get('content')]
         if not author:
             self.article.author = ["NOT FOUND"]
-        self.article.author = [author.get('content')]
 
         topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
-        self.article.topics = [topic.text for topic in topics]
+        if topics:
+            self.article.topics = [topic.text for topic in topics]
 
         months_collection = {"Jan": "01", "Feb": "02", "Mar": "03",
                              "Apr": "04", "May": "05", "Jun": "06",
                              "Jul": "07", "Aug": "08", "Sep": "09",
                              "Oct": "10", "Nov": "11", "Dec": "12"}
 
-        date = article_soup.find('span', attrs={'itemprop': 'datePublished'})['content']
-        date.split()
-        date = date.split()
+        date_all = article_soup.find('span', attrs={'itemprop': 'datePublished'})
+        if date_all:
+            date = date_all['content']
+            date.split()
+            date = date.split()
 
-        day = date[2]
-        year = date[3]
-        time = date[4]
-        month = months_collection[date[1]]
+            day = date[2]
+            year = date[3]
+            time = date[4]
+            month = months_collection[date[1]]
 
-        correct_date = year + '-' + month + '-' + day + ' ' + time
-        self.article.date = self.unify_date_format(correct_date)
+            correct_date = year + '-' + month + '-' + day + ' ' + time
+            self.article.date = self.unify_date_format(correct_date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
