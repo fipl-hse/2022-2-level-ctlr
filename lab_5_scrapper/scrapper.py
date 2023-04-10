@@ -1,22 +1,22 @@
 """
 Crawler implementation
 """
-from pathlib import Path
-from typing import Pattern, Union
 import datetime
 import json
 import random
 import re
 import time
 import shutil
+from pathlib import Path
+from typing import Pattern, Union
 
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 
 
 class IncorrectSeedURLError(Exception):
@@ -248,13 +248,18 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-
+        self.article.title = article_soup.find('h1', {'class': 'title'})
+        self.article.author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'})
+        date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
+        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
+        self.article.date = self.unify_date_format(date_and_time)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        dt_object = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+        return dt_object
 
     def parse(self) -> Union[Article, bool, list]:
         """
