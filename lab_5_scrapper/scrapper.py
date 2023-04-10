@@ -1,21 +1,24 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
-from bs4 import BeautifulSoup
-import requests
-from core_utils.config_dto import ConfigDTO
-from core_utils.article.article import Article
-import json
-from pathlib import Path
-import time
 import datetime
+import json
 from random import randint
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH,\
-    NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
-import shutil
 import re
-from core_utils.article.io import to_raw
+import shutil
+import time
+from pathlib import Path
+from typing import Pattern, Union
+
+import requests
+from bs4 import BeautifulSoup
+
+from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -243,7 +246,7 @@ class HTMLParser:
         title = article_soup.find('h1')
         if title:
             self.article.title = title.text
-        self.article.author = ["NOT FOUND"]
+        self.article.author = ["NO INFO"]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -284,6 +287,7 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
