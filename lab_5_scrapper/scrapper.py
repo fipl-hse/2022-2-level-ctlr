@@ -67,13 +67,18 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        self.path = path_to_config
+        self.path_to_config = path_to_config
 
-        with open(self.path, 'r', encoding='utf-8') as json_file:
+        with open(self.path_to_config, 'r', encoding='utf-8') as json_file:
             self.content = json.load(json_file)
 
-        # for key, val in self.content.items():
-        #     setattr(self, key, val)
+        self._seed_urls = self.content['seed_urls']
+        self._num_articles = self.content['total_articles_to_find_and_parse']
+        self._headers = self.content['headers']
+        self._encoding = self.content['encoding']
+        self._timeout = self.content['timeout']
+        self._should_verify_certificate = self.content['should_verify_certificate']
+        self._headless_mode = self.content['headless_mode']
 
         self._validate_config_content()
         self.config_obj = self._extract_config_content()
@@ -83,46 +88,46 @@ class Config:
         Returns config values
         """
 
-        return ConfigDTO(self.content['seed_urls'],
-                         self.content['total_articles_to_find_and_parse'],
-                         self.content['headers'],
-                         self.content['encoding'],
-                         self.content['timeout'],
-                         self.content['should_verify_certificate'],
-                         self.content['headless_mode'])
+        return ConfigDTO(self._seed_urls,
+                         self._num_articles,
+                         self._headers,
+                         self._encoding,
+                         self._timeout,
+                         self._should_verify_certificate,
+                         self._headless_mode)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        if not isinstance(self.content['seed_urls'], list):
+        if not isinstance(self._seed_urls, list):
             raise IncorrectSeedURLError
-        for element in self.content['seed_urls']:
+        for element in self._seed_urls:
             if not re.match(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+[^/]/', element) \
                     or not isinstance(element, str):
-                raise IncorrectSeedURLError(('Seed URL does not match standard pattern or does not correspond to the target website'))
+                raise IncorrectSeedURLError('Seed URL does not match standard pattern or does not correspond to the target website')
 
-        if not isinstance((self.content['total_articles_to_find_and_parse']), int)\
-                or isinstance(self.content['total_articles_to_find_and_parse'], bool):
+        if not isinstance(self._num_articles, int)\
+                or isinstance(self._num_articles, bool):
             raise IncorrectNumberOfArticlesError('Total number of articles to parse is not integer')
 
-        if self.content['total_articles_to_find_and_parse'] < 1 \
-                or self.content['total_articles_to_find_and_parse'] > 150:
+        if self._num_articles < 1 \
+                or self._num_articles > 150:
             raise NumberOfArticlesOutOfRangeError('Total number of articles is out of range from 1 to 150')
 
-        if not isinstance(self.content['headers'], dict):
+        if not isinstance(self._headers, dict):
             raise IncorrectHeadersError('Headers are not in a form of dictionary')
 
-        if not isinstance(self.content['encoding'], str):
+        if not isinstance(self._encoding, str):
             raise IncorrectEncodingError('Encoding must be specified as a string')
 
-        if self.content['timeout'] <= 0 or self.content['timeout'] > 60:
+        if self._timeout <= 0 or self._timeout > 60:
             raise IncorrectTimeoutError('Timeout value must be a positive integer less than 60')
 
-        if not isinstance(self.content['headless_mode'], bool):
+        if not isinstance(self._headless_mode, bool):
             raise IncorrectVerifyError
-        if not isinstance(self.content['verify_certificate'], bool):
+        if not isinstance(self._should_verify_certificate, bool):
             raise IncorrectVerifyError('Verify certificate value must either be True or False')
 
     def get_seed_urls(self) -> list[str]:
