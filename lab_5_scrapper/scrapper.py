@@ -333,9 +333,12 @@ class HTMLParser:
         for rus_month, en_month in months.items():
             date_str = date_str.replace(rus_month, en_month)
         try:
-            return datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
+            result = datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
+            if result:
+                return result
         except ValueError:
-            return None
+            pass
+        return datetime.datetime.now()
 
 
 
