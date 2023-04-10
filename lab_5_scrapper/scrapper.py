@@ -7,6 +7,7 @@ import re
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -14,7 +15,7 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH)
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
 
 
 class IncorrectSeedURLError(Exception):
@@ -302,23 +303,23 @@ class HTMLParser:
         Unifies date format
         """
         months = {
-            "янв": "jan",
-            "фев": "feb",
-            "мар": "mar",
-            "апр": "apr",
+            "января": "january",
+            "февраля": "february",
+            "марта": "march",
+            "апреля": "april",
             "мая": "may",
-            "июн": "jun",
-            "июл": "jul",
-            "авг": "aug",
-            "сен": "sep",
-            "окт": "oct",
-            "ноя": "nov",
-            "дек": "dec"
+            "июня": "june",
+            "июля": "july",
+            "августа": "august",
+            "сентября": "september",
+            "октября": "october",
+            "ноября": "november",
+            "декабря": "december"
         }
         for k, v in months.items():
             date_str = date_str.replace(k, v)
         try:
-            return datetime.datetime.strptime(date_str, '%d %b %Y, %H:%M')
+            return datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
         except ValueError:
             return None
 
