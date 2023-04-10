@@ -8,7 +8,7 @@ import re
 import shutil
 import time
 from pathlib import Path
-from typing import Pattern, Union
+from typing import Union
 
 import requests
 from bs4 import BeautifulSoup
