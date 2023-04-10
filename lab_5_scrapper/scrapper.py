@@ -181,8 +181,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    proxy_ip = '68.188.59.198:80'
+    proxy = {'http': proxy_ip}
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
-                            verify=config.get_verify_certificate())
+                            verify=config.get_verify_certificate(), proxies=proxy)
     response.encoding = response.apparent_encoding
     return response
 
