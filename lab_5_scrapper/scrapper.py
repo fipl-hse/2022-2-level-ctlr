@@ -3,7 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
-from random import randint
+import random
 import re
 import shutil
 import time
@@ -167,7 +167,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(randint(3, 7))
+    time.sleep(random.randrange(3, 7))
     headers = config.get_headers()
     timeout = config.get_timeout()
     response = requests.get(url, headers=headers, timeout=timeout)
@@ -236,8 +236,8 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('div', class_="news-text_wrapper").find_all('p')
-        self.article.text = "\n".join([p.get_text(strip=True) for p in text])
+        text = article_soup.find('div', class_="news-text_wrapper")
+        self.article.text = "\n".join(text.get_text(strip=True))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
