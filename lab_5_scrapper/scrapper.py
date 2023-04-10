@@ -17,38 +17,45 @@ from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
 
 class IncorrectSeedURLError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class IncorrectHeadersError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class IncorrectEncodingError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class IncorrectTimeoutError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class IncorrectVerifyError(Exception):
-    def __init__(self):
-        pass
+    pass
+    # def __init__(self):
+    #     pass
 
 
 class Config:
@@ -89,6 +96,8 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
+        if not isinstance(self.content['seed_urls'], list):
+            raise IncorrectSeedURLError
         for element in self.content['seed_urls']:
             if not re.match(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+[^/]/', element) \
                     or not isinstance(element, str):
@@ -111,6 +120,8 @@ class Config:
         if self.content['timeout'] <= 0 or self.content['timeout'] > 60:
             raise IncorrectTimeoutError('Timeout value must be a positive integer less than 60')
 
+        if not isinstance(self.content['headless_mode'], bool):
+            raise IncorrectVerifyError
         if not isinstance(self.content['verify_certificate'], bool):
             raise IncorrectVerifyError('Verify certificate value must either be True or False')
 
