@@ -3,7 +3,10 @@
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=2",
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=3",
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=4",
-    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=5"],
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=5",
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=6",
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=7",
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=8"],
     "headers": {
 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "accept-encoding": "gzip, deflate, br",
 "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
