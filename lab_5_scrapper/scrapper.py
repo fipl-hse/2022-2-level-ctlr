@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 
@@ -168,7 +168,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
+    time.sleep((random.randint(3, 7)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     return response
 
@@ -252,7 +252,7 @@ class HTMLParser:
         self.article.author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'})
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
         date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
-        self.article.date = self.unify_date_format(date_and_time)
+        date = self.unify_date_format(date_and_time)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -268,6 +268,7 @@ class HTMLParser:
         soup = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(soup.text, 'lxml')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
@@ -295,6 +296,7 @@ def main() -> None:
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
         to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
