@@ -6,9 +6,9 @@ import datetime
 import json
 from pathlib import Path
 from typing import Pattern, Union
-import requests
-import re
 
+import re
+import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
