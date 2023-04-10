@@ -4,9 +4,9 @@ Crawler implementation
 
 import datetime
 import json
+import re
 from pathlib import Path
 from typing import Pattern, Union
-import re
 
 import requests
 from bs4 import BeautifulSoup
