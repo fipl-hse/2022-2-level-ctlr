@@ -2,10 +2,10 @@
     "seed_urls": ["https://econs.online/?more=1", "https://econs.online/?more=2", "https://econs.online/?more=3", "https://econs.online/?more=4", "https://econs.online/?more=5", "https://econs.online/?more=6", "https://econs.online/?more=7", "https://econs.online/?more=8", "https://econs.online/?more=9", "https://econs.online/?more=10", "https://econs.online/?more=11"],
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-encoding": "deflate, br",
-        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
         "cache-control": "max-age=0",
-        "cookie": "tmr_lvid=c07673732bb3ba6cce3be04426701b8c; tmr_lvidTS=1680563540575; _ym_uid=1680563541699734446; _ym_d=1680563541; _ym_isad=1; XSRF-TOKEN=eyJpdiI6ImFjajh2U3gwdU9mbUhURjI1all0Rmc9PSIsInZhbHVlIjoiR0tlWktyRE0zeDhXMGxqem9oV29icGUxQUp4ZUEwVjlyaWhSZ3M4WmNwUjdTZHQwQzBOMEZIenAzUUJlN3hsK3dWbVF0dkFJYjkwWDlRSGdzd2RtSCs2eVBqdUpSc3ZROXIrSnhIOUlvYS9UZ280QWhsSzN5U1YwOXY5b1B5K3MiLCJtYWMiOiI0Y2M2OGQwYWU0M2ZlNjUwYTI3NjM2YzJjYzdjZmFiOGFjNDU3OTIzNjY0OGZlYzVlMzVkMTU3YjE5YmY5NjQ5In0%3D; lentv24_session=eyJpdiI6IkNnbS9GUGZrT214MGhKN0N4cWViL1E9PSIsInZhbHVlIjoicEU3Wjh2Ym9UeUJodXZKMVEzSmZlZC92T2hsemlkK0ZtdUZUbmVKVkxOOVkwdWMzc3ZOZ0RFRGhTeE5lb3RKK3dnUVRBQ05BM3NqaEZvSDZIeXVJSmtpMGZqbW5UVGRITGNsY0t3OVVrallGS0dXR0NWTlZ4OEpIcFZveWpIdkgiLCJtYWMiOiJhY2RiODhlZGRkZTM5ZjdmY2IxYTU4NmI4ZTQxYjhiY2Y5ZGM0MjEzM2YxYTViOGU1NTI1NzI3MDM4YmUzZGMwIn0%3D; tmr_detect=1%7C1680615640244",
+        "cookie": "__ddg1_=1iFvyoDsz5StYmlyCXpr; session-cookie=1754acf2976f490a944734b9beb261f557183c89dbb689d48b0b41c10a3910e2cbd58fae771f41a44a516af889984e0d; BITRIX_SM_GUEST_ID=4183618; BITRIX_SM_LAST_VISIT=10.04.2023%2023%3A32%3A00; BITRIX_SM_LAST_ADV=5_Y; PHPSESSID=2OhO6XI4ayI6pOAG32qVm0wG6KnfEDVd; BITRIX_CONVERSION_CONTEXT_s1=%7B%22ID%22%3A97%2C%22EXPIRE%22%3A1681160340%2C%22UNIQUE%22%3A%5B%22conversion_visit_day%22%5D%7D; _ym_uid=1681158721987256964; _ym_d=1681158721; tmr_lvid=41c86776bf4404c877b14f50e8fd3951; tmr_lvidTS=1681158720673; _ym_isad=2; BX_USER_ID=01d63cf58a0a122390c0ff6d2474a0e0; _ym_visorc=w; tmr_detect=0%7C1681158723137",
         "referer": "https://www.google.com/",
         "sec-ch-ua": "'Google Chrome';v='111', 'Not(A:Brand';v='8', 'Chromium';v='111'",
         "sec-ch-ua-mobile": "?0",
