@@ -121,13 +121,13 @@ class Config:
                     and isinstance(url, str)):
                 raise IncorrectSeedURLError
 
-        if not isinstance(dto.total_articles_to_find_and_parse, int) or \
-                dto.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT or \
-                dto.total_articles_to_find_and_parse <= 0:
+        if not isinstance(dto.total_articles, int) or \
+                dto.total_articles > NUM_ARTICLES_UPPER_LIMIT or \
+                dto.total_articles <= 0:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(dto.total_articles_to_find_and_parse, int) or \
-                isinstance(dto.total_articles_to_find_and_parse, bool):
+        if not isinstance(dto.total_articles, int) or \
+                isinstance(dto.total_articles, bool):
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(dto.headers, dict):
