@@ -196,7 +196,6 @@ class Crawler:
 
 
 
-
     def find_articles(self) -> None:
         """
         Finds articles
@@ -248,8 +247,8 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        self.article.title = article_soup.find('h1', {'class': 'title'})
-        self.article.author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'})
+        self.article.title = article_soup.find('h1', {'class': 'title'}).text
+        self.article.author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
         date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
         date = self.unify_date_format(date_and_time)
