@@ -149,6 +149,11 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+    verify = config.get_verify_certificate()
+    response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    return response
 
 
 
