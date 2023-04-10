@@ -219,7 +219,6 @@ class HTMLParser:
         """
         title = article_soup.find('h2', {'class': 'node-title'})
         self.article.title = title.text
-
         date = article_soup.find('div', {'class': 'node-date'})
         self.article.date = self.unify_date_format(date.text)
         text_div = article_soup.find(
