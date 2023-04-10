@@ -281,7 +281,7 @@ def main() -> None:
         print(i)
         parser = HTMLParser(full_url=article_url, article_id=i, config=configuration)
         article = parser.parse()
-        to_raw(article)
+        to_raw(article)  # some change
 
 
 if __name__ == "__main__":
