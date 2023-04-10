@@ -243,13 +243,7 @@ class HTMLParser:
         title = article_soup.find('h1')
         if title:
             self.article.title = title.text
-        data = article_soup.find('p', {"class": "dateElement"})
-        if data:
-            data_text = data.text
-            if not re.search(r'\d{4}', data_text):
-                curr_year = ' ' + str(datetime.date.today().year)
-                data_text = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', curr_year, data_text)
-                self.article.date = self.unify_date_format(data_text)
+        self.article.author = ["NOT FOUND"]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -264,6 +258,7 @@ class HTMLParser:
         page = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(page.content, "lxml")
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
