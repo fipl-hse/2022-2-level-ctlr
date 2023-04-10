@@ -186,7 +186,6 @@ class Config:
         """
         return self._headless_mode
 
-
 def make_request(url: str, config: Config) -> requests.models.Response:
     """
     Delivers a response from a request
