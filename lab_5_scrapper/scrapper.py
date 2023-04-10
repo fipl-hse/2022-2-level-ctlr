@@ -2,6 +2,7 @@
 Crawler implementation
 """
 from typing import Pattern, Union
+from datetime import datetime
 import json
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
@@ -99,43 +100,43 @@ class Config:
         """
         Retrieve seed urls
         """
-        pass
+        return self._config_dto.seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self.total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._config_dto.headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._config_dto.encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._config_dto.timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._config_dto.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._config_dto.headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
