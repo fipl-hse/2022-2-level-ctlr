@@ -5,6 +5,7 @@ Crawler implementation
 import datetime
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -13,7 +14,7 @@ from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 
 
 class IncorrectSeedURLError(Exception):
@@ -226,7 +227,14 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    assets_path = base_path / ASSETS_PATH
+    if assets_path.exists():
+        if assets_path.is_dir():
+            if assets_path.glob('**'):
+                shutil.rmtree(assets_path)
+        else:
+            assets_path.unlink()
+    assets_path.mkdir(exist_ok=True, parents=True)
 
 
 def main() -> None:
