@@ -284,7 +284,7 @@ class HTMLParser:
         author_tag = article_soup.find_all('p', {'class': 'article__prepared'}) or \
                      article_soup.find_all('b')
         if author_tag:
-            authors = [author_tag[0].get_text(strip=True).replace('\r\n', ' ')]
+            authors = [author_tag[0].get_text().replace('\r\n', '').replace('\n', '').strip()]
         else:
             authors = ["NOT FOUND"]
         self.article.author = authors
