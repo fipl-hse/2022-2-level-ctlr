@@ -152,7 +152,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    return response
 
 
 class Crawler:
