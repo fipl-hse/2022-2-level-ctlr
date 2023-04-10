@@ -281,7 +281,8 @@ class HTMLParser:
             title =  "NOT FOUND"
         self.article.title = title
 
-        author_tag = article_soup.find_all('p', {'class': 'article__prepared'})
+        author_tag = article_soup.find_all('p', {'class': 'article__prepared'}) or \
+                     article_soup.find_all('b')
         if author_tag:
             authors = author_tag[0].get_text(strip=True)
         else:
@@ -293,7 +294,7 @@ class HTMLParser:
             topic = topic_tag.get_text(strip=True)
         else:
             topic = "NOT FOUND"
-        self.article.topic = topic
+        self.article.topics = topic
 
         date_tag = article_soup.find('div', {'class': 'article__date'})
         if date_tag:
