@@ -6,13 +6,16 @@ import json
 from pathlib import Path
 from typing import Pattern, Union
 from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
+
 from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.article import io
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -292,8 +295,8 @@ def main() -> None:
     for idx, url in enumerate(crawler.urls):
         parser = HTMLParser(full_url=url, article_id=idx+1, config=config)
         text = parser.parse()
-        io.to_raw(text)
-        io.to_meta(text)
+        to_raw(text)
+        to_meta(text)
 
 
 if __name__ == "__main__":
