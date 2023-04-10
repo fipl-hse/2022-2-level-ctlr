@@ -169,7 +169,7 @@ class Crawler:
         """
         for a in article_bs.find_all('a'):
             url = a.get('href')
-            if url and url.startswith('/news/') and url not in self.urls:
+            if url and url.startswith('/news/'):
                 yield url
 
     def find_articles(self) -> None:
@@ -181,7 +181,8 @@ class Crawler:
             for url in self._extract_url(BeautifulSoup(page.text, 'lxml')):
                 if len(self.urls) >= self.config.get_num_articles():
                     return None
-                self.urls.append('https://ptzgovorit.ru' + url)
+                if (full_url := 'https://ptzgovorit.ru' + url) not in self.urls:
+                    self.urls.append(full_url)
 
     def get_search_urls(self) -> list:
         """
@@ -208,21 +209,39 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_divs = article_soup.find(
+        text_div = article_soup.find(
             'div', {'class': 'field field-name-body field-type-text-with-summary field-label-hidden'})
-        self.article.text = '\n'.join(text for paragraph in text_divs.find_all('p') if (text := paragraph.text.strip()))
+        self.article.text = '\n'.join(text for paragraph in text_div.find_all('p') if (text := paragraph.text.strip()))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('h2', {'class': 'node-title'})
+        self.article.title = title.text
+
+        date = article_soup.find('div', {'class': 'node-date'})
+        self.article.date = self.unify_date_format(date.text)
+        text_div = article_soup.find(
+            'div', {'class': 'field field-name-body field-type-text-with-summary field-label-hidden'})
+
+        if author := text_div.find(string=re.compile('^Текст: ')):
+            self.article.author = ' '.join(author.text.split()[1:3])
+        elif author := text_div.find(string=re.compile('^Текст и фото: ')):
+            self.article.author = ' '.join(author.text.split()[4:6])
+        else:
+            self.article.author = 'NOT FOUND'
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        months_substitutions = {'января': 'Jan', 'февраля': 'Feb', 'марта': 'Mar', 'апреля': 'Apr', 'мая': 'May',
+                                'июня': 'Jun', 'июля': 'Jul', 'августа': 'Aug', 'сентября': 'Sep', 'октября': 'Oct',
+                                'ноября': 'Nov', 'декабря': 'Dec'}
+        date = date_str.split()
+        date[1] = months_substitutions[date[1]]
+        return datetime.datetime.strptime(' '.join(date), '%d %b %Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -231,6 +250,7 @@ class HTMLParser:
         page = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(page.text, 'lxml')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
@@ -257,9 +277,9 @@ def main() -> None:
     print('Searching')
     crawler.find_articles()
     print('Parsing')
-    for i, full_url in enumerate(crawler.urls):
+    for i, article_url in enumerate(crawler.urls):
         print(i)
-        parser = HTMLParser(article_url=full_url, article_id=i, config=configuration)
+        parser = HTMLParser(full_url=article_url, article_id=i, config=configuration)
         article = parser.parse()
         to_raw(article)
 
