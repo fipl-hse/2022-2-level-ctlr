@@ -1,74 +1,67 @@
 """
 Crawler implementation
 """
+import datetime
+import json
+import random
+import re
+import shutil
+import time
+from pathlib import Path
 from typing import Pattern, Union
 
-import json
-
-import re
-
-import datetime
-import time
-
-from bs4 import BeautifulSoup
 import requests
-
-from fake_useragent import UserAgent
-import random
-
-from pathlib import Path
-import shutil
-
-from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
-from core_utils.config_dto import ConfigDTO
+from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 
 
-class IncorrectSeedURLError(Exception):
-    
+class IncorrectSeedURLError(Exception):  
     """
     Seed URL does not match standard pattern
     """
-    
+  
+
 class IncorrectNumberOfArticlesError(Exception):
     """
     Inappropriate value for number of articles
     """
+
     
-class NumberOfArticlesOutOfRangeError(Exception):
-    
+class NumberOfArticlesOutOfRangeError(Exception):   
     """
     total number of articles is out of range from 1 to 150
     """
+
     
-class IncorrectHeadersError(Exception):
-    
+class IncorrectHeadersError(Exception): 
     """
     headers are not in a form of dictionary
     """
+
     
-class IncorrectEncodingError(Exception):
-    
+class IncorrectEncodingError(Exception):    
     """
     encoding must be specified as a string
     """
 
-class IncorrectTimeoutError(Exception):
     
+class IncorrectTimeoutError(Exception):    
     """
     timeout value must be a positive integer less than 60
     """
     
-class IncorrectVerifyError(Exception):
     
+class IncorrectVerifyError(Exception):    
     """
     verify certificate value must either be `True` or `False`
     """
     
-class IncorrectHeadlessError(Exception):
     
+class IncorrectHeadlessError(Exception):    
     """
     headless mode must be either 'True' or 'False'
     """
@@ -78,7 +71,6 @@ class Config:
     """
     Unpacks and validates configurations
     """
-
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
@@ -99,8 +91,7 @@ class Config:
         Returns config values
         """
         with open(self.path_to_config) as f:
-            config = json.load(f)
-        
+            config = json.load(f)       
         return ConfigDTO(
             seed_urls=config['seed_urls'],
             total_articles_to_find_and_parse=config['total_articles_to_find_and_parse'],
@@ -116,22 +107,22 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config) as f:
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config = json.load(f)
-        
+            
         if not config['seed_urls']:
-            raise IncorrectSeedURLError
+            raise IncorrectSeedURLError  
             
         for url in config['seed_urls']:
             if not (isinstance(url, str) and re.match(r'https?://.*/', url)):
                 raise IncorrectSeedURLError
-         
+                
         for url in config['seed_urls']:
             if not ("econs.online" in url):
-                raise IncorrectSeedURLError
-            
+                raise IncorrectSeedURLError  
+                
         if not isinstance(config['seed_urls'], list):
-            raise IncorrectSeedURLError
+            raise IncorrectSeedURLError      
             
         if not isinstance(config['total_articles_to_find_and_parse'], int):
             raise IncorrectNumberOfArticlesError
@@ -210,7 +201,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     return response
 
 
-def isArticle(url: str) -> bool:
+def is_article(url: str) -> bool:
     return '/articles/photo/' not in url and '/tests/' not in url
 
 
@@ -218,9 +209,6 @@ class Crawler:
     """
     Crawler implementation
     """
-
-    url_pattern: Union[Pattern, str]
-
     def __init__(self, config: Config) -> None:
         """
         Initializes an instance of the Crawler class
@@ -248,7 +236,7 @@ class Crawler:
                     continue
                 soup = BeautifulSoup(response.text, 'html.parser')
                 post = soup.find_all('h4', {'class': 'news-card__title'})
-                post = [i for i in post if isArticle(str(i))]
+                post = [i for i in post if is_article(str(i))]
                 count_urls = len(post)
         for article in post[:self.config.get_num_articles()]:
             self.urls.append(self._extract_url(article_bs=article))
@@ -264,7 +252,6 @@ class HTMLParser:
     """
     ArticleParser implementation
     """
-
     def __init__(self, full_url: str, article_id: int, config: Config) -> None:
         """
         Initializes an instance of the HTMLParser class
@@ -289,18 +276,15 @@ class HTMLParser:
         """
         title = article_soup.find('h1', {'class':'article-head__title'})
         if title:
-            self.article.title = title.text
-        
+            self.article.title = title.text    
         info = article_soup.find('div', {'class':'article-head__info'})
         authors = info.find_all('a')
         authors_list = []
         for author in authors:
             author_cleared = [str(tag) for tag in author][0].strip()
             authors_list.append(author_cleared)
-        self.article.author = authors_list
-        
-        self.article.date = self.unify_date_format(date_str=info.span['date-time'])
-        
+        self.article.author = authors_list        
+        self.article.date = self.unify_date_format(date_str=info.span['date-time'])     
         tags_list = []
         tags = article_soup.find_all('div', {'class':'article-footer__hashtags-item'})
         if tags:
