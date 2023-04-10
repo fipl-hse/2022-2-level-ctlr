@@ -1,23 +1,27 @@
 """
 Crawler implementation
 """
-import os
+import json
+from random import randint
 import re
 import shutil
-import json
-from typing import Pattern, Union
+from time import sleep
 from pathlib import Path
+from typing import Pattern, Union
+
 import requests
 from bs4 import BeautifulSoup
-from core_utils.config_dto import ConfigDTO
+
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
-                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
-from time import sleep
-from random import randint
-# from urllib.error import HTTPError
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (
+    ASSETS_PATH,
+    CRAWLER_CONFIG_PATH,
+    NUM_ARTICLES_UPPER_LIMIT,
+    TIMEOUT_LOWER_LIMIT,
+    TIMEOUT_UPPER_LIMIT,
+)
 
 
 class IncorrectSeedURLError(Exception):
@@ -99,7 +103,7 @@ class Config:
         encoding = config["encoding"]
         timeout = config["timeout"]
         verify_certificate = config["should_verify_certificate"]
-        headless_mode = config['headless_mode']
+        headless_mode = config["headless_mode"]
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
@@ -111,9 +115,7 @@ class Config:
         if not 1 < total_articles_to_find_and_parse < NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if (
-                not isinstance(total_articles_to_find_and_parse, int)
-        ):
+        if not isinstance(total_articles_to_find_and_parse, int):
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(headers, dict):
@@ -122,11 +124,15 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if (not isinstance(timeout, int)
-                or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT):
+        if (
+            not isinstance(timeout, int)
+            or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT
+        ):
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
+        if not isinstance(verify_certificate, bool) or not isinstance(
+            headless_mode, bool
+        ):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -210,7 +216,9 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_tags_bs = article_bs.find_all("a", string=re.compile(r'https://irkutskmedia\.ru/news/.'))
+        all_tags_bs = article_bs.find_all(
+            "a", string=re.compile(r"https://irkutskmedia\.ru/news/.")
+        )
         for tag in all_tags_bs:
             return tag.get("href")
 
@@ -287,19 +295,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    project_path = Path(__file__).parent.parent / base_path
-
-    # checks if the directory exists
-    if not project_path.exists():
-        # if it doesn't, directory is created
-        project_path.mkdir(parents=True)
-
-    else:
-        # if the directory exists, nested files are checked
-        for dirpath, dirnames, files in os.walk(project_path):
-            # if the directory has a nested directories or files, the program removes the folder
-            if dirpath or files or dirnames:
-                shutil.rmtree(project_path)
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
