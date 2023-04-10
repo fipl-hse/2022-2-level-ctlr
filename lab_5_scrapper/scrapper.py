@@ -1,13 +1,14 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
-from datetime import datetime
 import json
-from bs4 import BeautifulSoup
-from core_utils.config_dto import ConfigDTO
 import re
 import requests
+
+from typing import Pattern, Union
+from datetime import datetime
+from bs4 import BeautifulSoup
+from core_utils.config_dto import ConfigDTO
 
 
 class IncorrectSeedURLError(Exception):
@@ -144,7 +145,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+
 
 
 class Crawler:
