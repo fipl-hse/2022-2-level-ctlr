@@ -11,6 +11,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH
+from core_utils.article.article import Article
 from pathlib import Path
 
 
