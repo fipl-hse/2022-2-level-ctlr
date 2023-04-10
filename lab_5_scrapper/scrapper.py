@@ -90,17 +90,9 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        config_data = self._extract_config_content()
 
-        seed_urls = config['seed_urls']
-        headers = config['headers']
-        total_articles_to_find_and_parse = config['total_articles_to_find_and_parse']
-        encoding = config['encoding']
-        timeout = config['timeout']
-        should_verify_certificate = config['should_verify_certificate']
-        headless_mode = config['headless_mode']
-
+        seed_urls = config_data.seed_urls
         correct_url = 'https://dzer.ru/'
         if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
@@ -111,31 +103,35 @@ class Config:
     "Invalid seed URL in configuration file"
     )
 
+        total_articles_to_find_and_parse = config_data.total_articles
         if not isinstance(total_articles_to_find_and_parse, int) \
                 or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
-
         if total_articles_to_find_and_parse > 150:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
+        headers = config_data.headers
         if not isinstance(headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
+        encoding = config_data.encoding
         if not isinstance(encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
+        timeout = config_data.timeout
         if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
             raise IncorrectTimeoutError(
                 "Invalid value for timeout in configuration file"
                 )
-
+        should_verify_certificate = config_data.should_verify_certificate
         if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError(
         "Invalid value for should_verify_certificate in configuration file"
         )
 
+        headless_mode = config_data.headless_mode
         if not isinstance(headless_mode, bool):
             raise IncorrectVerifyError(
         "Invalid value for headless_mode in configuration file"
