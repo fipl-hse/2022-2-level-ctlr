@@ -325,14 +325,17 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
     if base_path.exists():
         shutil.rmtree(base_path)
+
     base_path.mkdir(parents=True)
-    #os.makedirs(base_path)
+
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
+    base_path = Path('C:\\pyproj\\hse\\2022-2-level-ctlr\\tmp\\articles')
+    prepare_environment(base_path)
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
