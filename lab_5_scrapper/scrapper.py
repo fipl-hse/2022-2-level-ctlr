@@ -58,8 +58,15 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self._config_dto = self._extract_config_content()
+        config_dto = self._extract_config_content()
         self._validate_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._should_verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
