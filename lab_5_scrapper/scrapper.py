@@ -225,8 +225,8 @@ class Crawler:
                                         value or 'midinews' in value)):
             href = link.get('href') or ''
             if href:
-                return urljoin(current_url, href)
-        return urljoin(current_url, '')
+                return urljoin(str(current_url), str(href))
+        return urljoin(str(current_url), '')
 
     def find_articles(self) -> None:
         """
@@ -330,8 +330,8 @@ class HTMLParser:
             "ноября": "november",
             "декабря": "december"
         }
-        for k, v in months.items():
-            date_str = date_str.replace(k, v)
+        for rus_month, en_month in months.items():
+            date_str = date_str.replace(rus_month, en_month)
         try:
             return datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
         except ValueError:
@@ -367,9 +367,9 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
 
     crawler = Crawler(config=config)
-    articles = crawler.find_articles()
+    crawler.find_articles()
 
-    for i, url in enumerate(articles, start=1):
+    for i, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=i, config=config)
         article = parser.parse()
 
