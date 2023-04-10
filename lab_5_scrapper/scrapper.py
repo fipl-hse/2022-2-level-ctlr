@@ -4,11 +4,14 @@ Crawler implementation
 import json
 import re
 import requests
+import shutil
 
 from typing import Pattern, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
+from core_utils.constants import ASSETS_PATH
+from pathlib import Path
 
 
 class IncorrectSeedURLError(Exception):
@@ -88,7 +91,7 @@ class Config:
             raise IncorrectEncodingError
 
         timeout = configuration.get('timeout')
-        if not isinstance(timeout, int) or timeout <= 0 or timeout >= 60:
+        if not isinstance(timeout, int) or timeout <= 0 or timeout >= 10:
             raise IncorrectTimeoutError
 
         verify = configuration.get('verify')
@@ -220,14 +223,22 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if isinstance(base_path, str):
+        base_path = Path(base_path)
+
+    if base_path.exists():
+        shutil.rmtree(base_path)
+
+    else:
+        base_path.mkdir(parents=True)
+
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    prepare_environment(ASSETS_PATH)
 
 
 if __name__ == "__main__":
