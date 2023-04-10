@@ -58,13 +58,14 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._seed_urls = self._extract_config_content().seed_urls
-        self._headers = self._extract_config_content().headers
-        self._num_articles = self._extract_config_content().total_articles
-        self._encoding = self._extract_config_content().encoding
-        self._timeout = self._extract_config_content().timeout
-        self._should_verify_certificate = self._extract_config_content().should_verify_certificate
-        self._headless_mode = self._extract_config_content().headless_mode
+        self.config = self._extract_config_content()
+        self._seed_urls = self.config.seed_urls
+        self._headers = self.config.headers
+        self._num_articles = self.config.total_articles
+        self._encoding = self.config.encoding
+        self._timeout = self.config.timeout
+        self._should_verify_certificate = self.config.should_verify_certificate
+        self._headless_mode = self.config.headless_mode
 
 
 
@@ -247,9 +248,9 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
 
-    def unify_date_format(self, date_str: str)-> datetime.datetime:
+
+    def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
@@ -259,7 +260,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        soup = make_request(self.config)
+        soup = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(soup.text, 'lxml')
         self._fill_article_with_text(article_bs)
         return self.article
