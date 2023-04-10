@@ -233,7 +233,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('div', {"class": "news-text_wrapper"}).find_all('p')
+        text = article_soup.find('div', class_="news-text_wrapper").find_all('p')
         self.article.text = "\n".join([p.get_text(strip=True) for p in text])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
