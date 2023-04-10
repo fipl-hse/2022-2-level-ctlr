@@ -2,7 +2,6 @@
 Crawler implementation
 """
 
-import re
 import datetime
 import json
 from pathlib import Path
@@ -10,6 +9,7 @@ from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
+import re
 
 from core_utils.article.article import Article
 from core_utils.config_dto import ConfigDTO
