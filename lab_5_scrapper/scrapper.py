@@ -19,32 +19,33 @@ from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
 
 
 class IncorrectSeedURLError(Exception):
-    """Raised when the seed URL does not match the standard pattern or does not correspond to the target website"""
-    pass
+    """Raised when the seed URL does not match the
+    standard pattern or does not correspond to the target website"""
+
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """Raised when the total number of articles is out of range from 1 to 150"""
-    pass
+
 
 class IncorrectNumberOfArticlesError(Exception):
     """Raised when the total number of articles to parse is not an integer"""
-    pass
+
 
 class IncorrectHeadersError(Exception):
     """Raised when headers are not in the form of a dictionary"""
-    pass
+
 
 class IncorrectEncodingError(Exception):
     """Raised when the encoding is not specified as a string"""
-    pass
+
 
 class IncorrectTimeoutError(Exception):
     """Raised when the timeout value is not a positive integer less than 60"""
-    pass
+
 
 class IncorrectVerifyError(Exception):
     """Raised when the verify certificate value is not either True or False"""
-    pass
+
 
 
 class Config:
@@ -104,8 +105,11 @@ class Config:
         if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
         for seed_url in seed_urls:
-            if not re.match(r'^https?://w?w?w?.', seed_url) and seed_url.split('/')[:2] != correct_url.split('/')[:2]:
-                raise IncorrectSeedURLError("Invalid seed URL in configuration file")
+            if not re.match(r'^https?://w?w?w?.', seed_url) \
+                    and seed_url.split('/')[:2] != correct_url.split('/')[:2]:
+                raise IncorrectSeedURLError(
+    "Invalid seed URL in configuration file"
+    )
 
         if not isinstance(total_articles_to_find_and_parse, int) or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError(
@@ -122,13 +126,19 @@ class Config:
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
         if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
-            raise IncorrectTimeoutError("Invalid value for timeout in configuration file")
+            raise IncorrectTimeoutError(
+                "Invalid value for timeout in configuration file"
+                )
 
         if not isinstance(should_verify_certificate, bool):
-            raise IncorrectVerifyError("Invalid value for should_verify_certificate in configuration file")
+            raise IncorrectVerifyError(
+        "Invalid value for should_verify_certificate in configuration file"
+        )
 
         if not isinstance(headless_mode, bool):
-            raise IncorrectVerifyError("Invalid value for headless_mode in configuration file")
+            raise IncorrectVerifyError(
+        "Invalid value for headless_mode in configuration file"
+        )
 
 
     def get_seed_urls(self) -> list[str]:
@@ -210,7 +220,8 @@ class Crawler:
         """
         current_url = article_bs.find('meta', property='og:url').get('content')
         for link in article_bs.find_all('a',
-                                        class_=lambda value: value and ('mininews' in value or 'midinews' in value)):
+                                        class_=lambda value: value and ('mininews' in
+                                        value or 'midinews' in value)):
             href = link.get('href')
             if href:
                 return urljoin(current_url, href)
