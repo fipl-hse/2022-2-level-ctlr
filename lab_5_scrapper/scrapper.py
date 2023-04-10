@@ -89,14 +89,14 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self.dto = self._extract_config_content()
-        self._seed_urls = self.dto.seed_urls
-        self._total_articles = self.dto.total_articles
-        self._headers = self.dto.headers
-        self._encoding = self.dto.encoding
-        self._timeout = self.dto.timeout
-        self._should_verify_certificate = self.dto.should_verify_certificate
-        self._headless_mode = self.dto.headless_mode
+        dto = self._extract_config_content()
+        self._seed_urls = dto.seed_urls
+        self._total_articles = dto.total_articles
+        self._headers = dto.headers
+        self._encoding = dto.encoding
+        self._timeout = dto.timeout
+        self._should_verify_certificate = dto.should_verify_certificate
+        self._headless_mode = dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -115,38 +115,37 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as file:
-            parameters = json.load(file)
+        dto = self._extract_config_content()
 
-        if not isinstance(parameters['seed_urls'], list):
+        if not isinstance(dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in parameters['seed_urls']:
-            if not (re.match(r'https?://w?w?w?.', url) and url.startswith('https://livennov.ru/news/')
+        for url in dto.seed_urls:
+            if not (re.match(r'https?://', url) and url.startswith('https://livennov.ru/news/')
                     and isinstance(url, str)):
                 raise IncorrectSeedURLError
 
-        if not isinstance(parameters['total_articles_to_find_and_parse'], int) or \
-                parameters['total_articles_to_find_and_parse'] > NUM_ARTICLES_UPPER_LIMIT or \
-                parameters['total_articles_to_find_and_parse'] <= 0:
+        if not isinstance(dto.total_articles_to_find_and_parse, int) or \
+                dto.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT or \
+                dto.total_articles_to_find_and_parse <= 0:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(parameters['total_articles_to_find_and_parse'], int) or \
-                isinstance(parameters['total_articles_to_find_and_parse'], bool):
+        if not isinstance(dto.total_articles_to_find_and_parse, int) or \
+                isinstance(dto.total_articles_to_find_and_parse, bool):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(parameters['headers'], dict):
+        if not isinstance(dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(parameters['encoding'], str):
+        if not isinstance(dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(parameters['timeout'], int) or parameters['timeout'] < TIMEOUT_LOWER_LIMIT or \
-                parameters['timeout'] > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(dto.timeout, int) or dto.timeout < TIMEOUT_LOWER_LIMIT or \
+                dto.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        if not (isinstance(parameters['should_verify_certificate'], bool)
-                and isinstance(parameters['headless_mode'], bool)):
+        if not (isinstance(dto.should_verify_certificate, bool)
+                and isinstance(dto.headless_mode, bool)):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
