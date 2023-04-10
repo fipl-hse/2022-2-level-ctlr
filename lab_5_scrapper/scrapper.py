@@ -268,13 +268,13 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find("meta", attrs={"itemprop": "name"})
+        title = article_soup.find('h1', attrs={'itemprop': 'headline'})
         if title:
-            self.article.title = str(title.get('content'))
+            self.article.title = title.text
 
-        author = article_soup.find("meta", attrs={"itemprop": "author"})
+        author = article_soup.find('a', class_='article-info_articleInfoAuthor__W0ZnW')
         if author:
-            self.article.author = [author.get('content')]
+            self.article.author = [author.text]
         if not author:
             self.article.author = ["NOT FOUND"]
 
@@ -282,30 +282,39 @@ class HTMLParser:
         if topics:
             self.article.topics = [topic.text for topic in topics]
 
-        months_collection = {"Jan": "01", "Feb": "02", "Mar": "03",
-                             "Apr": "04", "May": "05", "Jun": "06",
-                             "Jul": "07", "Aug": "08", "Sep": "09",
-                             "Oct": "10", "Nov": "11", "Dec": "12"}
+        date = article_soup.find('span', attrs={'class': 'article-info_articleInfoDate__S0E0P'})
+        string_date = date.text
+        list_date = string_date.lower().split()
 
-        date_all = article_soup.find('span', attrs={'itemprop': 'datePublished'})
-        if date_all:
-            date = str(date_all['content'])
-            date.split()
-            date = date.split()
+        months_collection = {"января": "01", "февраля": "02", "марта": "03",
+                             "апреля": "04", "мая": "05", "июня": "06",
+                             "июля": "07", "августа": "08", "сентября": "09",
+                             "октября": "10", "ноября": "11", "декабря": "12"}
 
-            day = date[2]
-            year = date[3]
-            time = date[4]
-            month = months_collection[date[1]]
+        year = '2023'
+        month = ''
+        day = ''
+        time = ''
 
-            correct_date = year + '-' + month + '-' + day + ' ' + time
-            self.article.date = self.unify_date_format(correct_date)
+        for element in list_date:
+            if ':' in element:
+                time += element
+            if element in months_collection:
+                month += months_collection[element]
+            digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+            if element.isdigit() and element in digits:
+                day += '0' + element
+            if element.isdigit() and element not in digits:
+                day += element
+
+        correct_date = year + '-' + month + '-' + day + ' ' + time
+        self.article.date = self.unify_date_format(correct_date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
