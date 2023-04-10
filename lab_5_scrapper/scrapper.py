@@ -60,8 +60,8 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r') as f:
-            configuration = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            configuration = json.load(file)
             return ConfigDTO(**configuration)
 
     def _validate_config_content(self) -> None:
@@ -69,15 +69,15 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self._config_file_path, 'r') as f:
-            configuration = json.load(f)
+        with open(self._config_file_path, 'r', encoding='utf-8') as file:
+            configuration = json.load(file)
 
         seed_url = configuration.get('seed_url')
         if not seed_url or not re.match(r'^https?://w?w?w?.', seed_url):
             raise IncorrectSeedURLError
         num_articles = configuration.get('num_articles')
 
-        if not isinstance(num_articles, int):
+        if not isinstance(num_articlees, int):
             raise IncorrectNumberOfArticlesError
 
         if num_articles < 1 or num_articles > 150:
@@ -168,13 +168,15 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.urls = []
+        self._config = config
+        self._seed_urls = config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        soup = BeautifulSoup()
 
     def find_articles(self) -> None:
         """
