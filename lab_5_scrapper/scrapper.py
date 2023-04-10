@@ -16,7 +16,7 @@ from random import randint
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, \
     TIMEOUT_UPPER_LIMIT
@@ -277,15 +277,21 @@ class HTMLParser:
         """
         self.article.title = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
 
-        author_info = article_soup.find('a', {'href': '/author/kiryan-latunskiy/'}).find('span', {'itemprop': 'name'})
+        author_info = article_soup.find('div', {'class': "b-meta-item b-meta-item--bold"}).find('span',
+                                                                                                {'itemprop': 'name'})
         if author_info:
             self.article.author = author_info.text.strip()
+
+        date_info = article_soup.find('time', {'class': "b-meta-item"}).text.strip()
+        self.article.date = self.unify_date_format(date_info)
+
+        self.article.topic = article_soup.find('div', {'class': "lid-detail"}).text.strip()
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -319,6 +325,7 @@ def main() -> None:
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
         to_raw(article)
+        to_meta(article)
 
     # pass
 
