@@ -294,8 +294,10 @@ class HTMLParser:
             topic = topic_tag.get_text(strip=True)
         else:
             topic = "NOT FOUND"
-
+        if isinstance(topic, list):
+            topic = topic[0]
         self.article.topics = topic
+
 
         date_tag = article_soup.find('div', {'class': 'article__date'})
         if date_tag:
