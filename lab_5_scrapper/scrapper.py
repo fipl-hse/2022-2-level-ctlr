@@ -254,16 +254,33 @@ class HTMLParser:
         self.article.title = title.get('content')
 
         author = article_soup.find("meta", attrs={"itemprop": "author"})
+        if not author:
+            self.article.author = ["NOT FOUND"]
         self.article.author = [author.get('content')]
 
         topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
         self.article.topics = [topic.text for topic in topics]
 
+        months_collection = {"Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06",
+                             "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"}
+
+        date = article_soup.find('span', attrs={'itemprop': 'datePublished'})['content']
+        date.split()
+        date = date.split()
+
+        day = date[2]
+        year = date[3]
+        time = date[4]
+        month = months_collection[date[1]]
+
+        correct_date = year + '-' + month + '-' + day + ' ' + time
+        self.article.date = self.unify_date_format(correct_date)
+
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -272,6 +289,7 @@ class HTMLParser:
         page = make_request(self._full_url, self._config)
         soup = BeautifulSoup(page.text, "lxml")
         self._fill_article_with_text(soup)
+        self._fill_article_with_meta_information(soup)
         return self.article
 
 
@@ -301,3 +319,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
