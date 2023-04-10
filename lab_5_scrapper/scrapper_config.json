@@ -1,6 +1,8 @@
 {
     "seed_urls": ["https://ptzgovorit.ru/node?page=20"],
-    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
+    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+        "cookie":  "__ddg1_=HdkhwDFqChWSS1amjX35; __ddgid_=NoogTKlXUN90o8CF; __ddgmark_=naDJtpp65eRgNyna; __ddg5_=dR6ubeItpGsUBvXm; __ddg2_=PvNOmDVCOnD0vtuZ",
+        "accept-language": "ru-RU,ru;q=0.8"},
     "total_articles_to_find_and_parse": 15,
     "encoding": "utf-8",
     "timeout": 59,
