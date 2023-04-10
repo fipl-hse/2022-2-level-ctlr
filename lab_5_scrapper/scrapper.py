@@ -167,7 +167,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randrange(3, 5))
+    time.sleep(random.randrange(3, 7))
     headers = config.get_headers()
     timeout = config.get_timeout()
     response = requests.get(url, headers=headers, timeout=timeout)
