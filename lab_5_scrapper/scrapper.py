@@ -11,6 +11,10 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 import requests
 import shutil
+import random
+import time
+from bs4 import BeautifulSoup
+from core_utils.article.io import to_raw
 
 
 class IncorrectSeedURLError(Exception):
@@ -170,6 +174,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    time.sleep(random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
     headers = config.get_headers()
     timeout = config.get_timeout()
 
@@ -188,25 +193,36 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self._seed_url = config.get_seed_urls()
+        self._config = config
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        href = article_bs.get('href')
+        return href
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for url in self._seed_url:
+            result = make_request(url, config=self._config)
+            soup = BeautifulSoup(result.text, features="html.parser")
+            for elem in soup.find_all('a', class_='news-list__title'):
+                current_url = url + self._extract_url(elem)
+                if current_url is not None:
+                    self.urls.append(current_url)
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self.urls
 
 
 class HTMLParser:
