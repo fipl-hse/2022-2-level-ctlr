@@ -71,17 +71,10 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r') as config:
-            content = json.load(config)
-            extracted = ConfigDTO(
-                content['seed_urls'],
-                content['total_articles_to_find_and_parse'],
-                content['headers'],
-                content['encoding'],
-                content['timeout'],
-                content['should_verify_certificate'],
-                content['headless_mode'])
-            return extracted
+        with open(self.path_to_config, 'r', encoding='utf-8') as config:
+            f = json.load(config)
+        return ConfigDTO(*[f[param] for param in ['seed_urls', 'total_articles_to_find_and_parse', 'headers',
+                                                  'encoding', 'timeout', 'should_verify_certificate', 'headless_mode']])
 
     def _validate_config_content(self) -> None:
         """
@@ -152,8 +145,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
-    return response
+    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
 
 
 class Crawler:
@@ -167,25 +159,34 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.config = config
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        for a in article_bs.find_all('a'):
+            url = a.get('href')
+            if url and url.startswith('/news/') and url not in self.urls:
+                yield url
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for seed_url in self.get_search_urls():
+            page = make_request(seed_url, self.config)
+            for url in self._extract_url(BeautifulSoup(page.text, 'lxml')):
+                if len(self.urls) >= self.config.get_num_articles():
+                    return None
+                self.urls.append('https://ptzgovorit.ru' + url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -243,6 +244,8 @@ def main() -> None:
     Entrypoint for scrapper module
     """
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
 
 
 if __name__ == "__main__":
