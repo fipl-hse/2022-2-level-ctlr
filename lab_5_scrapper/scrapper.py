@@ -247,7 +247,14 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find("meta", attrs={"itemprop": "name"})
+        self.article.title = title.get('content')
+
+        author = article_soup.find("meta", attrs={"itemprop": "author"})
+        self.article.author = [author.get('content')]
+
+        topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
+        self.article.topics = [topic.text for topic in topics]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -286,6 +293,7 @@ def main() -> None:
         parser = HTMLParser(full_url=url, article_id=idx+1, config=config)
         text = parser.parse()
         io.to_raw(text)
+        io.to_meta(text)
 
 
 if __name__ == "__main__":
