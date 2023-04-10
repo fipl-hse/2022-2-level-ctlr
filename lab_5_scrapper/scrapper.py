@@ -2,20 +2,22 @@
 Crawler implementation
 """
 import datetime
-from typing import Pattern, Union
+import json
+import re
+import requests
+import shutil
+import time
 from pathlib import Path
+from typing import Pattern, Union
+from random import randint
+
+from bs4 import BeautifulSoup
+
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT, \
     TIMEOUT_UPPER_LIMIT
-from core_utils.article.io import to_raw
-import json
-import requests
-from random import randint
-import shutil
-import time
-from bs4 import BeautifulSoup
-import re
 
 
 class IncorrectSeedURLError(Exception):
