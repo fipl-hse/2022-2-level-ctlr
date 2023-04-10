@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 import core_utils.constants as const
 from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 
 
@@ -288,6 +289,10 @@ def main() -> None:
     for id_, url in enumerate(crawler.get_search_urls()):
         parser = HTMLParser(full_url=url, article_id=id_, config=config)
         article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
+
 
 
 if __name__ == "__main__":
