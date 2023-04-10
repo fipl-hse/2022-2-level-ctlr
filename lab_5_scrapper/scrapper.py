@@ -301,6 +301,5 @@ def main() -> None:
             to_meta(article)
 
 
-
 if __name__ == "__main__":
     main()
