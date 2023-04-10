@@ -61,12 +61,6 @@ class IncorrectVerifyError(Exception):
     """
 
 
-class IncorrectHeadlessError(Exception):
-    """
-    headless mode must be either 'True' or 'False'
-    """
-
-
 class Config:
     """
     Unpacks and validates configurations
@@ -107,40 +101,37 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        config_dto = self._extract_config_content()
 
-        if not config['seed_urls'] or not isinstance(config['seed_urls'], list):
+        if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in config['seed_urls']:
-            if not (isinstance(url, str)
-                    and re.match(r'https?://.*/', url)) or "econs.online" not in url:
+        for url in config_dto.seed_urls:
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(config['total_articles_to_find_and_parse'], int):
+        if (not isinstance(config_dto.total_articles, int)
+                or isinstance(config_dto.total_articles, bool)
+                or config_dto.total_articles < 1):
             raise IncorrectNumberOfArticlesError
 
-        if config['total_articles_to_find_and_parse'] not in range(1, NUM_ARTICLES_UPPER_LIMIT+1):
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(config['headers'], dict):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(config['encoding'], str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(config['timeout'], int):
+        if (not isinstance(config_dto.timeout, int)
+                or config_dto.timeout < TIMEOUT_LOWER_LIMIT
+                or config_dto.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if config['timeout'] not in range(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT+1):
-            raise IncorrectTimeoutError
-
-        if not isinstance(config['should_verify_certificate'], bool):
+        if (not isinstance(config_dto.should_verify_certificate, bool)
+                or not isinstance(config_dto.headless_mode, bool)):
             raise IncorrectVerifyError
-
-        if not isinstance(config['headless_mode'], bool):
-            raise IncorrectHeadlessError
 
     def get_seed_urls(self) -> list[str]:
         """
