@@ -265,16 +265,13 @@ class HTMLParser:
         Finds text of article
         """
         self.main_text_bs = article_soup.find('div', {
-            'itemprop': 'articleBody'
-        }).text.replace('\n', '').replace('\n\n', ' ').replace('  ', '').strip()
+            'itemprop': 'articleBody'}).text.replace('\n\n', ' ').replace('  ', '').strip()
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title_info = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1')
-        if title_info:
-            self.article.title = title_info.text
+        self.article.title = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
 
         author_info = article_soup.find('a', {'href': '/author/kiryan-latunskiy/'}).find('span', {'itemprop': 'name'})
         if author_info:
