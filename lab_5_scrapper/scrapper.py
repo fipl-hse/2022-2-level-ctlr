@@ -58,8 +58,15 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self._extract_config_content()
         self._validate_config_content()
+        config_content = self._extract_config_content()
+        self._seed_urls = config_content.seed_urls
+        self._num_articles = config_content.total_articles
+        self._headers = config_content.headers
+        self._encoding = config_content.encoding
+        self._timeout = config_content.timeout
+        self._should_verify_certificate = config_content.should_verify_certificate
+        self._headless_mode = config_content.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -67,22 +74,14 @@ class Config:
         """
         with open(self.path_to_config, "r", encoding="utf-8") as f:
             config = json.load(f)
-
-        self._seed_urls = config["seed_urls"]
-        self._num_articles = config["total_articles_to_find_and_parse"]
-        self._headers = config["headers"]
-        self._encoding = config["encoding"]
-        self._timeout = config["timeout"]
-        self._should_verify_certificate = config["should_verify_certificate"]
-        self._headless_mode = config["headless_mode"]
         return ConfigDTO(
-            seed_urls=self._seed_urls,
-            total_articles_to_find_and_parse=self._num_articles,
-            headers=self._headers,
-            encoding=self._encoding,
-            timeout=self._timeout,
-            should_verify_certificate=self._should_verify_certificate,
-            headless_mode=self._headless_mode,
+            seed_urls=config["seed_urls"],
+            total_articles_to_find_and_parse=config["total_articles_to_find_and_parse"],
+            headers=config["headers"],
+            encoding=config["encoding"],
+            timeout=config["timeout"],
+            should_verify_certificate=config["should_verify_certificate"],
+            headless_mode=config["headless_mode"]
         )
 
     def _validate_config_content(self) -> None:
@@ -90,47 +89,39 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        # with open(self.path_to_config, "r", encoding="utf-8") as f:
-        #     config = json.load(f)
-        # seed_urls = config["seed_urls"]
-        # headers = config["headers"]
-        # total_articles_to_find_and_parse = config["total_articles_to_find_and_parse"]
-        # encoding = config["encoding"]
-        # timeout = config["timeout"]
-        # should_verify_certificate = config["should_verify_certificate"]
-        # headless_mode = config["headless_mode"]
+        config_content = self._extract_config_content()
 
-        if not isinstance(self._seed_urls, list):
+        if not isinstance(config_content.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in self._seed_urls:
+        for url in config_content.seed_urls:
             if not re.match(r"https?://.*/", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
-        if self._num_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config_content.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if (
-            not isinstance(self._num_articles, int)
-            or isinstance(self._num_articles, bool)
-            or self._num_articles < 1
+            not isinstance(config_content.total_articles_to_find_and_parse, int)
+            or isinstance(config_content.total_articles_to_find_and_parse, bool)
+            or config_content.total_articles_to_find_and_parse < 1
         ):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(self._headers, dict):
+        if not isinstance(config_content.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(self._encoding, str):
+        if not isinstance(config_content.encoding, str):
             raise IncorrectEncodingError
 
         if (
-            not isinstance(self._timeout, int)
-            or not TIMEOUT_LOWER_LIMIT < self._timeout < TIMEOUT_UPPER_LIMIT
+            not isinstance(config_content.timeout, int)
+            or not TIMEOUT_LOWER_LIMIT < config_content.timeout < TIMEOUT_UPPER_LIMIT
         ):
             raise IncorrectTimeoutError
 
-        if not isinstance(self._should_verify_certificate, bool) or not isinstance(
-            self._headless_mode, bool
+        if not isinstance(config_content.should_verify_certificate, bool) or not isinstance(
+            config_content.headless_mode, bool
         ):
             raise IncorrectVerifyError
 
