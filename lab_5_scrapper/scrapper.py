@@ -289,7 +289,7 @@ class HTMLParser:
         if author_tag:
             for tag in author_tag:
                 text = tag.get_text(strip=True)
-                if "Наш корр." in text:
+                if re.search(r"Наш\s+корр\.", text):
                     text = re.search(r"корр\.", text).group(0)
                 authors.append(text)
         else:
