@@ -2,16 +2,19 @@
 Crawler implementation
 """
 import json
-from random import randint
 import re
 import shutil
-from time import sleep
 from pathlib import Path
+from random import randint
+from time import sleep
 from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
 
+from core_utils.article.article import Article
+from core_utils.article.io import to_raw
+from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (
     ASSETS_PATH,
     CRAWLER_CONFIG_PATH,
@@ -19,9 +22,6 @@ from core_utils.constants import (
     TIMEOUT_LOWER_LIMIT,
     TIMEOUT_UPPER_LIMIT,
 )
-from core_utils.article.article import Article
-from core_utils.article.io import to_raw
-from core_utils.config_dto import ConfigDTO
 
 
 class IncorrectSeedURLError(Exception):
@@ -133,9 +133,8 @@ class Config:
         ):
             raise IncorrectTimeoutError
 
-        if (
-            not isinstance(should_verify_certificate, bool)
-            or not isinstance(headless_mode, bool)
+        if not isinstance(should_verify_certificate, bool) or not isinstance(
+            headless_mode, bool
         ):
             raise IncorrectVerifyError
 
@@ -218,10 +217,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        href = article_bs.get('href')
-        if href.startswith('https://irkutskmedia.ru/news/'):
+        href = article_bs.get("href")
+        if href.startswith("https://irkutskmedia.ru/news/"):
             return href  # get links with matching attribute
-        return ''
+        return ""
 
     def find_articles(self) -> None:
         """
@@ -234,10 +233,10 @@ class Crawler:
                 continue
             # gets html page
             page = BeautifulSoup(response.text, "lxml")
-            page_links = page.find_all('a')
+            page_links = page.find_all("a")
             for page_link in page_links:
                 link = self._extract_url(page_link)
-                if link is None or link == '':
+                if link is None or link == "":
                     continue
                 self.urls.append(link)
                 if len(self.urls) == self.config.get_num_articles():
