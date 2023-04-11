@@ -124,7 +124,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for url in config.seed_urls:
-            if not re.fullmatch(r'https://w{3}.+', url):
+            if not re.fullmatch(r'https://.+', url):
                 raise IncorrectSeedURLError
 
         if not isinstance(config.total_articles, int) or config.total_articles < 1:
@@ -228,7 +228,6 @@ class Crawler:
         """
         Finds articles
         """
-        #считывает только 36 ссылок, нужно исправить
         for url in self.config.get_seed_urls():
             response = make_request(url, self.config)
             res_bs = BeautifulSoup(response.text, 'lxml')
