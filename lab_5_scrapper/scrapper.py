@@ -311,6 +311,7 @@ class HTMLParser:
         self.article.date = date
 
 
+
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
