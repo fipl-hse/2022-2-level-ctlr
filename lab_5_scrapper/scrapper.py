@@ -337,7 +337,6 @@ class HTMLParser:
         return datetime.datetime.now()
 
 
-
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
