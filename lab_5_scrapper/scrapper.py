@@ -153,6 +153,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     timeout = config.get_timeout()
     verify = config.get_verify_certificate()
     response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    response.encoding == 'utf-8'
     return response
 
 
