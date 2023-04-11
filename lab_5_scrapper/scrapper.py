@@ -36,7 +36,7 @@ class NumberOfArticlesOutOfRangeError(Exception):
 
 class IncorrectNumberOfArticlesError(Exception):
     """
-    total number of articles to parse is not integer
+    Total number of articles to parse is not integer
     """
 
 
