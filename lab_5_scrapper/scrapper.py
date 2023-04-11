@@ -220,9 +220,10 @@ class Crawler:
                     and ('mininews' in value or 'midinews' in value))
 
         for link in links:
-            href = link.get('href', '')
+            href = link.get('href')
             if href:
                 return urljoin(str(current_url), str(href))
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -293,6 +294,8 @@ class HTMLParser:
             topic = topic_tag.get_text(strip=True)
         else:
             topic = "NOT FOUND"
+        if isinstance(topic, list):
+            topic = topic[0]
         self.article.topics = topic
 
 
