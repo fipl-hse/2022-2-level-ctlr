@@ -10,7 +10,7 @@ from typing import Pattern, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 from core_utils.article.article import Article
 from pathlib import Path
 
@@ -92,7 +92,7 @@ class Config:
             raise IncorrectEncodingError
 
         timeout = configuration.get('timeout')
-        if not isinstance(timeout, int) or timeout <= 0 or timeout >= 10:
+        if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         verify = configuration.get('verify')
