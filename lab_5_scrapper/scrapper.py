@@ -30,7 +30,7 @@ class IncorrectSeedURLError(Exception):
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
-    total number of articles is more than the maximum of 150
+    Total number of articles is more than the maximum of 150
     """
 
 
