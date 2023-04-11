@@ -250,8 +250,8 @@ class HTMLParser:
         self.article.title = title.text
         date = article_soup.find('div', {'class': 'node-date'})
         self.article.date = self.unify_date_format(date.text)
-        text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
 
+        text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
         if author := text_div.find_all(string=re.compile('^Текст: ')):
             self.article.author = [' '.join(author[0].text.split()[1:3])]
         elif author := text_div.find_all(string=re.compile('^Текст и фото: ')):
