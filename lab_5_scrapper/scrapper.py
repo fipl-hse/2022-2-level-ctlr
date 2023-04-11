@@ -203,25 +203,29 @@ class Crawler:
         """
         href = article_bs.get('href')
         if href is not None:
-            if isinstance(href, list):
-                href = href[0]
-            return str(href)
+            return str(href).lstrip('/news')
         return ""
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self._seed_urls:
+        start_url = self._config.get_seed_urls()[0]
+        url = start_url
+        count_of_page = 1
+        while len(self.urls) < self._config.get_num_articles():
             page = make_request(url, config=self._config)
             soup = BeautifulSoup(page.text, features="html.parser")
-
             for elem in soup.find_all('a', class_='news-list__title'):
-                current_url = url + self._extract_url(elem)
-                if current_url is not None:
-                    self.urls.append(current_url)
+                href = self._extract_url(elem)
+                if not href:
+                    continue
+                current_url = start_url + href
+                self.urls.append(current_url)
                 if len(self.urls) >= self._config.get_num_articles():
                     return
+            count_of_page += 1
+            url = f"{start_url}/?PAGEN_1={count_of_page}"
 
     def get_search_urls(self) -> list:
         """
@@ -250,47 +254,55 @@ class HTMLParser:
         """
         content_bs = article_soup.find('div', {'class': 'news-detail__text'})
         if content_bs:
-            text = '\n'.join([p.text.strip() for p in content_bs.find_all('p') if p.text.strip()])
-            self.article.text = text
+            self.article.text += ' '.join(content_bs.text.split())
+        text = ''
+        if content_bs.find_all('p'):
+            for p in content_bs.find_all('p'):
+                text += p.text.strip()
+            self.article.text += text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
         title = article_soup.find('h1')
-        if title:
-            self.article.title = title.text.strip()
+        self.article.title = title.text.strip()
 
         span_author = article_soup.find('span', itemprop='name')
         if span_author:
-            self.article.author = [span_author.text.strip()]
+            self.article.author = [span_author.text]
         else:
             self.article.author = ['NOT FOUND']
 
-        div_date = article_soup.find_all('div', class_='news-detail__info-item')[1]
-        if div_date:
-            try:
-                self.article.date = self.unify_date_format(div_date.text.strip())
-            except ValueError:
-                pass
+        div_date = article_soup.find('meta', itemprop="datePublished")
+        self.article.date = self.unify_date_format(div_date['content'].strip())
+
+        topics = article_soup.find('div', class_='tags__items')
+        if topics:
+            lst = []
+            for elem in topics.find_all('a'):
+                lst.append(elem.text)
+            self.article.topics = lst
+
 
     @staticmethod
     def unify_date_format(date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%d.%m.%Y')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
         page = make_request(self.full_url, self._config)
-        page.encoding = self._config.get_encoding()
-        soup = BeautifulSoup(page.content, "lxml")
-        self._fill_article_with_text(soup)
-        self._fill_article_with_meta_information(soup)
-        return self.article
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.text, "html.parser")
+            self._fill_article_with_text(soup)
+            self._fill_article_with_meta_information(soup)
+            return self.article
+        return False
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -310,7 +322,7 @@ def main() -> None:
     prepare_environment(const.ASSETS_PATH)
     crawler = Crawler(config)
     crawler.find_articles()
-    for id_, url in enumerate(crawler.get_search_urls(), start=1):
+    for id_, url in enumerate(crawler.urls, 1):
         parser = HTMLParser(full_url=url, article_id=id_, config=config)
         article = parser.parse()
         if isinstance(article, Article):
