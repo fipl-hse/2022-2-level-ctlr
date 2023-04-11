@@ -208,14 +208,6 @@ class Crawler:
         if isinstance(href, str) and href.startswith('/news/') and len(re.findall('[0-9]', href)) >= 8:
             return "https://livennov.ru" + href
 
-        # all_links_bs = article_bs.find_all('a')
-        # for link in all_links_bs:
-        #     href = link.get('href')
-        #     if isinstance(href, str):
-        #         total_digits = len(re.findall('[0-9]', href))
-        #         if href.startswith('/news/') and total_digits >= 8:
-        #             return "https://livennov.ru" + href
-
     def find_articles(self) -> None:
         """
         Finds articles
