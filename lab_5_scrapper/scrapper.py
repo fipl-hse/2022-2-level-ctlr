@@ -86,15 +86,15 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config_content = self._extract_config_content()
+        content = self._extract_config_content()
 
-        seed_urls = config_content.seed_urls
-        headers = config_content.headers
-        total_articles_to_find_and_parse = config_content.total_articles_to_find_and_parse
-        encoding = config_content.encoding
-        timeout = config_content.timeout
-        should_verify_certificate = config_content.should_verify_certificate
-        headless_mode = config_content.headless_mode
+        seed_urls = content.seed_urls
+        headers = content.headers
+        total_articles_to_find_and_parse = content.total_articles
+        encoding = content.encoding
+        timeout = content.timeout
+        should_verify_certificate = content.should_verify_certificate
+        headless_mode = content.headless_mode
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
@@ -284,9 +284,8 @@ def main() -> None:
     for index, url in enumerate(crawler.urls, 1):
         parser = HTMLParser(url, index, configuration)
         article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+        to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
