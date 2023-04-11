@@ -5,7 +5,7 @@
         "cookie": "__ddg1_=HdkhwDFqChWSS1amjX35; __ddgid_=NoogTKlXUN90o8CF; __ddgmark_=naDJtpp65eRgNyna; __ddg5_=dR6ubeItpGsUBvXm; __ddg2_=PvNOmDVCOnD0vtuZ",
         "accept-language": "ru-RU,ru;q=0.8", "accept-encoding": "gzip, deflate, br"
     },
-    "total_articles_to_find_and_parse": 15,
+    "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
     "timeout": 10,
     "should_verify_certificate": true,

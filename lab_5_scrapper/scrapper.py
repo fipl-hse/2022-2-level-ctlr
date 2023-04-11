@@ -254,6 +254,12 @@ class HTMLParser:
         else:
             self.article.author = ['NOT FOUND']
 
+        topic_list = []
+        topics = article_soup.find('div', {'class': 'field-name-field-tags'}).find_all('a')
+        for url in topics:
+            topic_list.append(url.text)
+        self.article.topics = topic_list
+
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
@@ -269,8 +275,8 @@ class HTMLParser:
         """
         Parses each article
         """
-        page = make_request(self.full_url, self.config)
-        article_bs = BeautifulSoup(page.text, 'lxml')
+        req = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(req.text, 'lxml')
         self._fill_article_with_text(article_bs)
         self._fill_article_with_meta_information(article_bs)
         return self.article
