@@ -206,30 +206,28 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        base = 'https://econs.online'
-        return urllib.parse.urljoin(base, str(article_bs.a.get('href')))
+        base = 'https://kubnews.ru'
+        return urllib.parse.urljoin(base, str(article_bs.get('href')))
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        count_urls = 0
-        number = 0
+        article_items = []
         seed_url = self.get_search_urls()[0]
-        while count_urls < self.config.get_num_articles():
-            url = urllib.parse.urljoin(seed_url, '?more='+str(number))
+        number = 1
+        while len(article_items) < self.config.get_num_articles():
+            url = urllib.parse.urljoin(seed_url, '?type=article&PAGEN_1='+str(number))
             try:
                 response = make_request(url=url, config=self.config)
                 response.raise_for_status()
             except requests.exceptions.HTTPError:
                 continue
             soup = BeautifulSoup(response.text, 'html.parser')
-            news = soup.find_all('h4', {'class': 'news-card__title'})
-            post = [element for element in news if '/photo/' not in element.a.get('href')
-                    and '/tests/' not in element.a.get('href')]
-            count_urls = len(post)
+            news = soup.find_all('a', {'class': 'card', 'href': True})
+            article_items.extend(news)
             number += 1
-        for article in post[:self.config.get_num_articles()]:
+        for article in article_items[:self.config.get_num_articles()]:
             self.urls.append(self._extract_url(article_bs=article))
 
     def get_search_urls(self) -> list:
@@ -256,8 +254,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        content_body = article_soup.find('section', {'class': 'article-body'})
-        paragraphs_body = content_body.find_all('p')
+        paragraphs_body = article_soup.find_all('p')
         text_body = ''.join(i.text.strip() for i in paragraphs_body)
         self.article.text = text_body
 
@@ -265,31 +262,29 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find('h1', {'class':'article-head__title'})
+        title = article_soup.find('h1', {'class':'material__name'})
         if title:
-            self.article.title = title.text
-        info = article_soup.find('div', {'class':'article-head__info'})
-        authors = info.find_all('a')
-        authors_list = []
-        for author in authors:
-            author_cleared = [str(tag) for tag in author][0].strip()
-            authors_list.append(author_cleared)
-        self.article.author = authors_list
-        self.article.date = self.unify_date_format(date_str=str(info.span.get('date-time')))
+            self.article.title = title.text.strip()
+        authors = article_soup.find('span', {'class': 'material__autor'})
+        if authors:
+            self.article.author = [authors.text.strip()]
+        else:
+            self.article.author = ['NOT FOUND']
+        date = article_soup.find('span', {'itemprop':'datePublished'})
+        self.article.date = self.unify_date_format(date_str=str(date.text))
         tags_list = []
-        tags = article_soup.find_all('div', {'class':'article-footer__hashtags-item'})
-        if tags:
+        hashtags = article_soup.find('div', {'class':'hashtags'})
+        if hashtags:
+            tags = hashtags.find_all('a')
             for tag in tags:
                 tags_list.append(tag.text.strip())
             self.article.topics = tags_list
-        else:
-            self.article.topics = ['none']
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M:%S')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S+03:00')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -324,9 +319,8 @@ def main() -> None:
     for i, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=i, config=config)
         article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+        to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
