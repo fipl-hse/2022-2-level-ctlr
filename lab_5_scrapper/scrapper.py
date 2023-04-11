@@ -26,7 +26,6 @@ class IncorrectSeedURLError(Exception):
     Exception raised when seed_urls value is not a list
     or does not match a standard pattern
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
@@ -34,7 +33,6 @@ class NumberOfArticlesOutOfRangeError(Exception):
     Exception raised when total number of articles to find
     is more than 150
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
@@ -42,21 +40,18 @@ class IncorrectNumberOfArticlesError(Exception):
     Exception raised when total number of articles to find
     is not a positive integer
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Exception raised when headers value is not a dictionary
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Exception raised when encoding value is not a string
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
@@ -64,7 +59,6 @@ class IncorrectTimeoutError(Exception):
     Exception raised when timeout value is not a positive integer
     or is more than 60
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
@@ -72,7 +66,6 @@ class IncorrectVerifyError(Exception):
     Exception raised when should_verify_certificate value
     or headless_mode value is not a boolean
     """
-    pass
 
 
 class Config:
@@ -103,8 +96,8 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config_content = json.load(f)
-        return ConfigDTO(config_content['seed_urls'], config_content['total_articles_to_find_and_parse'],  config_content['headers'],
-                         config_content['encoding'], config_content['timeout'],
+        return ConfigDTO(config_content['seed_urls'], config_content['total_articles_to_find_and_parse'],
+                         config_content['headers'], config_content['encoding'], config_content['timeout'],
                          config_content['should_verify_certificate'], config_content['headless_mode'])
 
     def _validate_config_content(self) -> None:
@@ -196,7 +189,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(3, 5)))
+    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     response.encoding = config.get_encoding()
     return response
@@ -282,7 +275,8 @@ class HTMLParser:
         if author:
             self.article.author.append(author)
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
-        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
+        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs)
+                                 + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
         self.article.date = self.unify_date_format(date_and_time)
         topic = article_soup.find('a', {'class': 'toolbar__item toolbar__main-link'}).text
         if topic:
@@ -312,6 +306,25 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     if base_path.exists():
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
+
+class CrawlerRecursive(Crawler):
+    """
+    Recursive crawler implementation
+    """
+
+    def __init__(self, config: Config) -> None:
+        """
+        Initializes the instance of CrawlerRecursive class
+        """
+        super().__init__(config)
+        self.start_url = config.get_seed_urls()[0]
+
+    def find_articles(self) -> None:
+        """
+        finds texts of the articles using only one seed URL
+        """
+        res = make_request(self.start_url, self.config)
+        res_bs = BeautifulSoup(res.text, 'lxml')
 
 
 
