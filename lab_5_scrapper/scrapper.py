@@ -250,7 +250,7 @@ class HTMLParser:
         if author := text_div.find(string=re.compile('^Текст: ')):
             self.article.author = [' '.join(author.text.split()[1:3])]
         elif author := text_div.find(string=re.compile('^Текст и фото: ')):
-            self.article.author = [' '.join(author.text.split()[4:6])]
+            self.article.author = [' '.join(author.text.split()[3:5])]
         else:
             self.article.author = ['NOT FOUND']
 
