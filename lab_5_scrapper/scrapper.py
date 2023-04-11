@@ -192,7 +192,7 @@ class Crawler:
                 href = self._extract_url(link_bs)
                 if href is None:
                     continue
-                if (href.startswith('fn') and '.html' in href):
+                if href.startswith('fn') and '.html' in href:
                     if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
