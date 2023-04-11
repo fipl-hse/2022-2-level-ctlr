@@ -79,15 +79,15 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
+        self.dto = self._extract_config_content()
         self._validate_config_content()
-        dto = self._extract_config_content()
-        self._seed_urls = dto.seed_urls
-        self._total_articles = dto.total_articles
-        self._headers = dto.headers
-        self._encoding = dto.encoding
-        self._timeout = dto.timeout
-        self._should_verify_certificate = dto.should_verify_certificate
-        self._headless_mode = dto.headless_mode
+        self._seed_urls = self.dto.seed_urls
+        self._total_articles = self.dto.total_articles
+        self._headers = self.dto.headers
+        self._encoding = self.dto.encoding
+        self._timeout = self.dto.timeout
+        self._should_verify_certificate = self.dto.should_verify_certificate
+        self._headless_mode = self.dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -114,8 +114,7 @@ class Config:
         if dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(dto.total_articles, int) or \
-                dto.total_articles <= 0 or isinstance(dto.total_articles, bool):
+        if not isinstance(dto.total_articles, int) or isinstance(dto.total_articles, bool) or dto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(dto.headers, dict):
@@ -124,7 +123,7 @@ class Config:
         if not isinstance(dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(dto.timeout, int) or dto.timeout <= TIMEOUT_LOWER_LIMIT or \
+        if not isinstance(dto.timeout, int) or dto.timeout < TIMEOUT_LOWER_LIMIT or \
                 dto.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
@@ -179,8 +178,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
-    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    time.sleep(randint(TIMEOUT_LOWER_LIMIT + 1, TIMEOUT_UPPER_LIMIT))
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    response.encoding = config.get_encoding()
+    return response
 
 
 class Crawler:
