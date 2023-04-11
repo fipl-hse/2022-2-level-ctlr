@@ -5,7 +5,6 @@ import json
 import requests
 import datetime
 import re
-import os
 import shutil
 import time
 from bs4 import BeautifulSoup
