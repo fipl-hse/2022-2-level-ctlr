@@ -9,6 +9,7 @@ import validators
 
 import requests
 from bs4 import BeautifulSoup
+import datetime
 
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -78,8 +79,8 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_dict = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as config_file:
+            config_dict = json.load(config_file)
 
         seed_urls = config_dict['seed_urls']
         headers = config_dict['headers']
@@ -189,7 +190,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.seed_urls = config.get_seed_urls()
+        self._seed_urls = config.get_seed_urls()
         self.config = config
         self.urls = []
 
@@ -216,7 +217,9 @@ class Crawler:
                     continue
                 if (href.startswith('/news') or href.startswith('/gov') or href.startswith(
                         '/society') or href.startswith('/business')) and href.count('/') == 3 and 'comment' not in href:
-                    self.urls.append("https://chelny-biz.ru" + link_bs['href'])
+                    found_url = "https://chelny-biz.ru" + href
+                    if found_url not in self.urls:
+                        self.urls.append(found_url)
 
     def get_search_urls(self) -> list:
         """
