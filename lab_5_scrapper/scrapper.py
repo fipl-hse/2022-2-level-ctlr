@@ -7,9 +7,9 @@ import random
 import re
 import shutil
 import time
+import urllib.parse
 from pathlib import Path
 from typing import Union
-import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
@@ -214,7 +214,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         base = 'https://econs.online'
-        return urllib.parse.urljoin(base, article_bs.a.get('href'))
+        return urllib.parse.urljoin(base, str(article_bs.a.get('href')))
 
     def find_articles(self) -> None:
         """
