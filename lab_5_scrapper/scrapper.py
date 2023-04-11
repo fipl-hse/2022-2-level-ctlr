@@ -198,6 +198,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     return response
 
 
+
 class Crawler:
     """
     Crawler implementation
