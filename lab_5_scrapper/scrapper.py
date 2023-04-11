@@ -257,8 +257,8 @@ class HTMLParser:
             self.article.text += ' '.join(content_bs.text.split())
         text = ''
         if content_bs.find_all('p'):
-            for p in content_bs.find_all('p'):
-                text += p.text.strip()
+            for p_tag in content_bs.find_all('p'):
+                text += p_tag.text.strip()
             self.article.text += text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -275,7 +275,8 @@ class HTMLParser:
             self.article.author = ['NOT FOUND']
 
         div_date = article_soup.find('meta', itemprop="datePublished")
-        self.article.date = self.unify_date_format(div_date['content'].strip())
+
+        self.article.date = self.unify_date_format(div_date.get('content').strip())
 
         topics = article_soup.find('div', class_='tags__items')
         if topics:
@@ -283,7 +284,6 @@ class HTMLParser:
             for elem in topics.find_all('a'):
                 lst.append(elem.text)
             self.article.topics = lst
-
 
     @staticmethod
     def unify_date_format(date_str: str) -> datetime.datetime:
