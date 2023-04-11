@@ -214,18 +214,21 @@ class Crawler:
         Finds articles
         """
         count_urls = 0
+        number = 0
+        seed_url = self.get_search_urls()[0]
         while count_urls < self.config.get_num_articles():
-            for url in self.get_search_urls():
-                try:
-                    response = make_request(url=url, config=self.config)
-                    response.raise_for_status()
-                except requests.exceptions.HTTPError:
-                    continue
-                soup = BeautifulSoup(response.text, 'html.parser')
-                news = soup.find_all('h4', {'class': 'news-card__title'})
-                post = [element for element in news if '/photo/' not in element.a.get('href')
-                        and '/tests/' not in element.a.get('href')]
-                count_urls = len(post)
+            url = urllib.parse.urljoin(seed_url, '?more='+str(number))
+            try:
+                response = make_request(url=url, config=self.config)
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                continue
+            soup = BeautifulSoup(response.text, 'html.parser')
+            news = soup.find_all('h4', {'class': 'news-card__title'})
+            post = [element for element in news if '/photo/' not in element.a.get('href')
+                    and '/tests/' not in element.a.get('href')]
+            count_urls = len(post)
+            number += 1
         for article in post[:self.config.get_num_articles()]:
             self.urls.append(self._extract_url(article_bs=article))
 

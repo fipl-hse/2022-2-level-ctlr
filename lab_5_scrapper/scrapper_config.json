@@ -1,5 +1,5 @@
 {
-    "seed_urls": ["https://econs.online/?more=1", "https://econs.online/?more=2", "https://econs.online/?more=3", "https://econs.online/?more=4", "https://econs.online/?more=5", "https://econs.online/?more=6", "https://econs.online/?more=7", "https://econs.online/?more=8", "https://econs.online/?more=9", "https://econs.online/?more=10", "https://econs.online/?more=11"],
+    "seed_urls": ["https://econs.online/"],
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-encoding": "gzip, deflate, br",
@@ -18,7 +18,7 @@
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
     "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
-    "timeout": 2,
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
