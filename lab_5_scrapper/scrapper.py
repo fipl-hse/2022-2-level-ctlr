@@ -21,31 +21,45 @@ from core_utils.config_dto import ConfigDTO
 
 
 class IncorrectSeedURLError(Exception):
-    pass
+    """
+    Raised when seed URL does not match standard pattern
+    """
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    pass
+    """
+    Raised when total number of articles is out of range from 1 to 150
+    """
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    pass
+    """
+    Raised when the total number of articles to parse is not an integer
+    """
 
 
 class IncorrectHeadersError(Exception):
-    pass
+    """
+    Raised when headers are not in a form of dictionary
+    """
 
 
 class IncorrectEncodingError(Exception):
-    pass
+    """
+    Raised when there is an invalid value for encoding
+    """
 
 
 class IncorrectTimeoutError(Exception):
-    pass
+    """
+    Raised when timeout value is not a positive integer less than 60
+    """
 
 
 class IncorrectVerifyError(Exception):
-    pass
+    """
+    Raised when the verify certificate value is invalid
+    """
 
 
 class Config:
@@ -83,7 +97,7 @@ class Config:
         """
         config_dto = self._extract_config_content()
 
-        if not isinstance(config_dto.seed_urls, list):
+        if not config_dto.seed_urls or not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
         for url in config_dto.seed_urls:
@@ -161,11 +175,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(const.TIMEOUT_LOWER_LIMIT, const.TIMEOUT_UPPER_LIMIT))
-    response = requests.get(url,
-                            timeout=config.get_timeout(),
-                            headers=config.get_headers(),
+    time.sleep(random.randrange(4, 7))
+    response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers(),
                             verify=config.get_verify_certificate())
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -195,10 +208,10 @@ class Crawler:
         """
         Finds articles
         """
-        for url in self._config.get_seed_urls():
+        for url in self._seed_urls:
             page = make_request(url, config=self._config)
-            page.encoding = self._config.get_encoding()
             soup = BeautifulSoup(page.text, features="html.parser")
+
             for elem in soup.find_all('a', class_='news-list__title'):
                 current_url = url + self._extract_url(elem)
                 if current_url is not None:
@@ -210,7 +223,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self.urls
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -233,9 +246,7 @@ class HTMLParser:
         """
         content_bs = article_soup.find('div', {'class': 'news-detail__text'})
         if content_bs:
-            text = ''
-            for p in content_bs.find_all('p'):
-                text += p.text.strip()
+            text = '\n'.join([p.text.strip() for p in content_bs.find_all('p') if p.text.strip()])
             self.article.text = text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -248,7 +259,9 @@ class HTMLParser:
 
         span_author = article_soup.find('span', itemprop='name')
         if span_author:
-            self.article.author = span_author.text
+            self.article.author = [span_author.text.strip()]
+        else:
+            self.article.author = ['NOT FOUND']
 
         div_date = article_soup.find_all('div', class_='news-detail__info-item')[1]
         if div_date:
@@ -270,7 +283,7 @@ class HTMLParser:
         """
         page = make_request(self.full_url, self._config)
         page.encoding = self._config.get_encoding()
-        soup = BeautifulSoup(page.text, features="html.parser")
+        soup = BeautifulSoup(page.content, "lxml")
         self._fill_article_with_text(soup)
         self._fill_article_with_meta_information(soup)
         return self.article
@@ -293,7 +306,7 @@ def main() -> None:
     prepare_environment(const.ASSETS_PATH)
     crawler = Crawler(config)
     crawler.find_articles()
-    for id_, url in enumerate(crawler.get_search_urls()):
+    for id_, url in enumerate(crawler.get_search_urls(), start=1):
         parser = HTMLParser(full_url=url, article_id=id_, config=config)
         article = parser.parse()
         if isinstance(article, Article):
