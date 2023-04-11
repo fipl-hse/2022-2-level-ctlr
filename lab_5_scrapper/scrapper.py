@@ -58,8 +58,8 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
+        self._extract_config_content()
         self._validate_config_content()
-        self.config_content = self._extract_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -90,47 +90,47 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, "r", encoding="utf-8") as f:
-            config = json.load(f)
-        seed_urls = config["seed_urls"]
-        headers = config["headers"]
-        total_articles_to_find_and_parse = config["total_articles_to_find_and_parse"]
-        encoding = config["encoding"]
-        timeout = config["timeout"]
-        should_verify_certificate = config["should_verify_certificate"]
-        headless_mode = config["headless_mode"]
+        # with open(self.path_to_config, "r", encoding="utf-8") as f:
+        #     config = json.load(f)
+        # seed_urls = config["seed_urls"]
+        # headers = config["headers"]
+        # total_articles_to_find_and_parse = config["total_articles_to_find_and_parse"]
+        # encoding = config["encoding"]
+        # timeout = config["timeout"]
+        # should_verify_certificate = config["should_verify_certificate"]
+        # headless_mode = config["headless_mode"]
 
-        if not isinstance(seed_urls, list):
+        if not isinstance(self._seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
+        for url in self._seed_urls:
             if not re.match(r"https?://.*/", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
-        if not total_articles_to_find_and_parse < NUM_ARTICLES_UPPER_LIMIT:
+        if self._num_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if (
-            not isinstance(total_articles_to_find_and_parse, int)
-            or isinstance(total_articles_to_find_and_parse, bool)
-            or total_articles_to_find_and_parse < 1
+            not isinstance(self._num_articles, int)
+            or isinstance(self._num_articles, bool)
+            or self._num_articles < 1
         ):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(headers, dict):
+        if not isinstance(self._headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if not isinstance(self._encoding, str):
             raise IncorrectEncodingError
 
         if (
-            not isinstance(timeout, int)
-            or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT
+            not isinstance(self._timeout, int)
+            or not TIMEOUT_LOWER_LIMIT < self._timeout < TIMEOUT_UPPER_LIMIT
         ):
             raise IncorrectTimeoutError
 
-        if not isinstance(should_verify_certificate, bool) or not isinstance(
-            headless_mode, bool
+        if not isinstance(self._should_verify_certificate, bool) or not isinstance(
+            self._headless_mode, bool
         ):
             raise IncorrectVerifyError
 
