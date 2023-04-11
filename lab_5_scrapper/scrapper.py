@@ -317,13 +317,7 @@ class HTMLParser:
         }
         for rus_month, en_month in months.items():
             date_str = date_str.replace(rus_month, en_month)
-        try:
-            result = datetime.datetime.strptime(date_str, '%H:%M, %d %b %Y')
-            if result:
-                return result
-        except ValueError:
-            pass
-        return datetime.datetime.now()
+        return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
 
 
     def parse(self) -> Union[Article, bool, list]:
@@ -335,6 +329,7 @@ class HTMLParser:
         self._fill_article_with_text(article_soup)
         self._fill_article_with_meta_information(article_soup)
         return self.article
+
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
