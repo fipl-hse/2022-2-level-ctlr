@@ -191,13 +191,6 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     return response
 
 
-def is_article(url: str) -> bool:
-    """
-    /photo/ and /tests/ are not articles
-    """
-    return '/articles/photo/' not in url and '/tests/' not in url
-
-
 class Crawler:
     """
     Crawler implementation
@@ -230,7 +223,8 @@ class Crawler:
                     continue
                 soup = BeautifulSoup(response.text, 'html.parser')
                 news = soup.find_all('h4', {'class': 'news-card__title'})
-                post = [i for i in news if is_article(str(i))]
+                post = [element for element in news if '/photo/' not in element.a.get('href')
+                        and '/tests/' not in element.a.get('href')]
                 count_urls = len(post)
         for article in post[:self.config.get_num_articles()]:
             self.urls.append(self._extract_url(article_bs=article))
