@@ -15,58 +15,62 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+
 
 
 class IncorrectSeedURLError(Exception):
-    """Raised when the seed URL does not match the
-    standard pattern or does not correspond to the target website"""
+    """
+    Raised when the seed URL does not match the
+    standard pattern or does not correspond to the target website
+    """
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
-    """Raised when the total number of articles is out of range from 1 to 150"""
+    """
+    Raised when the total number of articles is out of range from 1 to 150
+    """
 
 
 class IncorrectNumberOfArticlesError(Exception):
-    """Raised when the total number of articles to parse is not an integer"""
+    """
+    Raised when the total number of articles to parse is not an integer
+    """
 
 
 class IncorrectHeadersError(Exception):
-    """Raised when headers are not in the form of a dictionary"""
+    """
+    Raised when headers are not in the form of a dictionary
+    """
 
 
 class IncorrectEncodingError(Exception):
-    """Raised when the encoding is not specified as a string"""
+    """
+    Raised when the encoding is not specified as a string
+    """
 
 
 class IncorrectTimeoutError(Exception):
-    """Raised when the timeout value is not a positive integer less than 60"""
+    """
+    Raised when the timeout value is not a positive integer less than 60
+    """
 
 
 class IncorrectVerifyError(Exception):
-    """Raised when the verify certificate value is not either True or False"""
+    """
+    Raised when the verify certificate value is not either True or False
+    """
 
 
 
 class Config:
-    """
-    Unpacks and validates configurations
-    """
-
-    seed_urls: list[str]
-    total_articles_to_find_and_parse: int
-    headers: dict[str, str]
-    encoding: str
-    timeout: int
-    verify_certificate: bool
-    headless_mode: bool
-
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self._validate_config_content()
         self.config_data = self._extract_config_content()
         self._seed_urls = self.config_data.seed_urls
         self._num_articles = self.config_data.total_articles
@@ -75,6 +79,8 @@ class Config:
         self._timeout = self.config_data.timeout
         self._should_verify_certificate = self.config_data.should_verify_certificate
         self._headless_mode = self.config_data.headless_mode
+
+        self._validate_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -90,49 +96,42 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config_data = self._extract_config_content()
-
-        seed_urls = config_data.seed_urls
-        correct_url = 'https://dzer.ru/'
-        if not isinstance(seed_urls, list) or not all(isinstance(url, str) for url in seed_urls):
+        if not isinstance(self._seed_urls, list) or not all(isinstance(url, str)
+                for url in self._seed_urls):
             raise IncorrectSeedURLError("Invalid value for seed_urls in configuration file")
-        for seed_url in seed_urls:
-            if not re.match(r'^https?://w?w?w?.', seed_url) \
-                    and seed_url.split('/')[:2] != correct_url.split('/')[:2]:
+        for seed_url in self._seed_urls:
+            if not re.match(r'^https?://(www.)?', seed_url):
                 raise IncorrectSeedURLError(
-    "Invalid seed URL in configuration file"
+    "Invalid seed URL. Seed URLs must start with 'http://'"
+    " or 'https://' and may contain 'www.'"
     )
 
-        total_articles_to_find_and_parse = config_data.total_articles
-        if not isinstance(total_articles_to_find_and_parse, int) \
-                or total_articles_to_find_and_parse < 1:
+        if not isinstance(self._num_articles, int) \
+                or  self._num_articles < 1:
             raise IncorrectNumberOfArticlesError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
-        if total_articles_to_find_and_parse > 150:
+        if  self._num_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError(
                 "Invalid value for total_articles_to_find_and_parse in configuration file")
 
-        headers = config_data.headers
-        if not isinstance(headers, dict):
+        if not isinstance(self._headers, dict):
             raise IncorrectHeadersError("Invalid value for headers in configuration file")
 
-        encoding = config_data.encoding
-        if not isinstance(encoding, str):
+        if not isinstance(self._encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding in configuration file")
 
-        timeout = config_data.timeout
-        if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
+        if not isinstance(self._timeout, int) or self._timeout <= TIMEOUT_LOWER_LIMIT \
+                or self._timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError(
                 "Invalid value for timeout in configuration file"
                 )
-        should_verify_certificate = config_data.should_verify_certificate
-        if not isinstance(should_verify_certificate, bool):
+
+        if not isinstance(self._should_verify_certificate, bool):
             raise IncorrectVerifyError(
         "Invalid value for should_verify_certificate in configuration file"
         )
 
-        headless_mode = config_data.headless_mode
-        if not isinstance(headless_mode, bool):
+        if not isinstance(self._headless_mode, bool):
             raise IncorrectVerifyError(
         "Invalid value for headless_mode in configuration file"
         )
@@ -190,8 +189,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     headers = config.get_headers()
     timeout = config.get_timeout()
     verify = config.get_verify_certificate()
-
     response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    response.encoding = config.get_encoding()
+
     return response
 
 
@@ -215,13 +215,14 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         current_url = article_bs.find('meta', property='og:url').get('content')
-        for link in article_bs.find_all('a',
-                                        class_=lambda value: value and ('mininews' in
-                                        value or 'midinews' in value)):
-            href = link.get('href') or ''
+
+        links = article_bs.find_all('a', class_=lambda value: value
+                    and ('mininews' in value or 'midinews' in value))
+
+        for link in links:
+            href = link.get('href', '')
             if href:
                 return urljoin(str(current_url), str(href))
-        return urljoin(str(current_url), '')
 
     def find_articles(self) -> None:
         """
@@ -229,13 +230,12 @@ class Crawler:
         """
         for seed_url in self.seed_urls:
             response = make_request(seed_url, self.config)
-            if response.status_code == 200:
-                html = response.text
-                main_bs = BeautifulSoup(html, 'html.parser')
-                urls = self._extract_url(main_bs)
-                self.urls.append(urls)
-                if len(self.urls) >= self.config.get_num_articles():
-                    return
+            html = response.text
+            main_bs = BeautifulSoup(html, 'html.parser')
+            urls = self._extract_url(main_bs)
+            self.urls.append(urls)
+            if len(self.urls) >= self.config.get_num_articles():
+                return
 
     def get_search_urls(self) -> list:
         """
@@ -274,15 +274,14 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title_tag = article_soup.find_all('h1', {'class': 'article__title'})[0]
+        title_tag = article_soup.find('h1', {'class': 'article__title'})
         if title_tag:
             title = title_tag.get_text(strip=True)
         else:
             title =  "NOT FOUND"
         self.article.title = title
 
-        author_tag = article_soup.find_all('p', {'class': 'article__prepared'}) or \
-                     article_soup.find_all('b')
+        author_tag = article_soup.find_all('p', {'class': 'article__prepared'})
         if author_tag:
             authors = [author_tag[0].get_text(strip=True)]
         else:
@@ -294,8 +293,6 @@ class HTMLParser:
             topic = topic_tag.get_text(strip=True)
         else:
             topic = "NOT FOUND"
-        if isinstance(topic, list):
-            topic = topic[0]
         self.article.topics = topic
 
 
@@ -305,10 +302,7 @@ class HTMLParser:
         else:
             date_str = "NOT FOUND"
         date = self.unify_date_format(date_str)
-        if date:
-            self.article.date = date
-        else:
-            self.article.date = datetime.datetime.now()
+        self.article.date = date
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
