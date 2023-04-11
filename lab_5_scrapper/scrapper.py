@@ -280,8 +280,8 @@ class HTMLParser:
         if author:
             self.article.author.append(author)
         date_bs = article_soup.find('time', {'class': 'toolbar__text'}).get('datetime')
-        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs[0])
-                                 + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs[0]))
+        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs)
+                                 + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
         self.article.date = self.unify_date_format(date_and_time)
         topic = article_soup.find('a', {'class': 'toolbar__item toolbar__main-link'}).text
         if topic:
