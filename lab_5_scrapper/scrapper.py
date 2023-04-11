@@ -96,8 +96,8 @@ class Config:
         if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        verify = config_dto.get('verify')
-        if not isinstance(verify, bool):
+        should_verify_certificate = config_dto.get('should_verify_certificate')
+        if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError
 
 
