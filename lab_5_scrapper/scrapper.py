@@ -265,7 +265,7 @@ class HTMLParser:
         Finds text of article
         """
         article_body = article_soup.find('div', {'class': 'article__body'})
-        article_text = article_body.find_all(['p', 'div', {'class': 'quote-text'}])
+        article_text = article_body.find_all(['p', 'div'], {'class': 'quote-text'})
         art_text = [i.text for i in article_text]
         self.article.text = '\n'.join(art_text)
 
@@ -279,7 +279,7 @@ class HTMLParser:
         author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
         if author:
             self.article.author.append(author)
-        date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
+        date_bs = article_soup.find('time', {'class': 'toolbar__text'}).get('datetime')
         date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs[0])
                                  + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs[0]))
         self.article.date = self.unify_date_format(date_and_time)
