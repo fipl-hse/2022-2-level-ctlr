@@ -281,15 +281,23 @@ class HTMLParser:
 
         date_bs = article_soup.find(
             'span',
-            {'class': 'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-date'}
+            {
+                'class':
+                    'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-date'
+            }
         )
         if date_bs:
             date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
 
             self.article.date = self.unify_date_format(date_txt[0])
 
-        auth_bs = article_soup.find('span', {
-            'class': 'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-author'})
+        auth_bs = article_soup.find(
+            'span',
+            {
+                'class':
+                    'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-author'
+            }
+        )
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
         self.article.author = [auth_txt[0]]
 
