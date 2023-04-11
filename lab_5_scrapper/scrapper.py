@@ -96,9 +96,13 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config_content = json.load(f)
-        return ConfigDTO(config_content['seed_urls'], config_content['total_articles_to_find_and_parse'],
-                         config_content['headers'], config_content['encoding'], config_content['timeout'],
-                         config_content['should_verify_certificate'], config_content['headless_mode'])
+        return ConfigDTO(config_content['seed_urls'],
+                         config_content['total_articles_to_find_and_parse'],
+                         config_content['headers'],
+                         config_content['encoding'],
+                         config_content['timeout'],
+                         config_content['should_verify_certificate'],
+                         config_content['headless_mode'])
 
     def _validate_config_content(self) -> None:
         """
@@ -213,7 +217,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        if re.fullmatch(r'/novosti/.+', article_bs['href']):
+        if article_bs.get('href') and re.fullmatch(r'/novosti/.+', article_bs['href']):
             return 'https://www.vgoroden.ru' + article_bs['href']
 
 
@@ -318,13 +322,6 @@ class CrawlerRecursive(Crawler):
         """
         super().__init__(config)
         self.start_url = config.get_seed_urls()[0]
-
-    def find_articles(self) -> None:
-        """
-        finds texts of the articles using only one seed URL
-        """
-        res = make_request(self.start_url, self.config)
-        res_bs = BeautifulSoup(res.text, 'lxml')
 
 
 
