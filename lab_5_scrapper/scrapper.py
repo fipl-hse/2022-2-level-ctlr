@@ -42,7 +42,7 @@ class IncorrectNumberOfArticlesError(Exception):
 
 class IncorrectHeadersError(Exception):
     """
-    headers are not in a form of dictionary
+    Headers are not in a form of dictionary
     """
 
 
