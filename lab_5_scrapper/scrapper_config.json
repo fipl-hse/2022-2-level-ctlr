@@ -1,9 +1,32 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": [
+        "https://kazanfirst.ru/news?page=1",
+        "https://kazanfirst.ru/news?page=2",
+        "https://kazanfirst.ru/news?page=3",
+        "https://kazanfirst.ru/news?page=4",
+        "https://kazanfirst.ru/news?page=5",
+        "https://kazanfirst.ru/news?page=6"
+    ],
+    "headers": {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+        "cache-control": "max-age=0",
+        "cookie": "_ym_uid=1679641233154860974; _ym_d=1679641233; tmr_lvid=4a204a8f518558b79bd889e5d94be06f; tmr_lvidTS=1679641233171; adtech_uid=0fcd2894-9283-4924-9f85-46a004c0c072%3Akazanfirst.ru; top100_id=t1.3012416.194822246.1679641235579; __lhash_=942eed791628624d249b267ab81b34de; _ym_isad=1; _gid=GA1.2.1510239572.1681228707; XSRF-TOKEN=eyJpdiI6InYrME9tSlRnNGNcL1RuMmVXRDJja1Z3PT0iLCJ2YWx1ZSI6IkdnMUcyRHozdFlFTFczeVBXKzV6UXZxWlhKVHNcL2Q1S3daWGpLQ3k0aWRIUU53OWVmUktiOWN1QnVsdWZwZGxcLyIsIm1hYyI6IjE5NzZhNmVmOWFhMjcxODNjZDAxMTMzYzc3NDI5NTg5ZDIzYjRkZmFjNTk4Y2ZjODg0YmFlODllNzQxNmYxYjIifQ%3D%3D; laravel_session=eyJpdiI6InZWMUlFcXhRSm10RmdWdXRXRVRianc9PSIsInZhbHVlIjoiVjZUZ3dBUnB1V3pRK0NSeG5FVEZMeWtFOVhJUlhaT0w4XC9xV1ZMZjVLand6YU5oVnVZc0JxTHNVM0ZOV3RkMldRSnkwakt4TlwvakJDbWZnNGN5Z3lYcnFmZDZrRlJYTHphXC92ZjVva2cyeXdkSXlBMGRuMFBoXC8xWXEybVEreHZpIiwibWFjIjoiMjNlMjQ3YzdmODc0YjIxMzRiZmMzNzUwZjdlNzYwMDZkNzdmNzg5OGY2YzRiMTE5ODNhYjVkNDdlYzFjYTllOCJ9; tmr_detect=1%7C1681238628419; last_visit=1681227828427%3A%3A1681238628427; _ga=GA1.2.1871657333.1679641234; _ga_56JDNFD65L=GS1.1.1681242889.10.1.1681242893.56.0.0; t3_sid_3012416=s1.1864305634.1681241933240.1681242901468.11.8",
+        "referer": "https://kazanfirst.ru/news",
+        "sec-ch-ua": "'Chromium';v='112', 'Google Chrome';v='112', 'Not:A-Brand';v='99'",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "'Windows'",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+    },
+    "total_articles_to_find_and_parse": 100,
+    "encoding": "utf-8",
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }

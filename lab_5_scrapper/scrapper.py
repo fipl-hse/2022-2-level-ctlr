@@ -1,18 +1,22 @@
 """
 Crawler implementation
 """
+import datetime
 import json
 import re
 import shutil
-import requests
-import datetime
-from typing import Pattern, Union
-from core_utils.config_dto import ConfigDTO
 from pathlib import Path
+from typing import Pattern, Union
+
+import requests
 from bs4 import BeautifulSoup
+
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
-from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -75,6 +79,7 @@ class Config:
         """
         self.path_to_config = path_to_config
         self.config_content = self._extract_config_content()
+        self._validate_config_content()
         self._seed_urls = self.config_content.seed_urls
         self._num_articles = self.config_content.total_articles
         self._headers = self.config_content.headers
@@ -96,16 +101,13 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as file:
-            config_data = json.load(file)
-
-        seed_urls = config_data.get('seed_urls')
-        headers = config_data.get('headers')
-        total_articles_to_find_and_parse = config_data.get('total_articles_to_find_and_parse')
-        encoding = config_data.get('encoding')
-        timeout = config_data.get('timeout')
-        should_verify_certificate = config_data.get('should_should_verify_certificate')
-        headless_mode = config_data.get('headless_mode')
+        seed_urls = self.config_content.seed_urls
+        headers = self.config_content.headers
+        total_articles_to_find_and_parse = self.config_content.total_articles
+        encoding = self.config_content.encoding
+        timeout = self.config_content.timeout
+        should_verify_certificate = self.config_content.should_verify_certificate
+        headless_mode = self.config_content.headless_mode
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
@@ -116,10 +118,10 @@ class Config:
 
         if not isinstance(total_articles_to_find_and_parse, int) or isinstance(
                 total_articles_to_find_and_parse, bool) \
-                or total_articles_to_find_and_parse < 0:
+                or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError
 
-        if total_articles_to_find_and_parse < 1 or total_articles_to_find_and_parse > 150:
+        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(headers, dict):
@@ -128,7 +130,7 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or timeout < 1 or timeout > 60:
+        if not isinstance(timeout, int) or not (TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
         if not isinstance(should_verify_certificate, bool) or not isinstance(headless_mode, bool):
@@ -138,43 +140,43 @@ class Config:
         """
         Retrieve seed urls
         """
-        return self.config_content.seed_urls
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        return self.config_content.total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        return self.config_content.headers
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        return self.config_content.encoding
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        return self.config_content.timeout
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self.config_content.should_verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        return self.config_content.headless_mode
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -182,7 +184,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    response.encoding = config.get_encoding()
+    return response
 
 
 class Crawler:
@@ -205,7 +209,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str) and url.startswith('https://kazanfirst.ru/news/') and len(url) > 27:
+        if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 5:
             return url
 
     def find_articles(self) -> None:
@@ -216,15 +220,14 @@ class Crawler:
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
                 continue
-            else:
-                article_bs = BeautifulSoup(response.text, 'lxml')
-                pages = article_bs.find_all(
-                    'a', {'class': 'post-block-item  post-item column-list__item js-column-item'})
-                for page in pages:
-                    url = self._extract_url(page)
-                    self.urls.append(url)
-                    if len(self.urls) >= self._config.get_num_articles():
-                        return
+            article_bs = BeautifulSoup(response.text, 'lxml')
+            pages = article_bs.find_all(
+                'a', {'class': 'post-block-item  post-item column-list__item js-column-item'})
+            for page in pages:
+                url = self._extract_url(page)
+                self.urls.append(url)
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
@@ -253,22 +256,58 @@ class HTMLParser:
         """
         article_text = article_soup.find('section', {'id': 'redactor-content'})
         all_paragraphs = article_text.find_all('p')
-        paragraphs_text = []
-        for paragraph in all_paragraphs[:-1]:
-            paragraphs_text.append(paragraph)
+        paragraphs_text = [paragraph.text for paragraph in all_paragraphs[:-1]]
         self.article.text = '\n'.join(paragraphs_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find_all('h1')[0]
+        if title:
+            self.article.title = title.text
+        time = article_soup.find_all('span', {'class': 'post-info__time'})[0].text
+        date = article_soup.find('span', {'class': 'post-info__date'}).text
+        time_and_date = time + ' ' + date
+        if time_and_date:
+            try:
+                self.article.date = self.unify_date_format(time_and_date)
+            except ValueError:
+                pass
+        authors = [author.text for author in article_soup.find_all('a', {'class': 'content-info__author'})]
+        if authors:
+            self.article.author = authors
+        else:
+            self.article.author = ['NOT FOUND']
+        tag_section = article_soup.find_all('section', {'class': 'content-tags'})[0]
+        topics = [topic.text for topic in tag_section.find_all('a', {'class': 'content-tags__item tag'})]
+        if topics:
+            self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        months = {
+            'января': 'January',
+            'февраля': 'February',
+            'марта': 'March',
+            'апреля': 'April',
+            'мая': 'May',
+            'июня': 'June',
+            'июля': 'July',
+            'августа': 'August',
+            'сентября': 'September',
+            'октября': 'October',
+            'ноября': 'November',
+            'декабря': 'December',
+        }
+        date_list = date_str.split()
+        date_list[2] = months.get(date_list[2])
+        if len(date_list) == 3:
+            date_list.append('2023')
+        new_date = ' '.join(date_list)
+        return datetime.datetime.strptime(new_date, '%H:%M %d %B %Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -301,6 +340,7 @@ def main() -> None:
         parser = HTMLParser(full_url=full_url, article_id=i, config=config)
         article = parser.parse()
         to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
