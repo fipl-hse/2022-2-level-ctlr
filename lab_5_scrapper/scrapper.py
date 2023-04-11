@@ -346,36 +346,6 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
-class CrawlerRecursive(Crawler):
-    """
-    Recursive Crawler
-    """
-
-    def __init__(self, config: Config) -> None:
-        super().__init__(config)
-        self.start_url = config.seed_urls[0]
-
-    def find_articles(self) -> None:
-        articles_to_collect = self.config.max_articles_to_find - len(self.articles)
-        urls_to_visit = [self.start_url]
-
-        visited_urls = set()
-        while articles_to_collect > 0 and urls_to_visit:
-            url = urls_to_visit.pop(0)
-            if url in visited_urls:
-                continue
-            visited_urls.add(url)
-            html = self.get_html(url)
-            if html is None:
-                continue
-            urls = self.extract_urls(html)
-            for next_url in urls:
-                if next_url not in visited_urls:
-                    urls_to_visit.append(next_url)
-            new_articles = self.extract_articles(html, url)
-            self.articles.extend(new_articles)
-            articles_to_collect -= len(new_articles)
-            time.sleep(self.config.time_delay)
 
 def main() -> None:
     """
