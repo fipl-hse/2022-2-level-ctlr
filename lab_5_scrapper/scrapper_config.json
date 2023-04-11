@@ -1,9 +1,24 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://piter.tv/news/60/?block=35", "https://piter.tv/news/60/?block=70"],
+    "headers": {"accept-encoding" : "gzip, deflate, br",
+                "accept-language": "ru,en;q=0.9,ja;q=0.8,es;q=0.7",
+                "connection": "keep-alive",
+                "cookie": "_ym_uid=1678728189149272078; _ym_d=1678728189; _ym_isad=2; _ym_visorc=w; smi_last_visit_time=1681064663; smi_sid=82111513824199489",
+                "host": "piter.tv",
+                "referer": "https://piter.tv/news/60/",
+                "sec-ch-ua": "'Chromium';v='110', 'Not A(Brand';v='24', 'Yandex';v='23'",
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": "Windows",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-Fetch-User": "?1",
+                "Upgrade-Insecure-Requests": "1",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 YaBrowser/23.3.0.2246 Yowser/2.5 Safari/537.36}"
+                },
+    "total_articles_to_find_and_parse": 101,
+    "encoding": "utf-8",
+    "timeout": 8,
     "should_verify_certificate": true,
-    "headless_mode": true
+    "headless_mode": false
 }
