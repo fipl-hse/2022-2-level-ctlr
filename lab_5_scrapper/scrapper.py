@@ -1,15 +1,71 @@
 """
 Crawler implementation
 """
+import datetime
+import re
+
+import requests
+import json
 from typing import Pattern, Union
+from bs4 import BeautifulSoup
+from pathlib import Path
+from core_utils.config_dto import ConfigDTO
+from core_utils.article.article import Article
+
+
+class IncorrectSeedURLError(Exception):
+    """
+    Seed URL does not match standard pattern "https?://w?w?w?." or does not correspond to the target website
+    """
+    pass
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Total number of articles is out of range from 1 to 150
+    """
+    pass
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    """
+    Total number of articles to parse is not integer
+    """
+    pass
+
+
+class IncorrectHeadersError(Exception):
+    """
+    Headers are not in a form of dictionary
+    """
+    pass
+
+
+class IncorrectEncodingError(Exception):
+    """
+    Encoding must be specified as a string
+    """
+    pass
+
+
+class IncorrectTimeoutError(Exception):
+    """
+    Timeout value must be a positive integer less than 60
+    """
+    pass
+
+
+class IncorrectVerifyError(Exception):
+    """
+    Verify certificate value must either be True or False
+    """
+    pass
 
 
 class Config:
     """
     Unpacks and validates configurations
     """
-
-#aaaaa
     seed_urls: list[str]
     total_articles_to_find_and_parse: int
     headers: dict[str, str]
@@ -22,62 +78,102 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        pass
+        self.path_to_config = path_to_config
+        self._validate_config_content()
+
+        config_dto = self._extract_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._should_verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
+            config_parameters = json.load(f)
+        return ConfigDTO(**config_parameters)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        config_parameters = self._extract_config_content()
+
+        if not isinstance(config_parameters.seed_urls, list):
+            raise IncorrectSeedURLError
+
+        for url in config_parameters.seed_urls:
+            if not re.match("https?://.*/", url) or not isinstance(url, str):
+                raise IncorrectSeedURLError
+
+        if not isinstance(config_parameters.total_articles, int) or isinstance(config_parameters.total_articles, bool) \
+                or config_parameters.total_articles < 1:
+            raise IncorrectNumberOfArticlesError
+
+        if config_parameters.total_articles < 1 or config_parameters.total_articles > 150:
+            raise NumberOfArticlesOutOfRangeError
+
+        if not isinstance(config_parameters.headers, dict):
+            raise IncorrectHeadersError
+
+        if not isinstance(config_parameters.encoding, str):
+            raise IncorrectEncodingError
+
+        if not isinstance(config_parameters.timeout, int) or config_parameters.timeout < 0 or \
+                config_parameters.timeout > 60:
+            raise IncorrectTimeoutError
+
+        if not isinstance(config_parameters.should_verify_certificate, bool) or not \
+                isinstance(config_parameters.headless_mode, bool):
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
