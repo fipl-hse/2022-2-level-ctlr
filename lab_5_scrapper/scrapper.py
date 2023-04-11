@@ -55,6 +55,7 @@ class Config:
         """
         self.path_to_config = path_to_config
         self.content = self._extract_config_content()
+        self._validate_config_content()
         self._seed_urls = self.content.seed_urls
         self._num_articles = self.content.total_articles
         self._headers = self.content.headers
@@ -62,8 +63,6 @@ class Config:
         self._timeout = self.content.timeout
         self._should_verify_certificate = self.content.should_verify_certificate
         self._headless_mode = self.content.headless_mode
-
-        self._validate_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -78,7 +77,8 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config_content = self._extract_config_content()
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
+            config_content = json.load(f)
 
         seed_urls = config_content['seed_urls']
         headers = config_content['headers']
@@ -90,6 +90,7 @@ class Config:
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
+
         for url in seed_urls:
             if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
@@ -207,7 +208,7 @@ class Crawler:
                 href = self._extract_url(link_bs)
                 if href is None:
                     continue
-                if href.startswith('fn') and '.html' in href:
+                elif href.startswith('fn') and '.html' in href:
                     if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
@@ -215,7 +216,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self._seed_urls
+        return self.seed_urls
 
 
 class HTMLParser:
