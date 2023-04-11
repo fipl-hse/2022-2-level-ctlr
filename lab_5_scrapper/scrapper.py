@@ -3,11 +3,11 @@ Crawler implementation
 """
 import datetime
 import json
+import random
 import re
 import shutil
 import time
 from pathlib import Path
-from random import randint
 from typing import Pattern, Union
 
 import requests
@@ -79,15 +79,15 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self.dto = self._extract_config_content()
+        dto = self._extract_config_content()
         self._validate_config_content()
-        self._seed_urls = self.dto.seed_urls
-        self._total_articles = self.dto.total_articles
-        self._headers = self.dto.headers
-        self._encoding = self.dto.encoding
-        self._timeout = self.dto.timeout
-        self._should_verify_certificate = self.dto.should_verify_certificate
-        self._headless_mode = self.dto.headless_mode
+        self._seed_urls = dto.seed_urls
+        self._total_articles = dto.total_articles
+        self._headers = dto.headers
+        self._encoding = dto.encoding
+        self._timeout = dto.timeout
+        self._should_verify_certificate = dto.should_verify_certificate
+        self._headless_mode = dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -104,18 +104,20 @@ class Config:
         """
         dto = self._extract_config_content()
 
-        if not isinstance(dto.seed_urls, list):
+        if not (dto.seed_urls and isinstance(dto.seed_urls, list)):
             raise IncorrectSeedURLError
 
         for url in dto.seed_urls:
-            if not (re.match(r'^https?://', url) and isinstance(url, str)):
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
+
+        if (not isinstance(dto.total_articles, int)
+                or isinstance(dto.total_articles, bool)
+                or dto.total_articles < 1):
+            raise IncorrectNumberOfArticlesError
 
         if dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
-
-        if not isinstance(dto.total_articles, int) or isinstance(dto.total_articles, bool) or dto.total_articles < 1:
-            raise IncorrectNumberOfArticlesError
 
         if not isinstance(dto.headers, dict):
             raise IncorrectHeadersError
@@ -127,7 +129,8 @@ class Config:
                 dto.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        if not isinstance(dto.should_verify_certificate, bool) or not isinstance(dto.headless_mode, bool):
+        if not isinstance(dto.should_verify_certificate, bool) or \
+                not isinstance(dto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -178,8 +181,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(randint(TIMEOUT_LOWER_LIMIT + 1, TIMEOUT_UPPER_LIMIT))
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    time.sleep(random.randrange(3, 8))
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     return response
 
