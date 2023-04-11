@@ -6,7 +6,11 @@ import json
 from bs4 import BeautifulSoup
 import requests
 from core_utils.config_dto import ConfigDTO
+from core_utils.constants import CRAWLER_CONFIG_PATH
+from pathlib import Path
 
+class IncorrectSeedURLError(Exception):
+    pass
 
 class Config:
     """
@@ -41,7 +45,9 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        if not self._config_dto.seed_urls or not isinstance(self._config_dto.seed_urls, list):
+            raise IncorrectSeedURLError
+        if not
 
     def get_seed_urls(self) -> list[str]:
         """
