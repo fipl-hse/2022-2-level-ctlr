@@ -1,5 +1,6 @@
 {
-    "seed_urls": ["https://livennov.ru/news/"],
+    "seed_urls": ["https://livennov.ru/news/", "https://livennov.ru/news/?PAGEN_2=2",
+        "https://livennov.ru/news/?PAGEN_2=3", "https://livennov.ru/news/?PAGEN_2=4"],
     "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51"},
     "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
