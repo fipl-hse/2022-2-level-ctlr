@@ -283,17 +283,15 @@ class HTMLParser:
         title = title_tag.get_text(strip=True)
         self.article.title = title
 
-        author_tag = article_soup.select("p.article__prepared, "
-                                    "div.article__paragraph.article__paragraph_second > p > b")
+        author_tag = article_soup.select('p.article__prepared, b')
         authors = []
         if author_tag:
             for tag in author_tag:
                 text = tag.get_text(strip=True)
                 if re.search(r"Наш\s+корр\.", text):
                     text = re.search(r"корр\.", text).group(0)
-                elif re.search(r"<b>(\w+)\s*(\r?\n)?\s*(\w+)\s*</b>", text):
-                    author_name = re.search(r"<b>(\w+)\s*(\r?\n)?\s*(\w+)\s*</b>", text)
-                    text = f"{author_name.group(1)} {author_name.group(2)}"
+                if '\r\n' in text:
+                    text = text.replace('\r\n', ' ')
                 authors.append(text)
         else:
             authors = ["NOT FOUND"]
