@@ -207,6 +207,7 @@ class Crawler:
         href = article_bs.get('href')
         if isinstance(href, str) and href.startswith('/news/') and len(re.findall('[0-9]', href)) >= 8:
             return "https://livennov.ru" + href
+            # oh
 
     def find_articles(self) -> None:
         """
