@@ -217,8 +217,8 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        if article_bs.get('href') and re.fullmatch(r'/novosti/.+', article_bs['href']):
-            return article_bs['href']
+        if article_bs.get('href') and re.fullmatch(r'/novosti/.+', article_bs['href'][0]):
+            return article_bs['href'][0]
         return ' '
 
 
@@ -280,8 +280,8 @@ class HTMLParser:
         if author:
             self.article.author.append(author)
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
-        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs)
-                                 + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
+        date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs[0])
+                                 + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs[0]))
         self.article.date = self.unify_date_format(date_and_time)
         topic = article_soup.find('a', {'class': 'toolbar__item toolbar__main-link'}).text
         if topic:
