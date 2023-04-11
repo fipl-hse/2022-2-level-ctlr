@@ -204,7 +204,7 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self.seed_urls:
+        for seed_url in self._seed_urls:
             response = make_request(seed_url, self.config)
             if response.status_code != 200:
                 continue
