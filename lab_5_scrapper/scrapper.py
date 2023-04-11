@@ -10,7 +10,7 @@ from typing import Pattern, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import ASSETS_PATH
+from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
 from core_utils.article.article import Article
 from pathlib import Path
 
@@ -77,7 +77,7 @@ class Config:
             raise IncorrectSeedURLError
         num_articles = configuration.get('num_articles')
 
-        if not isinstance(num_articlees, int):
+        if not isinstance(num_articles, int):
             raise IncorrectNumberOfArticlesError
 
         if num_articles < 1 or num_articles > 150:
@@ -177,7 +177,8 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        soup = BeautifulSoup()
+
+
 
     def find_articles(self) -> None:
         """
@@ -247,6 +248,7 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
 
 
