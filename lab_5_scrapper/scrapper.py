@@ -300,6 +300,7 @@ class HTMLParser:
         topic = topic_tag.get_text(strip=True)
         self.article.topics = topic
 
+
         date_tag = article_soup.find('div', {'class': 'article__date'})
         date_str = date_tag.get_text(strip=True)
         date = self.unify_date_format(date_str)
