@@ -5,8 +5,8 @@ import datetime
 import json
 import random
 import re
-import time
 import shutil
+import time
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -14,36 +14,62 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import  to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 
 
 class IncorrectSeedURLError(Exception):
+    """
+    Exception raised when seed_urls value is not a list
+    or does not match a standard pattern
+    """
     pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Exception raised when total number of articles to find
+    is more than 150
+    """
     pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
+    """
+    Exception raised when total number of articles to find
+    is not a positive integer
+    """
     pass
 
 
 class IncorrectHeadersError(Exception):
+    """
+    Exception raised when headers value is not a dictionary
+    """
     pass
 
 
 class IncorrectEncodingError(Exception):
+    """
+    Exception raised when encoding value is not a string
+    """
     pass
 
 
 class IncorrectTimeoutError(Exception):
+    """
+    Exception raised when timeout value is not a positive integer
+    or is more than 60
+    """
     pass
 
 
 class IncorrectVerifyError(Exception):
+    """
+    Exception raised when should_verify_certificate value
+    or headless_mode value is not a boolean
+    """
     pass
 
 
@@ -96,7 +122,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for url in config.seed_urls:
-            if not re.fullmatch(r'https://w?w?w?.+', url):
+            if not re.fullmatch(r'https://w{3}.+', url):
                 raise IncorrectSeedURLError
 
         if not isinstance(config.total_articles, int) or config.total_articles < 1:
@@ -168,7 +194,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(3, 7)))
+    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     return response
 
@@ -248,10 +274,10 @@ class HTMLParser:
         Finds meta information of article
         """
         self.article.title = article_soup.find('h1', {'class': 'title'}).text
-        self.article.author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
+        self.article.author.append(article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text)
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
         date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
-        date = self.unify_date_format(date_and_time)
+        self.article.date = self.unify_date_format(date_and_time)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
