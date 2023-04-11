@@ -292,7 +292,9 @@ class HTMLParser:
                     text = re.search(r"корр\.", text).group(0)
                 if '\r\n' in text:
                     text = text.replace('\r\n', ' ')
-                authors.append(text)
+                author_words = text.split(' ')
+                last_name = author_words[-1]
+                authors.append(last_name)
         else:
             authors = ["NOT FOUND"]
         self.article.author = authors
