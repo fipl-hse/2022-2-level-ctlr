@@ -222,7 +222,6 @@ class Crawler:
         return ' '
 
 
-
     def find_articles(self) -> None:
         """
         Finds articles
