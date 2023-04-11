@@ -192,7 +192,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return 'https://ptzgovorit.ru' + article_bs.get('href')
+        if isinstance(href := article_bs.get('href'), str):
+            return 'https://ptzgovorit.ru' + href
+        else:
+            raise TypeError
 
     def find_articles(self) -> None:
         """
@@ -306,8 +309,9 @@ def main() -> None:
     for i, article_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=article_url, article_id=i, config=configuration)
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
