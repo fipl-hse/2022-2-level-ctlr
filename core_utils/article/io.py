@@ -5,17 +5,8 @@ import json
 from pathlib import Path
 from typing import Optional, Union
 
-from core_utils.article.article import (Article, date_from_meta,
+from core_utils.article.article import (Article, ArtifactType, date_from_meta,
                                         get_article_id_from_filepath)
-from core_utils.article.constants import ArtifactType
-from core_utils.article.ud import (extract_sentences_from_raw_conllu,
-                                   parse_conllu_token)
-
-try:
-    from lab_6_pipeline.conllu import ConlluSentence  # type: ignore
-except ImportError:
-    ConlluSentence = None
-    print('Unable to import: lab_6_pipeline.conllu.ConlluSentence')
 
 
 def to_raw(article: Article) -> None:
@@ -90,40 +81,15 @@ def from_meta(path: Union[Path, str],
 
 
 def to_conllu(article: Article,
-              is_full: bool = False) -> None:
+              include_morphological_tags: bool = False) -> None:
     """
     Saves conllu information from the Article into the .conllu file
     """
-
-    article_type = ArtifactType.FULL_CONLLU if is_full else ArtifactType.MORPHOLOGICAL_CONLLU
+    article_type = ArtifactType.POS_CONLLU
+    if include_morphological_tags:
+        article_type = ArtifactType.MORPHOLOGICAL_CONLLU
 
     with open(file=article.get_file_path(article_type),
               mode='w',
               encoding='utf-8') as conllu_file:
-        conllu_file.write(article.get_conllu_text())
-
-
-def from_conllu(path: Union[Path, str],
-                article: Optional[Article] = None) -> Article:
-    """
-    Loads *.conllu file into the Article abstraction
-    """
-    article_id = get_article_id_from_filepath(Path(path))
-
-    article = article if article else Article(url=None, article_id=article_id)
-
-    new_sentences = []
-
-    with open(file=path,
-              mode='r',
-              encoding='utf-8') as conllu_file:
-        sentences_info = extract_sentences_from_raw_conllu(conllu_file.read())
-
-        for sentence_info in sentences_info:
-            conllu_tokens = [parse_conllu_token(token) for token in sentence_info['tokens']]
-
-            new_sentences.append(ConlluSentence(position=int(sentence_info['position']),
-                                                text=sentence_info['text'],
-                                                tokens=conllu_tokens))
-    article.set_conllu_sentences(new_sentences)
-    return article
+        conllu_file.write(article.get_conllu_text(include_morphological_tags))
