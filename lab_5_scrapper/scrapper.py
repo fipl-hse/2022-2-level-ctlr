@@ -282,9 +282,14 @@ class HTMLParser:
         self.article.title = title
 
         author_tag = article_soup.select("p.article__prepared, "
-                                         "div.article__paragraph.article__paragraph_second > b")
+                                    "div.article__paragraph.article__paragraph_second > p > b")
+        authors = []
         if author_tag:
-            authors = [tag.get_text(strip=True) for tag in author_tag]
+            for tag in author_tag:
+                text = tag.get_text(strip=True)
+                if '\r\n' in text:
+                    text = text.replace('\r\n', ' ')
+                authors.append(text)
         else:
             authors = ["NOT FOUND"]
         self.article.author = authors
