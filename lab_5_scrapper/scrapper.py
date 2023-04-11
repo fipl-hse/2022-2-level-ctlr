@@ -20,7 +20,6 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
-
 class IncorrectSeedURLError(Exception):
     """
     Raised when the seed URL does not match the
@@ -66,6 +65,9 @@ class IncorrectVerifyError(Exception):
 
 
 class Config:
+    """
+    Unpacks and validates configurations
+    """
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
