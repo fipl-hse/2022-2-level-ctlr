@@ -181,18 +181,29 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
+        url = article_bs['href']
+        if (isinstance(url, str)) and (url.count('/') > 3) and (url.startswith('/news/')):
+            return url
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for url1 in self._seed_urls:
+            response = make_request(url1, self._config)
+            if response.status_code == 200:
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                for url2 in main_bs.find_all('a'):
+                    url3 = self._extract_url(url2)
+                    self.urls.append(url3)
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._config.get_seed_urls()
 
 
 class HTMLParser:
@@ -251,6 +262,8 @@ def main() -> None:
     """
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
 
 
 if __name__ == "__main__":
