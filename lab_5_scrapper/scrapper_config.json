@@ -20,7 +20,7 @@
         "upgrade-insecure-requests": "1",
         "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
     },
-        "total_articles_to_find_and_parse": 10,
+        "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
     "timeout": 5,
     "should_verify_certificate": true,
