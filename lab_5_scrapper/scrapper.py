@@ -300,7 +300,6 @@ class HTMLParser:
             topic = topic[0]
         self.article.topics = topic
 
-
         date_tag = article_soup.find('div', {'class': 'article__date'})
         if date_tag:
             date_str = date_tag.get_text(strip=True)
