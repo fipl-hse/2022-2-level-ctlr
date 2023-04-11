@@ -7,13 +7,8 @@
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
         "cache-control": "max-age=0",
         "sec-ch-ua": "\"Chromium\";v=\"112\", \"Brave\";v=\"112\", \"Not:A-Brand\";v=\"99\"",
-        "sec-ch-ua-platform": "\"Windows\"",
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "sec-gpc": "1",
-        "upgrade_insecure_requests": "1"
+        "sec-ch-ua-platform": "\"Windows\"", "sec-fetch-dest": "document", "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none", "sec-fetch-user": "?1", "sec-gpc": "1", "upgrade_insecure_requests": "1"
     },
     "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
