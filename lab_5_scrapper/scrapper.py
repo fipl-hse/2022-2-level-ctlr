@@ -278,10 +278,7 @@ class HTMLParser:
         Finds meta information of article
         """
         title_tag = article_soup.find('h1', {'class': 'article__title'})
-        if title_tag:
-            title = title_tag.get_text(strip=True)
-        else:
-            title =  "NOT FOUND"
+        title = title_tag.get_text(strip=True)
         self.article.title = title
 
         author_tag = article_soup.find_all('p', {'class': 'article__prepared'})
@@ -291,20 +288,12 @@ class HTMLParser:
             authors = ["NOT FOUND"]
         self.article.author = authors
 
-        topic_tag = article_soup.find('div', {'class': 'article__category'}).find('a')
-        if topic_tag:
-            topic = topic_tag.get_text(strip=True)
-        else:
-            topic = "NOT FOUND"
-        if isinstance(topic, list):
-            topic = topic[0]
+        topic_tag = article_soup.find('div', {'class': 'article__category'}).find_all('a')[0]
+        topic = topic_tag.get_text(strip=True)
         self.article.topics = topic
 
         date_tag = article_soup.find('div', {'class': 'article__date'})
-        if date_tag:
-            date_str = date_tag.get_text(strip=True)
-        else:
-            date_str = "NOT FOUND"
+        date_str = date_tag.get_text(strip=True)
         date = self.unify_date_format(date_str)
         self.article.date = date
 
