@@ -274,6 +274,7 @@ class HTMLParser:
         text = "\n".join(text_list)
         self.article.text = text
 
+
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
