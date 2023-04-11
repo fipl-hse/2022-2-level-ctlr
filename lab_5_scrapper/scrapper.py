@@ -9,6 +9,7 @@ import shutil
 import time
 from pathlib import Path
 from typing import Union
+import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
@@ -212,7 +213,8 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return 'https://econs.online' + str(article_bs.a.get('href'))
+        base = 'https://econs.online'
+        return urllib.parse.urljoin(base, article_bs.a.get('href'))
 
     def find_articles(self) -> None:
         """
