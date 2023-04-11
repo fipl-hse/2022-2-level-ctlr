@@ -74,15 +74,6 @@ class Config:
     """
     Unpacks and validates configurations
     """
-
-    seed_urls: list[str]
-    total_articles_to_find_and_parse: int
-    headers: dict[str, str]
-    encoding: str
-    timeout: int
-    verify_certificate: bool
-    headless_mode: bool
-
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
@@ -117,8 +108,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for url in dto.seed_urls:
-            if not (re.match(r'https?://', url) and url.startswith('https://livennov.ru/news/')
-                    and isinstance(url, str)):
+            if not (re.match(r'https?://', url) and isinstance(url, str)):
                 raise IncorrectSeedURLError
 
         if dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
