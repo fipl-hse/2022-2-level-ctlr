@@ -12,9 +12,6 @@ from typing import Pattern, Union
 import requests
 from bs4 import BeautifulSoup
 
-from core_utils.article.article import Article
-from core_utils.article.io import to_raw
-from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (
     ASSETS_PATH,
     CRAWLER_CONFIG_PATH,
@@ -22,6 +19,9 @@ from core_utils.constants import (
     TIMEOUT_LOWER_LIMIT,
     TIMEOUT_UPPER_LIMIT,
 )
+from core_utils.article.article import Article
+from core_utils.article.io import to_raw
+from core_utils.config_dto import ConfigDTO
 
 
 class IncorrectSeedURLError(Exception):
@@ -96,26 +96,29 @@ class Config:
         """
         with open(self.path_to_config, "r", encoding="utf-8") as f:
             config = json.load(f)
-
         seed_urls = config["seed_urls"]
         headers = config["headers"]
         total_articles_to_find_and_parse = config["total_articles_to_find_and_parse"]
         encoding = config["encoding"]
         timeout = config["timeout"]
-        verify_certificate = config["should_verify_certificate"]
+        should_verify_certificate = config["should_verify_certificate"]
         headless_mode = config["headless_mode"]
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
 
         for url in seed_urls:
-            if not re.match(r"https?://w?w?w?.", url) or not isinstance(url, str):
+            if not re.match(r"https?://.*/", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
-        if not 1 < total_articles_to_find_and_parse < NUM_ARTICLES_UPPER_LIMIT:
+        if not total_articles_to_find_and_parse < NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(total_articles_to_find_and_parse, int):
+        if (
+            not isinstance(total_articles_to_find_and_parse, int)
+            or isinstance(total_articles_to_find_and_parse, bool)
+            or total_articles_to_find_and_parse < 1
+        ):
             raise IncorrectNumberOfArticlesError
 
         if not isinstance(headers, dict):
@@ -130,8 +133,9 @@ class Config:
         ):
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool) or not isinstance(
-            headless_mode, bool
+        if (
+            not isinstance(should_verify_certificate, bool)
+            or not isinstance(headless_mode, bool)
         ):
             raise IncorrectVerifyError
 
@@ -177,9 +181,6 @@ class Config:
         """
         return self._headless_mode
 
-    def seed_urls(self):
-        return self._seed_urls
-
 
 def make_request(url: str, config: Config) -> requests.models.Response:
     """
@@ -188,12 +189,14 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     sleep_time = randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
     sleep(sleep_time)
-    return requests.get(
+    request = requests.get(
         url,
         headers=config.get_headers(),
         timeout=config.get_timeout(),
         verify=config.get_verify_certificate(),
     )
+    # request.encoding = config.get_encoding()
+    return request
 
 
 class Crawler:
@@ -207,7 +210,6 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.url_pattern = "https://irkutskmedia.ru/news/"
         self.config = config
         self.urls = []
 
@@ -216,11 +218,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_tags_bs = article_bs.find_all(
-            "a", string=re.compile(r"https://irkutskmedia\.ru/news/.")
-        )
-        for tag in all_tags_bs:
-            return tag.get("href")
+        href = article_bs.get('href')
+        if href.startswith('https://irkutskmedia.ru/news/'):
+            return href  # get links with matching attribute
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -232,9 +233,15 @@ class Crawler:
             if response.status_code != 200 or response.status_code == 404:
                 continue
             # gets html page
-            main_bs = BeautifulSoup(response.text, "lxml")
-            link = self._extract_url(main_bs)
-            self.urls.append(link)
+            page = BeautifulSoup(response.text, "lxml")
+            page_links = page.find_all('a')
+            for page_link in page_links:
+                link = self._extract_url(page_link)
+                if link is None or link == '':
+                    continue
+                self.urls.append(link)
+                if len(self.urls) == self.config.get_num_articles():
+                    break
 
     def get_search_urls(self) -> list:
         """
