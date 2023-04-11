@@ -18,23 +18,30 @@ from pathlib import Path
 class IncorrectSeedURLError(Exception):
     pass
 
+
 class NumberOfArticlesOutOfRangeError(Exception):
     pass
+
 
 class IncorrectNumberOfArticlesError(Exception):
     pass
 
+
 class IncorrectHeadersError(Exception):
     pass
+
 
 class IncorrectEncodingError(Exception):
     pass
 
+
 class IncorrectTimeoutError(Exception):
     pass
 
+
 class IncorrectVerifyError(Exception):
     pass
+
 
 class Config:
     """
@@ -100,8 +107,6 @@ class Config:
         if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError
 
-
-
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
@@ -112,7 +117,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self.total_articles
+        return self._total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -150,14 +155,11 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    headers = config.get_headers()
-    timeout = config.get_timeout()
-    verify = config.get_verify_certificate()
+
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding == 'utf-8'
     return response
-
 
 
 class Crawler:
@@ -179,8 +181,6 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-
-
 
     def find_articles(self) -> None:
         """
@@ -243,7 +243,6 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
     else:
         base_path.mkdir(parents=True)
-
 
 
 def main() -> None:
