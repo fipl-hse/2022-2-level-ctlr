@@ -94,7 +94,6 @@ class Config:
         """
         return ConfigDTO(**self.content)
 
-
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
@@ -212,7 +211,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if link:
+        if re.fullmatch(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+/', link):
             return link
         return ''
 
@@ -243,7 +242,6 @@ class Crawler:
         Returns seed_urls param
         """
         return self.seed_urls
-
 
 
 class HTMLParser:
@@ -281,13 +279,14 @@ class HTMLParser:
         if title_bs:
             self.article.title = title_bs.text
 
-        date_bs = article_soup.find('span',
-                                    {'class':
-                                         'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-date'})
+        date_bs = article_soup.find(
+            'span',
+            {'class': 'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-date'}
+        )
         if date_bs:
             date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
 
-        self.article.date = self.unify_date_format(date_txt[0])
+            self.article.date = self.unify_date_format(date_txt[0])
 
         auth_bs = article_soup.find('span', {
             'class': 'elementor-icon-list-text elementor-post-info__item elementor-post-info__item--type-author'})
@@ -315,7 +314,6 @@ class HTMLParser:
         return self.article
 
 
-
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
@@ -325,7 +323,6 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
         shutil.rmtree(base_path)
 
     base_path.mkdir(parents=True)
-
 
 
 def main() -> None:
@@ -342,6 +339,7 @@ def main() -> None:
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
+
 
 if __name__ == "__main__":
     main()
