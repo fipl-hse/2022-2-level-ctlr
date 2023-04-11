@@ -299,7 +299,6 @@ class HTMLParser:
             authors = ["NOT FOUND"]
         self.article.author = authors
 
-
         topic_tag = article_soup.find('div', {'class': 'article__category'}).find_all('a')[0]
         topic = topic_tag.get_text(strip=True)
         self.article.topics = topic
