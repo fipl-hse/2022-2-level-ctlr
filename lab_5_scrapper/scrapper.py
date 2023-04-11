@@ -76,8 +76,8 @@ class Config:
             config = json.load(f)
         return ConfigDTO(
             seed_urls=config["seed_urls"],
-            total_articles_to_find_and_parse=config["total_articles_to_find_and_parse"],
             headers=config["headers"],
+            total_articles_to_find_and_parse=config["total_articles_to_find_and_parse"],
             encoding=config["encoding"],
             timeout=config["timeout"],
             should_verify_certificate=config["should_verify_certificate"],
