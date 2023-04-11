@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw, to_meta
 from pathlib import Path
 
 
@@ -215,19 +216,25 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self._full_url = full_url
+        self._article_id = article_id
+        self._config = config
+        self.article = Article(self._full_url)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text = article_soup.find('p')
+        paragraphs_text = [paragraph.text for paragraph in text]
+        self.article.text = '\n'.join(paragraphs_text)
+
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -239,7 +246,10 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self._full_url, self._config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -264,6 +274,11 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
+    for i, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(full_url=url, article_id=i, config=configuration)
+        text = parser.parse()
+        to_raw(text)
+        to_meta(text)
 
 
 if __name__ == "__main__":
