@@ -69,33 +69,30 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self._config_file_path, 'r', encoding='utf-8') as file:
-            configuration = json.load(file)
+        config_dto = self._extract_config_content()
 
-        seed_url = configuration.get('seed_url')
-        if not seed_url or not re.match(r'^https?://w?w?w?.', seed_url):
+        if not config_dto.seed_url or not re.match(r'^https?://w?w?w?.', config_dto.seed_url):
             raise IncorrectSeedURLError
-        num_articles = configuration.get('num_articles')
 
-        if not isinstance(num_articles, int):
+        if not isinstance(config_dto.num_articles, int):
             raise IncorrectNumberOfArticlesError
 
-        if num_articles < 1 or num_articles > 150:
+        if config_dto.num_articles < 1 or config_dto.num_articles > 150:
             raise NumberOfArticlesOutOfRangeError
 
-        headers = configuration.get('headers')
+        headers = config_dto.get('headers')
         if not isinstance(headers, dict):
             raise IncorrectHeadersError
 
-        encoding = configuration.get('encoding')
+        encoding = config_dto.get('encoding')
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        timeout = configuration.get('timeout')
+        timeout = config_dto.get('timeout')
         if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        verify = configuration.get('verify')
+        verify = config_dto.get('verify')
         if not isinstance(verify, bool):
             raise IncorrectVerifyError
 
