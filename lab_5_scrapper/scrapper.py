@@ -15,16 +15,28 @@ import shutil
 
 class IncorrectSeedURLError(Exception):
     pass
+
+
 class NumberOfArticlesOutOfRangeError(Exception):
     pass
+
+
 class IncorrectNumberOfArticlesError(Exception):
     pass
+
+
 class IncorrectHeadersError(Exception):
     pass
+
+
 class IncorrectEncodingError(Exception):
     pass
+
+
 class IncorrectTimeoutError(Exception):
     pass
+
+
 class IncorrectVerifyError(Exception):
     pass
 
@@ -62,8 +74,7 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_content = json.load(f)
+        config_content = self._extract_config_content()
 
         seed_urls = config_content['seed_urls']
         headers = config_content['headers']
@@ -192,7 +203,7 @@ class Crawler:
                 href = self._extract_url(link_bs)
                 if href is None:
                     continue
-                if href.startswith('fn') and '.html' in href:
+                elif href.startswith('fn') and '.html' in href:
                     if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
