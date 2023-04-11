@@ -291,6 +291,9 @@ class HTMLParser:
                 text = tag.get_text(strip=True)
                 if re.search(r"Наш\s+корр\.", text):
                     text = re.search(r"корр\.", text).group(0)
+                elif re.search(r"<b>(\w+)\s*(\r?\n)?\s*(\w+)\s*</b>", text):
+                    author_name = re.search(r"<b>(\w+)\s*(\r?\n)?\s*(\w+)\s*</b>", text)
+                    text = f"{author_name.group(1)} {author_name.group(2)}"
                 authors.append(text)
         else:
             authors = ["NOT FOUND"]
