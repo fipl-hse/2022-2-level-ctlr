@@ -299,7 +299,7 @@ def main() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
-    for i, article_url in enumerate(crawler.urls):
+    for i, article_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=article_url, article_id=i, config=configuration)
         article = parser.parse()
         to_raw(article)
