@@ -3,6 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
+import shutil
 from pathlib import Path
 from typing import Pattern, Union
 from urllib.parse import urlparse
@@ -71,14 +72,14 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._config_dto = self._extract_config_content()
-        self._seed_urls = self._config_dto.seed_urls
-        self._num_articles = self._config_dto.total_articles
-        self._headers = self._config_dto.headers
-        self._encoding = self._config_dto.encoding
-        self._timeout = self._config_dto.timeout
-        self._should_verify_certificate = self._config_dto.should_verify_certificate
-        self._headless_mode = self._config_dto.headless_mode
+        config_dto = self._extract_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._should_verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -102,49 +103,40 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+        config_dto = self._extract_config_content()
 
-            info = json.load(file)
-        seed_urls = info['seed_urls']
-        headers = info['headers']
-        total_articles_to_find_and_parse = info['total_articles_to_find_and_parse']
-        encoding = info['encoding']
-        timeout = info['timeout']
-        verify_certificate = info['should_verify_certificate']
-        headless_mode = info['headless_mode']
-
-        if not isinstance(seed_urls, list):
+        if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
+        for url in config_dto.seed_urls:
             result = urlparse(url)
             if (not isinstance(url, str)
                     or not result.netloc or not result.scheme):
                 raise IncorrectSeedURLError
 
-        if (not isinstance(total_articles_to_find_and_parse, int)
-                or isinstance(total_articles_to_find_and_parse, bool)
-                or total_articles_to_find_and_parse < 1):
+        if (not isinstance(config_dto.total_articles, int)
+                or isinstance(config_dto.total_articles, bool)
+                or config_dto.total_articles < 1):
             raise IncorrectNumberOfArticlesError
 
-        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(headers, dict):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if (not isinstance(timeout, int)
-                or timeout < TIMEOUT_LOWER_LIMIT
-                or timeout > TIMEOUT_UPPER_LIMIT):
+        if (not isinstance(config_dto.timeout, int)
+                or config_dto.timeout < TIMEOUT_LOWER_LIMIT
+                or config_dto.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool):
+        if not isinstance(config_dto.should_verify_certificate, bool):
             raise IncorrectVerifyError
 
-        if not isinstance(headless_mode, bool):
+        if not isinstance(config_dto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -195,8 +187,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    return requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
-                        verify=config.get_verify_certificate())
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
+    response.encoding = 'utf-8'
+    return response
 
 
 class Crawler:
@@ -229,12 +223,13 @@ class Crawler:
         """
         for seed in self._seed_urls:
             response = make_request(seed, self._config)
-            soup = BeautifulSoup(response.text, 'lxml')
-            for url in soup.find_all('a', class_="news-line_newsLink__e0zuO"):
-                part_of_url = self._extract_url(url)
-                if (len(self.urls) < self._config.get_num_articles()
-                        and 'specials' not in part_of_url):
-                    self.urls.append('https://progorod76.ru' + part_of_url)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'lxml')
+                for url in soup.find_all('a', class_="news-line_newsLink__e0zuO"):
+                    part_of_url = self._extract_url(url)
+                    if (len(self.urls) < self._config.get_num_articles()
+                            and 'specials' not in part_of_url):
+                        self.urls.append('https://progorod76.ru' + part_of_url)
 
     def get_search_urls(self) -> list:
         """
@@ -269,14 +264,14 @@ class HTMLParser:
         Finds meta information of article
         """
         title = article_soup.find('h1', attrs={'itemprop': 'headline'})
-        if title:
-            self.article.title = title.text
+        if not title:
+            self.article.title = 'WITHOUT TITLE'
+        self.article.title = title.text
 
-        author = article_soup.find('a', class_='article-info_articleInfoAuthor__W0ZnW')
-        if author:
-            self.article.author = [author.text]
-        if not author:
+        authors = article_soup.find_all('a', class_='article-info_articleInfoAuthor__W0ZnW')
+        if not authors:
             self.article.author = ["NOT FOUND"]
+        self.article.author = [author.text for author in authors]
 
         topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
         if topics:
@@ -284,7 +279,13 @@ class HTMLParser:
 
         date = article_soup.find('span', attrs={'class': 'article-info_articleInfoDate__S0E0P'})
         string_date = date.text
-        list_date = string_date.lower().split()
+        self.article.date = self.unify_date_format(string_date)
+
+    def unify_date_format(self, date_str: str) -> datetime.datetime:
+        """
+        Unifies date format
+        """
+        list_date = date_str.lower().split()
 
         months_collection = {"января": "01", "февраля": "02", "марта": "03",
                              "апреля": "04", "мая": "05", "июня": "06",
@@ -307,23 +308,20 @@ class HTMLParser:
             if element.isdigit() and element not in digits:
                 day += element
 
-        self.article.date = self.unify_date_format(year + '-' + month + '-' + day + ' ' + time)
-
-    def unify_date_format(self, date_str: str) -> datetime.datetime:
-        """
-        Unifies date format
-        """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M')
+        correct_date = year + '-' + month + '-' + day + ' ' + time
+        return datetime.datetime.strptime(correct_date, '%Y-%m-%d %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
         page = make_request(self._full_url, self._config)
-        soup = BeautifulSoup(page.text, "lxml")
-        self._fill_article_with_text(soup)
-        self._fill_article_with_meta_information(soup)
-        return self.article
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.text, "lxml")
+            self._fill_article_with_text(soup)
+            self._fill_article_with_meta_information(soup)
+            return self.article
+        return False
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -331,7 +329,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
     if base_path.exists():
-        base_path.rmdir()
+        shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
 
