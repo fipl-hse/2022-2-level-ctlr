@@ -61,7 +61,7 @@ class Config:
         self._validate_config_content()
         config_content = self._extract_config_content()
         self._seed_urls = config_content.seed_urls
-        self._num_articles = config_content.total_articles
+        self._num_articles = config_content.total_articles_to_find_and_parse
         self._headers = config_content.headers
         self._encoding = config_content.encoding
         self._timeout = config_content.timeout
