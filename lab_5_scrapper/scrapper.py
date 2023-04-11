@@ -218,7 +218,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         if article_bs.get('href') and re.fullmatch(r'/novosti/.+', article_bs['href']):
-            return 'https://www.vgoroden.ru' + article_bs['href']
+            return article_bs['href']
 
 
 
@@ -230,7 +230,7 @@ class Crawler:
             response = make_request(url, self.config)
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
-                article_url = self._extract_url(link)
+                article_url = 'https://www.vgoroden.ru' + self._extract_url(link)
                 if article_url is None:
                     continue
                 self.urls.append(article_url)
