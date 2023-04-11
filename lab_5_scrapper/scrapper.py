@@ -147,7 +147,6 @@ class Config:
             raise IncorrectVerifyError
 
 
-
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
