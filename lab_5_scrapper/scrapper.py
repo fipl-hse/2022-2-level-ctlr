@@ -221,7 +221,7 @@ class Crawler:
             try:
                 response = make_request(url=url, config=self.config)
                 response.raise_for_status()
-            except requests.exceptions.HTTPError as e:
+            except requests.exceptions.HTTPError:
                 continue
             soup = BeautifulSoup(response.text, 'html.parser')
             news = soup.find_all('h4', {'class': 'news-card__title'})
