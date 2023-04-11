@@ -271,10 +271,12 @@ class HTMLParser:
         Parses each article
         """
         response = requests.get(self.full_url)
-        a_bs = BeautifulSoup(response.text, 'lxml')
-        self._fill_article_with_text(a_bs)
-
-        return self.article
+        if response.status_code == 200:
+            a_bs = BeautifulSoup(response.text, 'lxml')
+            self._fill_article_with_text(a_bs)
+            return self.article
+        else:
+            return False
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
