@@ -176,7 +176,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-            return href
+        return href
 
     def find_articles(self) -> None:
         """
