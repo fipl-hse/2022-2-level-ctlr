@@ -103,15 +103,9 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config_content = json.load(f)
-            seed_urls = config_content['seed_urls']
-            headers = config_content['headers']
-            num_of_articles = config_content['total_articles_to_find_and_parse']
-            encoding = config_content['encoding']
-            timeout = config_content['timeout']
-            should_verify_certificate = config_content['should_verify_certificate']
-            headless_mode = config_content['headless_mode']
-        return ConfigDTO(seed_urls, num_of_articles,  headers, encoding,
-                         timeout, should_verify_certificate, headless_mode)
+        return ConfigDTO(config_content['seed_urls'], config_content['total_articles_to_find_and_parse'],  config_content['headers'],
+                         config_content['encoding'], config_content['timeout'],
+                         config_content['should_verify_certificate'], config_content['headless_mode'])
 
     def _validate_config_content(self) -> None:
         """
@@ -119,30 +113,37 @@ class Config:
         are not corrupt
         """
         config = self._extract_config_content()
+        seed_urls = config.seed_urls
+        total_articles = config.total_articles
+        headers = config.headers
+        encoding = config.encoding
+        timeout = config.timeout
+        verify_certificate = config.should_verify_certificate
+        headless_mode = config.headless_mode
 
-        if not isinstance(config.seed_urls, list):
+        if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in config.seed_urls:
+        for url in seed_urls:
             if not re.fullmatch(r'https://.+', url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(config.total_articles, int) or config.total_articles < 1:
+        if not isinstance(total_articles, int) or total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(config.headers, dict):
+        if not isinstance(headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(config.encoding, str):
+        if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(config.timeout, int) or config.timeout < 0 or config.timeout > 60:
+        if not isinstance(timeout, int) or timeout < 0 or timeout > 60:
             raise IncorrectTimeoutError
 
-        if not isinstance(config.should_verify_certificate, bool) or not isinstance(config.headless_mode, bool):
+        if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
             raise IncorrectVerifyError
 
 
@@ -196,8 +197,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
+    time.sleep((random.randint(3, 5)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -274,18 +276,24 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        self.article.title = article_soup.find('h1', {'class': 'title'}).text
-        self.article.author.append(article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text)
+        title = article_soup.find('h1', {'class': 'title'}).text
+        if title:
+            self.article.title = title
+        author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
+        if author:
+            self.article.author.append(author)
         date_bs = article_soup.find('time', {'class': 'toolbar__text'})['datetime']
         date_and_time = ' '.join(re.findall(r'\d{4}-\d{2}-\d{2}', date_bs) + re.findall(r'\d{2}:\d{2}:\d{2}', date_bs))
         self.article.date = self.unify_date_format(date_and_time)
+        topic = article_soup.find('a', {'class': 'toolbar__item toolbar__main-link'}).text
+        if topic:
+            self.article.topics.append(topic)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        dt_object = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-        return dt_object
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
 
     def parse(self) -> Union[Article, bool, list]:
         """
