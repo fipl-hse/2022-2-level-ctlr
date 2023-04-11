@@ -99,7 +99,8 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        if not isinstance(self._seed_urls, list) or not all(isinstance(url, str) for url in self._seed_urls) or \
+        if not isinstance(self._seed_urls, list)\
+                or not all(isinstance(url, str) for url in self._seed_urls) or \
                 not all(re.search('https?://(www.)?', url) for url in self._seed_urls):
             raise IncorrectSeedURLError
         if not isinstance(self._num_articles, int) or self._num_articles < 1:
@@ -113,7 +114,8 @@ class Config:
         if not isinstance(self._timeout, int)\
                 or self._timeout <= TIMEOUT_LOWER_LIMIT or self._timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
-        if not isinstance(self._should_verify_certificate, bool) or not isinstance(self._headless_mode, bool):
+        if not isinstance(self._should_verify_certificate, bool)\
+                or not isinstance(self._headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -199,11 +201,11 @@ class Crawler:
         for seed_url in self.get_search_urls():
             req = make_request(seed_url, self.config)
             if req.status_code == 200:
-                for a in BeautifulSoup(req.text, 'lxml').find_all('a'):
+                for a_href in BeautifulSoup(req.text, 'lxml').find_all('a'):
                     if len(self.urls) >= self.config.get_num_articles():
                         return
                     try:
-                        url = self._extract_url(a)
+                        url = self._extract_url(a_href)
                         if url not in self.urls and url.startswith('https://ptzgovorit.ru/news/'):
                             self.urls.append(url)
                     except TypeError:  # in case "a" does not have "href" attribute
@@ -235,7 +237,8 @@ class HTMLParser:
         Finds text of article
         """
         text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
-        self.article.text = '\n'.join(text for paragraph in text_div.find_all('p') if (text := paragraph.text.strip()))
+        self.article.text = '\n'.join(text for paragraph in text_div.find_all('p')
+                                      if (text := paragraph.text.strip()))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -264,9 +267,10 @@ class HTMLParser:
         """
         Unifies date format
         """
-        months_substitutions = {'января': 'Jan', 'февраля': 'Feb', 'марта': 'Mar', 'апреля': 'Apr', 'мая': 'May',
-                                'июня': 'Jun', 'июля': 'Jul', 'августа': 'Aug', 'сентября': 'Sep', 'октября': 'Oct',
-                                'ноября': 'Nov', 'декабря': 'Dec'}
+        months_substitutions = {'декабря': 'Dec', 'января': 'Jan', 'февраля': 'Feb',
+                                'марта': 'Mar', 'апреля': 'Apr', 'мая': 'May',
+                                'июня': 'Jun', 'июля': 'Jul', 'августа': 'Aug',
+                                'сентября': 'Sep', 'октября': 'Oct', 'ноября': 'Nov', }
         date = date_str.split()
         date[1] = months_substitutions[date[1]]
         return datetime.datetime.strptime(' '.join(date), '%d %b %Y, %H:%M')
