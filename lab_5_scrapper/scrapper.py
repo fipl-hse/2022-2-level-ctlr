@@ -227,6 +227,7 @@ class Crawler:
                 return urljoin(str(current_url), str(href))
         return ''
 
+
     def find_articles(self) -> None:
         """
         Finds articles
