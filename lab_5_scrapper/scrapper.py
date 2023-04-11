@@ -246,7 +246,6 @@ class HTMLParser:
         """
         pass
 
-
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
