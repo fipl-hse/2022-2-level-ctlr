@@ -71,6 +71,10 @@ class Config:
         """
         config_dto = self._extract_config_content()
 
+        for i in config_dto.seed_urls:
+            if not isinstance(i, str):
+                raise IncorrectSeedURLError
+
         if not config_dto.seed_url or not re.match(r'^https?://w?w?w?.', config_dto.seed_url):
             raise IncorrectSeedURLError
 
