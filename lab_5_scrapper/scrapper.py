@@ -252,12 +252,12 @@ class HTMLParser:
         self.article.date = self.unify_date_format(date.text)
         text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
 
-        # if author := text_div.find(string=re.compile('^Текст: ')):
-        if author := text_div.find(lambda x: x.text.startswith('Текст: ')):
-            self.article.author = [' '.join(author.text.split()[1:3])]
-        # elif author := text_div.find(string=re.compile('^Текст и фото: ')):
-        elif author := text_div.find(lambda x: x.text.startswith('Текст и фото: ')):
-            self.article.author = [' '.join(author.text.split()[3:5])]
+        # if author := text_div.find(lambda x: x.text.startswith('Текст: ')):
+        if author := text_div.find_all(string=re.compile('^Текст: ')):
+            self.article.author = [' '.join(author[0].text.split()[1:3])]
+        # elif author := text_div.find(lambda x: x.text.startswith('Текст и фото: ')):
+        elif author := text_div.find_all(string=re.compile('^Текст и фото: ')):
+            self.article.author = [' '.join(author[0].text.split()[3:5])]
         else:
             self.article.author = ['NOT FOUND']
 
