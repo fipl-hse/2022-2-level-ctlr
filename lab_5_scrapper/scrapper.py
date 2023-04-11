@@ -1,15 +1,39 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
 import json
-from bs4 import BeautifulSoup
+import re
 import requests
+import shutil
+
+from typing import Pattern, Union
+from datetime import datetime
+from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH
+from core_utils.constants import ASSETS_PATH
+from core_utils.article.article import Article
 from pathlib import Path
 
+
 class IncorrectSeedURLError(Exception):
+    pass
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    pass
+
+class IncorrectNumberOfArticlesError(Exception):
+    pass
+
+class IncorrectHeadersError(Exception):
+    pass
+
+class IncorrectEncodingError(Exception):
+    pass
+
+class IncorrectTimeoutError(Exception):
+    pass
+
+class IncorrectVerifyError(Exception):
     pass
 
 class Config:
@@ -36,8 +60,8 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r') as f:
-            configuration = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            configuration = json.load(file)
             return ConfigDTO(**configuration)
 
     def _validate_config_content(self) -> None:
@@ -45,51 +69,79 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        if not self._config_dto.seed_urls or not isinstance(self._config_dto.seed_urls, list):
+        with open(self._config_file_path, 'r', encoding='utf-8') as file:
+            configuration = json.load(file)
+
+        seed_url = configuration.get('seed_url')
+        if not seed_url or not re.match(r'^https?://w?w?w?.', seed_url):
             raise IncorrectSeedURLError
-        if not
+        num_articles = configuration.get('num_articles')
+
+        if not isinstance(num_articlees, int):
+            raise IncorrectNumberOfArticlesError
+
+        if num_articles < 1 or num_articles > 150:
+            raise NumberOfArticlesOutOfRangeError
+
+        headers = configuration.get('headers')
+        if not isinstance(headers, dict):
+            raise IncorrectHeadersError
+
+        encoding = configuration.get('encoding')
+        if not isinstance(encoding, str):
+            raise IncorrectEncodingError
+
+        timeout = configuration.get('timeout')
+        if not isinstance(timeout, int) or timeout <= 0 or timeout >= 10:
+            raise IncorrectTimeoutError
+
+        verify = configuration.get('verify')
+        if not isinstance(verify, bool):
+            raise IncorrectVerifyError
+
+
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self._config_dto.seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self.total_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._config_dto.headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._config_dto.encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._config_dto.timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._config_dto.should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._config_dto.headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -97,7 +149,12 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+    verify = config.get_verify_certificate()
+    response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    return response
+
 
 
 class Crawler:
@@ -111,13 +168,15 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.urls = []
+        self._config = config
+        self._seed_urls = config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        soup = BeautifulSoup()
 
     def find_articles(self) -> None:
         """
@@ -172,14 +231,22 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if isinstance(base_path, str):
+        base_path = Path(base_path)
+
+    if base_path.exists():
+        shutil.rmtree(base_path)
+
+    else:
+        base_path.mkdir(parents=True)
+
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    prepare_environment(ASSETS_PATH)
 
 
 if __name__ == "__main__":
