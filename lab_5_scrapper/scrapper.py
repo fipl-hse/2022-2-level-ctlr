@@ -94,7 +94,7 @@ class Config:
 
         seed_urls = content.seed_urls
         headers = content.headers
-        total_articles_to_find_and_parse = content.total_articles_to_find_and_parse
+        total_articles_to_find_and_parse = content.total_articles
         encoding = content.encoding
         timeout = content.timeout
         should_verify_certificate = content.should_verify_certificate
