@@ -210,17 +210,16 @@ class Crawler:
         """
         Finds articles
         """
-        url1 = "https://prmira.ru"
-        for url in self._seed_url:
-            if len(self.urls) == self._config.get_num_articles():
-                break
-            response = make_request(url, self._config)
-            file = response.json()
-            print(file)
-            for values in file.values():
-                for elem in values:
-                    if isinstance(elem, dict) and len(self.urls) < self._config.get_num_articles():
-                        self.urls.append(url1 + elem['path'])
+        while len(self.urls) < self._config.get_num_articles():
+            url1 = "https://prmira.ru"
+            for url in self._seed_url:
+                response = make_request(url, self._config)
+                file = response.json()
+                print(file)
+                for values in file.values():
+                    for elem in values:
+                        if isinstance(elem, dict) and len(self.urls) < self._config.get_num_articles():
+                            self.urls.append(url1 + elem['path'])
 
         print(self.urls)
 
