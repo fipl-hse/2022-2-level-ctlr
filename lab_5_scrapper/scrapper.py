@@ -42,6 +42,7 @@ class IncorrectEncodingError(Exception):
 class IncorrectTimeoutError(Exception):
     pass
 
+
 class RequestError(Exception):
     pass
 
