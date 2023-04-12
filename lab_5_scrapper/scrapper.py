@@ -102,13 +102,13 @@ class Config:
         if not isinstance(content.headers, dict):
             raise IncorrectHeadersError
 
-        if content.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
+        if content.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if (
-            not isinstance(content.total_articles_to_find_and_parse, int)
-            or isinstance(content.total_articles_to_find_and_parse, bool)
-            or content.total_articles_to_find_and_parse < 1
+            not isinstance(content.total_articles, int)
+            or isinstance(content.total_articles, bool)
+            or content.total_articles < 1
         ):
             raise IncorrectNumberOfArticlesError
 
