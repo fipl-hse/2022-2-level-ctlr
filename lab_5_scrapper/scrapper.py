@@ -97,19 +97,19 @@ class Config:
         if config_dto.num_articles < 1 or config_dto.num_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        headers = config_dto.get('headers')
+        headers = config_dto.headers
         if not isinstance(headers, dict):
             raise IncorrectHeadersError
 
-        encoding = config_dto.get('encoding')
+        encoding = config_dto.encoding
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        timeout = config_dto.get('timeout')
+        timeout = config_dto.timeout
         if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        should_verify_certificate = config_dto.get('should_verify_certificate')
+        should_verify_certificate = config_dto.should_verify_certificate
         if not isinstance(should_verify_certificate, bool):
             raise IncorrectVerifyError
 
@@ -224,7 +224,7 @@ class HTMLParser:
         self._full_url = full_url
         self._article_id = article_id
         self._config = config
-        self.article = Article(self._full_url)
+        self.article = Article(self._full_url, self._article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
