@@ -24,7 +24,7 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
 
 class IncorrectSeedURLError(Exception):
     """
-    Seed URL does not match standard pattern "https?://(www.)?"
+    Seed URL does not match standard pattern "https?://(www.)?".
     """
 
 
