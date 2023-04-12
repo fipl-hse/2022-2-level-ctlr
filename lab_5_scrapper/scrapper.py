@@ -1,21 +1,20 @@
 """
 Crawler implementation
 """
-import json
 import datetime
+import json
 import re
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
 import requests
 from bs4 import BeautifulSoup
-from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (
-    CRAWLER_CONFIG_PATH, ASSETS_PATH,
-    TIMEOUT_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT
-)
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -119,8 +118,7 @@ class Config:
                 "Total number of articles to parse is not integer"
             )
 
-        if self.content['total_articles_to_find_and_parse'] < 1 \
-                or self.content['total_articles_to_find_and_parse'] > 150:
+        if self.content['total_articles_to_find_and_parse'] > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError(
                 "Total number of articles is out of range from 1 to 150"
             )
@@ -321,7 +319,7 @@ class HTMLParser:
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
-        if auth_txt[0]:
+        if isinstance(auth_txt[0], str):
             self.article.author = [auth_txt[0]]
         else:
             self.article.author = ['None']
@@ -333,7 +331,8 @@ class HTMLParser:
                                      }
                                      )
         topic_txt = topic_bs.find('span').text
-        self.article.topics = [topic_txt]
+        if isinstance(topic_txt, str):
+            self.article.topics = [topic_txt]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
