@@ -123,7 +123,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
