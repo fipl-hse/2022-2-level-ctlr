@@ -101,7 +101,7 @@ class Config:
             raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'^https?://.*/', url):
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError("Invalid seed url")
 
         if (not isinstance(dto.total_articles, int)
@@ -120,8 +120,9 @@ class Config:
         if not isinstance(dto.encoding, str):
             raise IncorrectEncodingError("Invalid value for encoding")
 
-        if not isinstance(dto.timeout, int) or dto.timeout < TIMEOUT_LOWER_LIMIT or \
-                dto.timeout > TIMEOUT_UPPER_LIMIT:
+        if (not isinstance(dto.timeout, int)
+                or dto.timeout < TIMEOUT_LOWER_LIMIT
+                or dto.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError("Invalid value for timeout")
 
         if not isinstance(dto.should_verify_certificate, bool) or \
@@ -177,10 +178,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randrange(1, 8))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
+    time.sleep(random.randrange(1, 8))
     return response
 
 
@@ -214,28 +215,16 @@ class Crawler:
         """
         Finds articles
         """
-        for link in self.seed_urls:
-            response = make_request(link, self.config)
-            main_bs = BeautifulSoup(response.text, 'lxml')
-            url = self._extract_url(main_bs)
-            if len(self.urls) >= self.config.get_num_articles():
-                return
-            if not url:
-                continue
-            if url not in self.seed_urls:
+        for seed_url in self.seed_urls:
+            response = make_request(seed_url, self.config)
+            main_bs = BeautifulSoup(response.content, "lxml")
+            for link in main_bs.find_all('a', {'class': "btn btn-primary"}):
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
+                url = self._extract_url(link)
+                if not url or url in self.urls:
+                    continue
                 self.urls.append(url)
-
-        # for link in self.seed_urls:
-        #     response = make_request(link, self.config)
-        #     links_bs = BeautifulSoup(response.text, 'lxml').find_all('a')
-        #     for link_bs in links_bs:
-        #         url = self._extract_url(link_bs)
-        #         if not url:
-        #             continue
-        #         if url not in self.seed_urls:
-        #             self.urls.append(url)
-        #         if len(self.urls) >= self.config.get_num_articles():
-        #             return
 
     def get_search_urls(self) -> list:
         """
