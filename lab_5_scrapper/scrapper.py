@@ -7,7 +7,7 @@ import re
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -216,17 +216,18 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        current_url = article_bs.find('meta', property='og:url').get('content')
-
         links = article_bs.find_all('a', class_=lambda value: value
                     and ('mininews' in value or 'midinews' in value))
 
-        urls = []
         for link in links:
             href = link.get('href')
-            if isinstance(href, str):
-                urls.append(urljoin(str(current_url), str(href)))
-        return urls
+            if href:
+                full_url = urljoin('https://dzer.ru/news/', str(href))
+                if not urlparse(full_url).scheme:
+                    full_url = "http://" + full_url
+                return full_url
+        return ''
+
 
 
     def find_articles(self) -> None:
@@ -239,7 +240,8 @@ class Crawler:
                 html = response.text
                 main_bs = BeautifulSoup(html, 'html.parser')
                 urls = self._extract_url(main_bs)
-                self.urls.extend(urls)
+                if urls:
+                    self.urls.append(urls)
                 if len(self.urls) >= self.config.get_num_articles():
                     break
 
@@ -387,8 +389,6 @@ def main() -> None:
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
-
-
 
 
 if __name__ == "__main__":
