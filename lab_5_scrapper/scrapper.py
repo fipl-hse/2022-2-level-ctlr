@@ -208,7 +208,8 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if href and re.fullmatch(r'/novosti/.+', href):
+        if href and isinstance(href, str) \
+                and re.fullmatch(r'/novosti/.+', href):
             return href
         return ' '
 
@@ -266,7 +267,10 @@ class HTMLParser:
         if title:
             self.article.title = title
         author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
-        self.article.author.append(author) if author else self.article.author.append('NOT FOUND')
+        if author:
+            self.article.author.append(author)
+        if not author:
+            self.article.author.append('NOT FOUND')
         date_bs = article_soup.find('time', {'class': 'toolbar__text'}).get('datetime')
         if isinstance(date_bs, str):
             date_and_time = re.search(r'\d{4}-\d{2}-\d{2}', date_bs).group() + \
@@ -326,7 +330,7 @@ def main() -> None:
     for i, full_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
-        if Article:
+        if isinstance(article,Article):
             to_raw(article)
             to_meta(article)
 
