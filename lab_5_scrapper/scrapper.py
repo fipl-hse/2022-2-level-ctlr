@@ -307,7 +307,7 @@ def main() -> None:
     crawler = Crawler(config=config)
     crawler.find_articles()
     for i, url in enumerate(crawler.urls):
-        parser = HTMLParser(full_url=url, article_id=i + 1, config=config)
+        parser = HTMLParser(full_url=url, article_id=i+1, config=config)
         text = parser.parse()
         if isinstance(text, Article):
             to_raw(text)
