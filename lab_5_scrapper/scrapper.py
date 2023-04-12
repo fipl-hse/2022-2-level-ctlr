@@ -340,6 +340,7 @@ class HTMLParser:
         return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
 
 
+
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
