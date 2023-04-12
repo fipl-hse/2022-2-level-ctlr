@@ -268,7 +268,7 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find('div').get('h1')
+        title = article_soup.find('h1').text
         if title:
             self.article.title = title
 
