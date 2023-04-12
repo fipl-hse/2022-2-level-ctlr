@@ -210,6 +210,7 @@ class Crawler:
         if (href is not None) and (href.startswith('/news/19'))\
                 and (href.endswith('#comments') is False):
             return href
+        return ""
 
     def find_articles(self) -> None:
         """
