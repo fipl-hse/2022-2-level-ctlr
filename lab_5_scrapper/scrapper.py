@@ -4,6 +4,7 @@ Crawler implementation
 import datetime
 import json
 import re
+import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -11,8 +12,9 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 
 
 class IncorrectSeedURLError(Exception):
@@ -68,7 +70,14 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._extract_config_content()
+        config_dto = self._extract_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._should_verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -90,10 +99,10 @@ class Config:
             if not re.match(r"https?://w?w?w?.", seedurl):
                 raise IncorrectSeedURLError
 
-        if not isinstance(configdto.total_articles, int):
+        if not isinstance(configdto.total_articles, int) or configdto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if configdto.total_articles < 1 or configdto.total_articles > 150:
+        if configdto.total_articles > 150:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(configdto.headers, dict):
@@ -105,50 +114,50 @@ class Config:
         if not isinstance(configdto.timeout, int) or configdto.timeout < 0 or configdto.timeout > 60:
             raise IncorrectTimeoutError
 
-        if not isinstance(configdto.verify_certificate, bool) or not isinstance(configdto.headless_mode, bool):
+        if not isinstance(configdto.should_verify_certificate, bool) or not isinstance(configdto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -156,7 +165,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    return requests.get(url, timeout=config.get_timeout(), headers=config.get_headers(),
+                        verify=config.get_verify_certificate())
 
 
 class Crawler:
@@ -170,25 +180,34 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.config = config
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        return "https://newsroom24.ru" + article_bs.find("a").get("href")
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for seed_url in self.config.get_seed_urls():
+            response = make_request(seed_url, self.config)
+            bs = BeautifulSoup(response.text, 'lxml')
+            for link in bs.find_all("div", class_="data"):
+                url = self._extract_url(link)
+                if url not in self.urls:
+                    self.urls.append(url)
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -200,13 +219,18 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(url=full_url, article_id=article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text_block = article_soup.find("div", class_="main_text_ip")
+        paragraphs = text_block.find_all("p")
+        self.article.text = " ".join(paragraph.text.strip() for paragraph in paragraphs)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -224,14 +248,21 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        # self._fill_article_with_meta_information(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path)
+
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
@@ -239,6 +270,13 @@ def main() -> None:
     Entrypoint for scrapper module
     """
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
+    for i, full_url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
+        article = parser.parse()
+        to_raw(article)
 
 
 if __name__ == "__main__":
