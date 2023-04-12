@@ -232,12 +232,14 @@ class Crawler:
                 new_height = driver.execute_script("return document.body.scrollHeight")
                 last_height = new_height
 
+            driver.quit()
+
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.urls
+        return self._seed_url
 
 
 class HTMLParser:
@@ -310,7 +312,6 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
-
 
 if __name__ == "__main__":
     main()
