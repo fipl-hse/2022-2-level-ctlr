@@ -130,7 +130,8 @@ class Config:
                 or timeout < TIMEOUT_LOWER_LIMIT
                 or timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
-        if not isinstance(should_verify_certificate, bool) or not isinstance(headless_mode, bool):
+        if not isinstance(should_verify_certificate, bool)\
+                or not isinstance(headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
