@@ -12,6 +12,8 @@ from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
                                   TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT)
+import shutil
+from urllib.error import HTTPError, URLError
 
 
 class IncorrectSeedURLError(Exception):
@@ -70,6 +72,12 @@ class IncorrectHeadlessError(Exception):
     pass
 
 
+class WebsiteError(Exception):
+    """
+    Raises when couldn't take a respond from Webpage
+    """
+    pass
+
 class Config:
     """
     Unpacks and validates configurations
@@ -103,30 +111,32 @@ class Config:
         are not corrupt
         """
 
-        if not isinstance(self._seed_urls, list)\
-                or not not all(isinstance(url, str) for url in self._seed_urls)\
-                or not all(re.match('https?://w?w?w?.', url) for url in self._seed_urls) or len(self._seed_urls) == 0:
+        if not isinstance(self._config_dto.seed_urls, list)\
+                or not not all(isinstance(url, str) for url in self._config_dto.seed_urls)\
+                or not all(re.match('https?://w?w?w?.', url) for url in self._config_dto.seed_urls)\
+                or len(self._config_dto.seed_urls) == 0:
             raise IncorrectSeedURLError
 
-        if not isinstance(self._headers, dict):
+        if not isinstance(self._config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(self._encoding, str):
+        if not isinstance(self._config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(self._num_articles, int):
+        if not isinstance(self._config_dto.should_verify_certificate, int):
             raise IncorrectNumberOfArticlesError
 
-        if self._num_articles not in range(1, NUM_ARTICLES_UPPER_LIMIT + 1):
+        if self._config_dto.should_verify_certificate not in range(1, NUM_ARTICLES_UPPER_LIMIT + 1):
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(self._timeout, int) or self._timeout not in range(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT + 1):
+        if not isinstance(self._config_dto.timeout, int) or self._config_dto.timeout \
+                not in range(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT + 1):
             raise IncorrectTimeoutError
 
-        if not isinstance(self._verify_certificate, bool):
+        if not isinstance(self._config_dto.should_verify_certificate, bool):
             raise IncorrectVerifyError
 
-        if not isinstance(self._headless_mode, bool):
+        if not isinstance(self._config_dto.headless_mode, bool):
             raise IncorrectHeadlessError
 
     def get_seed_urls(self) -> list[str]:
@@ -177,7 +187,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
+    response.encoding = config.get_encoding()
+    return response
 
 
 class Crawler:
@@ -191,25 +204,39 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.config = config
+        self.urls = []
+        self._seed_urls = config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        all_links_bs = article_bs.find_all('a')
+        for links_bs in all_links_bs:
+            link = links_bs.get('href')
+        # link = article_bs.get('href')
+            if link is not None and link.count('/') == 6 and '/cat/politroom/' in link and link[:8] == 'https://':
+                self.urls.append(link)
+        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for seed_url in self._seed_urls:
+            try:
+                response = make_request(seed_url, self.config)
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                self._extract_url(main_bs)
+            except WebsiteError:
+                continue
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -252,7 +279,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True, exist_ok=False)
 
 
 def main() -> None:
