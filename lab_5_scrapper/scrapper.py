@@ -48,7 +48,7 @@ class IncorrectHeadersError(Exception):
 
 class IncorrectEncodingError(Exception):
     """
-    encoding is not a string
+    Encoding is not a string
     """
 
 
