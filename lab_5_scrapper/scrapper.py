@@ -83,6 +83,9 @@ class Config:
         """
         config_dto = self._extract_config_content()
 
+        if not isinstance(config_dto.seed_urls,list)
+            raise IncorrectSeedURLError
+
         for i in config_dto.seed_urls:
             if not isinstance(i, str):
                 raise IncorrectSeedURLError
