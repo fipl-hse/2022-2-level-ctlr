@@ -272,7 +272,7 @@ class HTMLParser:
         self.article.author = ["NOT FOUND"]
 
         data = article_soup.find('p', {"class": "dateElement"})
-        date_str = str(data.get_text(strip=True)) if data else "NOT FOUND"
+        date_str = data.get_text(strip=True) if data else "NOT FOUND"
         self.article.date = self.unify_date_format(date_str)\
             if date_str != "NOT FOUND" else "NOT FOUND"
 
