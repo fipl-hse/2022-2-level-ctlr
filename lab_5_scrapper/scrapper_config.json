@@ -1,5 +1,19 @@
 {
-    "seed_urls": ["https://newstula.ru/", "https://newstula.ru/cat_economy.html"],
+    "seed_urls": ["https://newstula.ru/cat_economy.html",
+        "https://newstula.ru/cat_guns_opk.html",
+        "https://newstula.ru/cat_agro.html",
+        "https://newstula.ru/cat_investigation.html",
+        "https://newstula.ru/cat_interview.html",
+        "https://newstula.ru/cat_company.html",
+        "https://newstula.ru/cat_analytics.html",
+        "https://newstula.ru/cat_necrolog.html",
+        "https://newstula.ru/cat_politics.html",
+        "https://newstula.ru/cat_culture.html",
+        "https://newstula.ru/cat_sport.html",
+        "https://newstula.ru/cat_business.html",
+        "https://newstula.ru/cat_incidients.html",
+        "https://newstula.ru/cat_koronavirus.html",
+        "https://newstula.ru/cat_society.html"],
     "headers": {
         "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
     },
