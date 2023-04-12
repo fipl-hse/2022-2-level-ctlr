@@ -256,8 +256,9 @@ class HTMLParser:
         """
         Finds text of article
         """
-        self.main_text_bs = article_soup.find('div', {
+        main_text = article_soup.find('div', {
             'itemprop': 'articleBody'}).text.replace('\n\n', ' ').replace('  ', '').strip()
+        self.article.text = main_text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -266,14 +267,16 @@ class HTMLParser:
         title_info = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
         self.article.title = title_info
 
-        author_info = article_soup.find('div', {'class': "b-meta-item b-meta-item--bold"}).find('span',
-                                                                                                {'itemprop': 'name'})
+        author_info = article_soup.find('div', {
+            'class': "b-meta-item b-meta-item--bold"}).find('span',
+                                                            {'itemprop': 'name'})
         self.article.author = author_info.get_text(strip=True)
 
         date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
         self.article.date = self.unify_date_format(date_info)
 
-        topics_info = [topic.get_text(strip=True) for topic in article_soup.find('div', {'class': "lid-detail"})
+        topics_info = [topic.get_text(strip=True) for topic in article_soup.find('div',
+                                                                                 {'class': "lid-detail"})
                        if topic.text != ' ']
         self.article.topics = topics_info
 
