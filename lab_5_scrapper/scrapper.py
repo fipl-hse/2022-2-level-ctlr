@@ -213,8 +213,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if (url is not None) and (url.startswith('/news/19'))\
-                and (url.endswith('#comments') is False):
+        if isinstance(url, str):
             return str(url)
         return ''
 
@@ -225,9 +224,9 @@ class Crawler:
         for url in self.get_search_urls():
             response = make_request(url, self._config)
             main_bs = BeautifulSoup(response.content, "lxml")
-            for paragraph in main_bs.find_all('a'):
+            for paragraph in main_bs.find_all('a', class_="pic-link"):
                 if self._extract_url(paragraph) is not None:
-                    new_url = 'https://gorod48.ru' + str(self._extract_url(paragraph))
+                    new_url = self._extract_url(paragraph)
                     self.urls.append(new_url)
                     if len(self.urls) >= self._config.get_num_articles():
                         return
@@ -257,7 +256,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('div', class_="news-text_wrapper")
+        text = article_soup.find('div', {"itemprop": "articleBody"})
         self.article.text = "\n".join([el.get_text(strip=True)
                                        for el in text]) if text else "NOT FOUND"
 
@@ -265,20 +264,20 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find('h1')
+        title = article_soup.find('h1', {"itemprop": "headline"})
         self.article.title = title.get_text(strip=True)\
             if title else "NOT FOUND"
 
-        self.article.author = ["NOT FOUND"]
+        self.article.author = ["NOT FOUND"] #willchange!
 
-        date = article_soup.find('p', {"class": "dateElement"})
+        date = article_soup.find('time', {"itemprop": "datePublished"})
         if date:
             try:
                 self.article.date = self.unify_date_format(date.text)
             except AttributeError:
                 pass
 
-        topics = [topic.text for topic in article_soup.find_all('a', class_="hashtagBlock")]
+        topics = [topic.text for topic in article_soup.find_all('div', {"class": "article-items"})]
         if topics:
             self.article.topics = topics
 
@@ -286,7 +285,40 @@ class HTMLParser:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M')
+        date_str = date_str.replace(",", "")
+        list_date = date_str.lower().split()
+
+        months_collection = {"января": "01",
+                             "февраля": "02",
+                             "марта": "03",
+                             "апреля": "04",
+                             "мая": "05",
+                             "июня": "06",
+                             "июля": "07",
+                             "августа": "08",
+                             "сентября": "09",
+                             "октября": "10",
+                             "ноября": "11",
+                             "декабря": "12"
+                             }
+        year = '2023'
+        month = ''
+        day = ''
+        hour_minute = ''
+
+        for d in list_date:
+            if ':' in d:
+                hour_minute += d
+            if d in months_collection:
+                month += months_collection[d]
+            digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+            if d.isdigit() and d in digits:
+                day += '0' + d
+            if d.isdigit() and d not in digits:
+                day += d
+
+        new_date_str = year + '-' + month + '-' + day + ' ' + hour_minute
+        return datetime.datetime.strptime(new_date_str, '%Y-%m-%d %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
