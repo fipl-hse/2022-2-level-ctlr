@@ -104,7 +104,7 @@ class Config:
         """
         dto = self._extract_config_content()
 
-        if not (dto.seed_urls and isinstance(dto.seed_urls, list)):
+        if not dto.seed_urls or not isinstance(dto.seed_urls, list):
             raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
