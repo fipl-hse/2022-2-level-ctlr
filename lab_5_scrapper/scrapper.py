@@ -1,6 +1,7 @@
 """
 Crawler implementation
 """
+import datetime
 import json
 import re
 import shutil
@@ -74,15 +75,7 @@ class Config:
         """
         with open(self.path_to_config, "r", encoding="utf-8") as f:
             config = json.load(f)
-        return ConfigDTO(
-            seed_urls=config["seed_urls"],
-            headers=config["headers"],
-            total_articles_to_find_and_parse=config["total_articles_to_find_and_parse"],
-            encoding=config["encoding"],
-            timeout=config["timeout"],
-            should_verify_certificate=config["should_verify_certificate"],
-            headless_mode=config["headless_mode"]
-        )
+        return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
         """
@@ -181,7 +174,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
         timeout=config.get_timeout(),
         verify=config.get_verify_certificate(),
     )
-    # request.encoding = config.get_encoding()
+    request.encoding = config.get_encoding()
     return request
 
 
@@ -196,6 +189,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
+        self._seed_urls = config.get_seed_urls()
         self.config = config
         self.urls = []
 
@@ -233,7 +227,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -261,7 +255,10 @@ class HTMLParser:
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
         # drop blank lines
         text = "\n".join(chunk for chunk in chunks if chunk)
-        self.article.text = text
+        title = article_soup.find('div').get('h1')
+        self.article.text, self.article.title = text, title
+
+
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -269,7 +266,7 @@ class HTMLParser:
         """
         pass
 
-    def unify_date_format(self, date_str: str):
+    def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
