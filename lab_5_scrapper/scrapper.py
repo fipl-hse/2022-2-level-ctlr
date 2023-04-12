@@ -5,12 +5,12 @@ from typing import Pattern, Union
 from pathlib import Path
 
 import json
-import validators
+import datetime
 import shutil
+import validators
 
 import requests
 from bs4 import BeautifulSoup
-import datetime
 
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -217,11 +217,12 @@ class Crawler:
                 if href is None:
                     print(link_bs)
                     continue
-                if (href.startswith('/news') or href.startswith('/gov') or href.startswith(
-                        '/society') or href.startswith('/business')) and href.count('/') == 3 and 'comment' not in href:
-                    found_url = "https://chelny-biz.ru" + href
-                    if found_url not in self.urls:
-                        self.urls.append(found_url)
+                if href.startswith('/news') or href.startswith('/gov') or href.startswith(
+                        '/society') or href.startswith('/business'):
+                    if href.count('/') == 3 and 'comment' not in href:
+                        found_url = "https://chelny-biz.ru" + href
+                        if found_url not in self.urls:
+                            self.urls.append(found_url)
 
     def get_search_urls(self) -> list:
         """
@@ -285,8 +286,7 @@ class HTMLParser:
             self._fill_article_with_text(a_bs)
             self._fill_article_with_meta_information(a_bs)
             return self.article
-        else:
-            return False
+        return False
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
