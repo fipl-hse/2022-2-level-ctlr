@@ -1,16 +1,21 @@
 """
 Crawler implementation
 """
-import datetime
-import re
-
-import requests
 import json
+#import os.path
+import re
+import random
 from typing import Pattern, Union
-from bs4 import BeautifulSoup
-from pathlib import Path
+import time
 from core_utils.config_dto import ConfigDTO
+#from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
+from pathlib import Path
+import requests
+from bs4 import BeautifulSoup
+import datetime
 from core_utils.article.article import Article
+#from core_utils.article.io import to_raw
+#import shutil
 
 
 class IncorrectSeedURLError(Exception):
@@ -181,7 +186,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    time.sleep(random.randint(2,7))
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
+    return response
 
 
 class Crawler:
@@ -195,19 +203,31 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self.config = config
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        all_links_bs = article_bs.find_all('a')
+        for link_bs in all_links_bs:
+            link = link_bs.get('href')
+            if link is None:
+                continue
+            elif link[0:5] == '/news' and link.count('/') == 2:
+                self.urls.append('https://tvspb.ru' + link)
+        #return
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        # for url in self.get_search_urls():
+        #     try:
+        #         response = make_request(url, self.config)
+
+
 
     def get_search_urls(self) -> list:
         """

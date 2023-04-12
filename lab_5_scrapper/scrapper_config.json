@@ -1,9 +1,12 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://tvspb.ru/news", "https://tvspb.ru/news/2", "https://tvspb.ru/news/3",
+                  "https://tvspb.ru/news/4", "https://tvspb.ru/news/5"],
+    "headers": {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 OPR/96.0.0.0"
+    },
+    "total_articles_to_find_and_parse": 100,
+    "encoding": "utf-8",
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
