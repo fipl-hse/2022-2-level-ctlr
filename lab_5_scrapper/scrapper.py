@@ -10,8 +10,8 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 from pathlib import Path
-import json
 import re
+import json
 import datetime
 import shutil
 
