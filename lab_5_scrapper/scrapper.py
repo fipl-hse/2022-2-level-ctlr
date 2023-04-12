@@ -25,49 +25,42 @@ class IncorrectSeedURLError(Exception):
     """
     Seed URL does not match standard pattern or does not correspond to the target website
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Total number of articles is out of the needed range
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Total number of articles to parse is not integer
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Headers are not in a form of dictionary
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Encoding must be specified as a string
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
     """
     Incorrect timeout value
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
     Incorrect verify certificate value
     """
-    pass
 
 
 class Config:
@@ -275,9 +268,9 @@ class HTMLParser:
         date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
         self.article.date = self.unify_date_format(date_info)
 
-        topics_info = [topic.get_text(strip=True) for topic in article_soup.find('div',
-                                                                                 {'class': "lid-detail"})
-                       if topic.text != ' ']
+        topics_info = [topic.get_text(strip=True)
+                       for topic in article_soup.find_all('div', {'class': "lid-detail"})
+                       if topic.get_text(strip=True) != '']
         self.article.topics = topics_info
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
