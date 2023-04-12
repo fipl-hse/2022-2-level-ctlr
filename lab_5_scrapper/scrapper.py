@@ -218,7 +218,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        href = article_bs.get('href')[0]
+        href = article_bs.get('href')
         if isinstance(href, str) and re.fullmatch(r'/novosti/.+', href):
             return href
         return ' '
