@@ -195,8 +195,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if (isinstance(url, str)) and (url.count('/') >= 3) and (url.startswith('/news/')):
-            return url
+        if url and url.count('/') >= 3 and url.startswith('/news/'):
+            return 'https://sovainfo.ru' + str(url)
+        return ''
 
 
     def find_articles(self) -> None:
