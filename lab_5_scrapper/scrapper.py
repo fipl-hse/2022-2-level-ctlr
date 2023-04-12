@@ -231,10 +231,11 @@ class Crawler:
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
                 article_url = self._extract_url(link)
-                if article_url is None or article_url != ' ':
+                if article_url is None or article_url == ' ':
                     continue
                 self.urls.append('https://www.vgoroden.ru' + article_url)
-                if len(self.urls) == self.config.get_num_articles():
+                print(self.urls)
+                if len(self.urls) >= self.config.get_num_articles():
                     break
 
 
