@@ -64,6 +64,12 @@ class IncorrectVerifyError(Exception):
     """
 
 
+class NoArticleDownloaded(Exception):
+    """
+    Article was not downloaded
+    """
+
+
 class Config:
     """
     Unpacks and validates configurations
@@ -242,6 +248,8 @@ class HTMLParser:
         text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
         self.article.text = '\n'.join(text for paragraph in text_div.find_all('p')
                                       if (text := paragraph.text.strip()))
+        if not self.article.text:
+            raise NoArticleDownloaded
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -282,13 +290,15 @@ class HTMLParser:
         """
         Parses each article
         """
-        req = make_request(self.full_url, self.config)
-        while req.status_code != 200:
-            req = make_request(self.full_url, self.config)
-        article_bs = BeautifulSoup(req.text, 'lxml')
-        self._fill_article_with_text(article_bs)
-        self._fill_article_with_meta_information(article_bs)
-        return self.article
+        while True:
+            try:
+                req = make_request(self.full_url, self.config)
+                article_bs = BeautifulSoup(req.text, 'lxml')
+                self._fill_article_with_text(article_bs)
+                self._fill_article_with_meta_information(article_bs)
+                return self.article
+            except NoArticleDownloaded:
+                continue
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
