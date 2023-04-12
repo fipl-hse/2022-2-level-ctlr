@@ -6,8 +6,8 @@ import json
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
-import validators
 
+import validators
 import requests
 from bs4 import BeautifulSoup
 
