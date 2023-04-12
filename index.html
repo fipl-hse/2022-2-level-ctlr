@@ -1,0 +1,1547 @@
+﻿
+
+
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta property="og:site_name" content="PITER TV">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui">
+	<meta name="imagetoolbar" content="no">
+	<meta name="msthemecompatible" content="no">
+	<meta name="cleartype" content="on">
+	<meta name="HandheldFriendly" content="True">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="format-detection" content="address=no">
+	<meta name="google" value="notranslate">
+	<meta name="theme-color" content="#ffffff">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="yandex-verification" content="1cc0f06881696cf5" />
+	<meta name="description" content="Новости, происшествия, тематическое программы, интервью" />
+	<meta name="keywords" content="" />
+	
+
+	<title>События</title>
+
+	<link href="https://static.piter.tv/ptv2/assets/styles/app.min_6446.css" rel="stylesheet">
+	
+
+	<link rel="preload" href="https://static.piter.tv/ptv2/assets/fonts/subset-HelveticaRegular-Regular.woff2" as="font" crossorigin="anonymous" />
+	<link rel="preload" href="https://static.piter.tv/ptv2/assets/fonts/hinted-subset-HelveticaLight-Regular.woff2" as="font" crossorigin="anonymous" />
+	<link rel="preload" href="https://static.piter.tv/ptv2/assets/fonts/hinted-subset-HelveticaNeue-Medium.woff2" as="font" crossorigin="anonymous" />
+
+
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="https://piter.tv/rss/" />
+	<link rel="shortcut icon" href="https://piter.tv/favicon_piter.ico" type="image/x-icon" />
+	<link rel="icon" href="https://piter.tv/favicon_piter.ico" type="image/x-icon" />
+
+	<script type="text/javascript">
+        window.CKEDITOR_BASEPATH = 'https://static.piter.tv/libs/ckeditor/';
+        window.staticServer = 'https://static2.piter.tv';
+		window.delayInitialization = [];
+        window.scriptsLoaded = [];
+
+        window.awaitImport = async function(scripts) {
+            if (scripts.length) {
+                let promise = new Promise(function (resolve, reject) {
+                    resolve(1);
+				});
+                for (var i = 0; i < scripts.length; i++) {
+                    const scriptPath = scripts[i];
+                    if (scriptsLoaded.indexOf(scriptPath) !== -1) {
+                        continue;
+					}
+                    scriptsLoaded.push(scriptPath);
+
+                    promise = promise.then(function(result) {
+                        return new Promise(function (resolve, reject) {
+                            const script = document.createElement('script');
+                            script.src = scriptPath;
+
+                            let loaded = false;
+                            script.onload = script.onerror = function() {
+                                if ( ! loaded) {
+                                    loaded = true;
+                                    resolve(1);
+                                }
+                            };
+                            script.onreadystatechange = function() {
+                                var self = this;
+                                if (this.readyState == "complete" || this.readyState == "loaded") {
+                                    setTimeout(function() {
+                                        self.onload();
+                                    }, 0);
+                                }
+                            };
+
+                            document.body.appendChild(script);
+						})
+					});
+                }
+
+                let result = await promise;
+            }
+        };
+	</script>
+
+	<script type="text/javascript">new Image().src = "//counter.yadro.ru/hit?r" + escape(document.referrer) + ((typeof(screen)=="undefined")?"" : ";s"+screen.width+"*"+screen.height+"*" + (screen.colorDepth?screen.colorDepth:screen.pixelDepth)) + ";u"+escape(document.URL) +  ";" +Math.random();</script>
+	<script type="text/javascript" src="//www.gstatic.com/firebasejs/3.6.8/firebase.js"></script>
+
+	
+<script>
+	window.userSubscriptionInfo = {isLogged : 0, isGranted : 0, isSubscribedNews : 0, isSubscribedComments : 0, isSubscribedProject : 0}
+</script>
+
+
+	<script>window.yaContextCb = window.yaContextCb || []</script>
+	<script src="https://yandex.ru/ads/system/context.js" async></script>
+</head>
+
+<body class="page page_category" itemscope itemtype="http://schema.org/NewsArticle">
+
+
+
+
+<header class="header">
+	<div class="header__top">
+		<div class="header__in">
+			<div class="header__logo-w">
+				<a href="https://piter.tv" class="header__logo logo">
+					<img src="https://static.piter.tv/ptv2/assets/images/general/logo.png?1" alt="Piter.tv" />
+				</a>
+				<img class="header__18plus" src="https://static.piter.tv/ptv2/assets/images/general/18ptv.png" alt="18+" />
+			</div>
+			
+<a href="https://piter.tv/live_streaming/" class="header__banner">
+    <img src="https://static.piter.tv/ptv2/assets/images/content/banner.png" alt="Закажи прямой эфир На Piter.TV">
+</a>
+
+			<div class="header__control">
+				
+<div class="header__auth">
+	<svg class="header__auth-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_auth-icon"></use></svg>
+	<a href="https://piter.tv/login/" onclick="sendRequest('',{'action':'fe_login_form'});return false;" class="header__auth-link header__auth-link_enter">Войти</a>
+	<span class="header__auth-sep">|</span>
+	<a href="#" onclick="sendRequest('',{'action':'registration','ajax':1}); return false;" class="header__auth-link header__auth-link_reg">Зарегистрироваться</a>
+</div>
+
+				<div class="search-form header__search">
+					<form action="https://piter.tv/search_result/" method="get" class="search-form__w">
+						<input type="text" value="" placeholder="Поиск по сайту" name="query" class="search-form__input" />
+						<button type="submit" class="search-form__submit">
+							<svg class="search-form__submit-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_search-icon"></use></svg>
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="header__body">
+		<div class="header__in">
+			<nav class="header__nav nav nav_main">
+				<ul id="main-nav" class="nav__list initial">
+					
+<li class="nav__item ">
+	<a href="https://piter.tv/news/60/" title="Новости" class="nav__link">Новости</a>
+</li>
+
+					
+<li class="nav__item first">
+	<a href="https://piter.tv/forum/" title="Обсуждение актуальных событий" class="nav__link">Обсуждения</a>
+</li>
+
+					
+<li class="nav__item ">
+	<a href="https://piter.tv/news/3873/" title="Репортажи" class="nav__link">Репортажи</a>
+</li>
+
+					
+<li class="nav__item ">
+	<a href="https://piter.tv/channel/668/" title="Расследования" class="nav__link">Расследования</a>
+</li>
+
+					
+<li class="nav__item ">
+	<a href="https://piter.tv/news/3741/" title="Интервью" class="nav__link">Интервью</a>
+</li>
+
+					
+<li class="nav__item ">
+	<a href="https://piter.tv/news/3874/" title="Тема дня" class="nav__link">Тема дня</a>
+</li>
+
+					
+<li class="nav__item first">
+	<a href="https://piter.tv/polls/" title="Архив опросов посетителей" class="nav__link">Опросы</a>
+</li>
+
+					
+<li class="nav__item first">
+	<a href="https://piter.tv/conference_catalog/" title="Прямые трансляции на канале ПитерТВ" class="nav__link">Трансляции</a>
+</li>
+
+					<li data-width="10" class="nav__item nav__item_more">
+						<a class="nav__link">Еще
+							<svg class="nav__more-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_arrow-down"></use></svg>
+						</a>
+						<ul></ul>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</header>
+
+
+
+<main class="main" role="main">
+	
+
+
+
+
+<div class="main__in">
+	<div class="main__breadcrumbs">
+		<div class="main__in">
+			
+	<div class="breadcrumbs">
+		<ol itemscope="" itemtype="http://schema.org/BreadcrumbList" class="breadcrumbs__list">
+			<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item">
+				<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv" class="breadcrumbs__link">
+					<span itemprop="name">Главная</span>
+					<svg class="breadcrumbs__icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_arrow-right"></use></svg>
+				</a>
+				<meta itemprop="position" content="1" />
+			</li>
+			
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Stati/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Статьи</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Video_All/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Видео</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Koronavirus_v_Peterburge/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Коронавирус в Петербурге</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/3716/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Картина дня</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/3874/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Тема дня</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/60/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Лента новостей</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Novosti_Leningradskoj_ob/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Новости Ленинградской области</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/kuda_shodit_v_peterburge/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Куда сходить в Петербурге</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Viborg/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Выборг</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/3665/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Новости шоу-бизнеса России</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/2498/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Блокада Ленинграда</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/2519/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Музыка</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Fabrika_Znanij/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Фабрика Знаний</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/3839/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">M-1 Global в Петербурге</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/3844/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Новости Выборгского района</span>
+		</a>
+	</li>
+
+	<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item_siblings">
+		<a itemscope="" itemtype="http://schema.org/Thing" itemprop="item" href="https://piter.tv/news/Sudebnaya_praktika/"
+		   class="breadcrumbs__link">
+			<span itemprop="name">Судебная практика</span>
+		</a>
+	</li>
+
+		</ol>
+	</div>
+
+		</div>
+	</div>
+	<div class="main__w">
+		<div class="content main__content">
+			<section class="category main__category">
+				<div class="main__in">
+					<header class="category__header">
+						<h1 class="category__title title title_full">События</h1>
+						
+					</header>
+
+					
+				</div>
+				<div class="category__videos">
+					<div class="main__in">
+						<ul class="category__list">
+							
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/_Aeroflot_napravil_samolet_A330_na_remont_v_Iran_mnenie_ekspertov/" title="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/T30x6qX1htw3heocLMtoIKyUf1F8ItMw.webp" alt="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов" title="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/T30x6qX1htw3heocLMtoIKyUf1F8ItMw.webp" alt="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов" title="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов</div>
+				<div class="news-article__text">В будущем возможна кооперация двух стран по эксплуатации самолетов, произведённых без участия западных стран.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:54
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/pogoda_lenoblast_13_aprelya_0/" title="В Ленобласти 13 апреля ожидается до +10 градусов" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/qrQXQ9S3YK2KsgbfrINtgJMqlwMqf2od.webp" alt="В Ленобласти 13 апреля ожидается до +10 градусов" title="В Ленобласти 13 апреля ожидается до +10 градусов" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/qrQXQ9S3YK2KsgbfrINtgJMqlwMqf2od.webp" alt="В Ленобласти 13 апреля ожидается до +10 градусов" title="В Ленобласти 13 апреля ожидается до +10 градусов" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Ленобласти 13 апреля ожидается до +10 градусов</div>
+				<div class="news-article__text">Ночью местами пройдет кратковременный дождь.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:52
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+
+							<!--INRA Media: Interscroller-->
+						<div id="adfox_interscroller"></div>
+						<script>
+							window.yaContextCb.push(()=>{
+								Ya.adfoxCode.createAdaptive({
+									ownerId: 386413,
+									containerId: 'adfox_interscroller',
+									params: {
+										p1: 'cqrli',
+										p2: 'hiaf'
+									}
+								}, ['phone'], {
+									tabletWidth: 830,
+									phoneWidth: 480,
+									isAutoReloads: true})})
+						</script>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Borisov_zayavil_chto_osnovnie_parametri_novoj_ROS_opredeleni/" title="Борисов заявил, что основные параметры новой РОС определены" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["OPLz7Ua68BwWOgLXhrsijEYMPrYfVHQP.webp","HzlGSFU1Od6puIPSrRLXiK24d1fPqSCz.webp","UlNQIJpNUnBMbiBSaFEdn9iRkqTx9wp2.webp","XQ15m5PtGJKOeqW3LHOuW7gsNhzDVGq8.webp","aq2UxnWUu5HVH1CJKfbK5VswUqNvQPDa.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/q83BxenzxfNjiVXMIGckUPngIkCmUWEm.webp" alt="Борисов заявил, что основные параметры новой РОС определены" title="Борисов заявил, что основные параметры новой РОС определены" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/previews/q83BxenzxfNjiVXMIGckUPngIkCmUWEm.webp" alt="Борисов заявил, что основные параметры новой РОС определены" title="Борисов заявил, что основные параметры новой РОС определены" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Борисов заявил, что основные параметры новой РОС определены</div>
+				<div class="news-article__text">По его словам, эскизный проект РОС будет готов летом нынешнего года.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:48
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Ograblenie_manikyurnogo_salona_Murino/" title="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/z3C4TCbSNrOvtEFhmf7UNv03npG18lj4.webp" alt="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом" title="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/z3C4TCbSNrOvtEFhmf7UNv03npG18lj4.webp" alt="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом" title="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом</div>
+				<div class="news-article__text">Несовершеннолетних задержали за разбой. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:35
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/V_Leningradskoj_oblasti_gazificirovani_dve_derevni_v_Lomonosovskom_rajone_/" title="В Ленобласти газифицированы две деревни в Ломоносовском районе" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/s48t2rioDOmElc89pk8QTcwSkzLpIpwG.webp" alt="В Ленобласти газифицированы две деревни в Ломоносовском районе" title="В Ленобласти газифицированы две деревни в Ломоносовском районе" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/s48t2rioDOmElc89pk8QTcwSkzLpIpwG.webp" alt="В Ленобласти газифицированы две деревни в Ломоносовском районе" title="В Ленобласти газифицированы две деревни в Ломоносовском районе" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Ленобласти газифицированы две деревни в Ломоносовском районе</div>
+				<div class="news-article__text">Новые газовые сети создали техническую возможность подключения 87 домовладений.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:35
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Sud_postanovil_viplatit_devochke_300_tisyach_za_razvratnie_dejstviya_soseda_pedofila/" title="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/aXuLNHz8q9amogSokgHBm2WOhvzw2J52.webp" alt="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила" title="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/aXuLNHz8q9amogSokgHBm2WOhvzw2J52.webp" alt="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила" title="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила</div>
+				<div class="news-article__text">Осенью 2022 года его признали виновным в насильственных действиях сексуального характера и назначили ему восемь лет колонии.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 16:24
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Kontrol_za_gidami_perevodchikami/" title="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/7Y4h3MbSaUITBOrMWMzLzF2k4FI6Wr5O.webp" alt="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков" title="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/7Y4h3MbSaUITBOrMWMzLzF2k4FI6Wr5O.webp" alt="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков" title="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков</div>
+				<div class="news-article__text">Теперь у проводящих экскурсии смогут проверить наличие действующей аттестации и идентификационной карточки.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:58
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/shtraf_za_vigul_sobak_beh_namordnika/" title="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/wjbkXgK3Y2tgGOBFgUirCSQN2lpSX75v.webp" alt="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка" title="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/news_photos/wjbkXgK3Y2tgGOBFgUirCSQN2lpSX75v.webp" alt="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка" title="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка</div>
+				<div class="news-article__text">ЗакС обратится к Госдуме с предложением внести необходимые изменения и в федеральный КоАП.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:55
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Blagoustrojstvo_Lenoblast_/" title="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/NdP8xylo3x5vpjPhith3zXH8K7io1wqh.webp" alt="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ" title="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/news_photos/NdP8xylo3x5vpjPhith3zXH8K7io1wqh.webp" alt="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ" title="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ</div>
+				<div class="news-article__text">В регионе отметили 12 успешных проектов общественных территорий.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:41
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/SHAMAN_predstavil_klip_na_trek_Mi_s_proyavivshim_geroizm_malchikom_Fedorom/" title="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["1fPPOkjeypJHh5aQJhwGTbYSNwFyooEX.webp","Cqk3wHaeaFzkmMwnkMXPVVkUC0XqVD4i.webp","FUTlFp7DzEpbmTG5SbqipPlWImq7ib0a.webp","BfBbKUS5Ul8cehLzvJc3I9x3is9EIwWQ.webp","smUhnkS24fDipoPw6ftEuRGsjYjz305L.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/vY941aoemmMdCSdovCp9223xRrYhxQm2.webp" alt="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором" title="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/previews/vY941aoemmMdCSdovCp9223xRrYhxQm2.webp" alt="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором" title="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором</div>
+				<div class="news-article__text">В клипе снялся награжденный медалью &quot;За доблесть и отвагу&quot; школьник Федор Симоненко.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:40
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Minoboroni_RF_rossijskie_PVO_sbili_pyat_ukrainskih_bespilotnikov_2/" title="Минобороны РФ: российские ПВО сбили пять украинских беспилотников" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["yjmo9BSOBIU3ncf1ujYTtR7MFqSz3min.webp","GYvQRh9cYh8WMo2Clsg23N8sESJD4iVC.webp","EqOUNHveaVYVznntFCehLrwDaMmWJgES.webp","hGcN38cH2oLzIg31cxjstalwVkWD34Qn.webp","bxwN131EDsy7RcPj3psDwNXmGCmSh3ta.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/Mvz9JJrTVVJr62hSGUY5mPYyVmJSPL4R.webp" alt="Минобороны РФ: российские ПВО сбили пять украинских беспилотников" title="Минобороны РФ: российские ПВО сбили пять украинских беспилотников" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/previews/Mvz9JJrTVVJr62hSGUY5mPYyVmJSPL4R.webp" alt="Минобороны РФ: российские ПВО сбили пять украинских беспилотников" title="Минобороны РФ: российские ПВО сбили пять украинских беспилотников" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Минобороны РФ: российские ПВО сбили пять украинских беспилотников</div>
+				<div class="news-article__text">Также российские ПВО перехватили два снаряда РСЗО HIMARS.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:22
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Kosmonavt_Boris_Valinov_Podmoskove/" title="Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/oXqReS7xYJ8QHcX0YtIoHBp7BSvtXmkf.webp" alt="Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики" title="Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/oXqReS7xYJ8QHcX0YtIoHBp7BSvtXmkf.webp" alt="Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики" title="Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Космонавт Борис Валынов встретился с губернатором Подмосковья в День космонавтики</div>
+				<div class="news-article__text">Андрей Воробёв поздравил участника первого в СССР отряда космонавтов.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 15:19
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Novaya_naberezhnaya_v_Kronshtadte/" title="На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/8KJfgs0WmRrUnVehjcKWBPCOTHc8hKRh.webp" alt="На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей" title="На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/8KJfgs0WmRrUnVehjcKWBPCOTHc8hKRh.webp" alt="На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей" title="На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">На создание новой набережной до сквера &quot;Инчхон&quot; в Кронштадте направят 3,7 млрд рублей</div>
+				<div class="news-article__text">Проект с велодорожками и спусками к воде реализуют в несколько этапов. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:56
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Matvienko_svyazala_kritiku_zakona_ob_elektronnih_povestkah_s_plohim_informirovaniem/" title="Матвиенко связала критику закона об электронных повестках с плохим информированием" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["FSxKITFsiS2evGq8u6Nr2tjfTTGyDVfE.webp","NofLaVNylzqxr1muN56IMjsqBCjtYxCV.webp","Kyu5PHCOIpQgcuL4QCaUEX7yognm5N4R.webp","e2TgKl6jrPuo14y3Xw7hp8iWzwhwkJCk.webp","RedYPlfCH8hw195ySezMFdBCKrnclFIP.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/Sw5VOvscI7iHFqsxwVnaOaBtaKbV91M4.webp" alt="Матвиенко связала критику закона об электронных повестках с плохим информированием" title="Матвиенко связала критику закона об электронных повестках с плохим информированием" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/previews/Sw5VOvscI7iHFqsxwVnaOaBtaKbV91M4.webp" alt="Матвиенко связала критику закона об электронных повестках с плохим информированием" title="Матвиенко связала критику закона об электронных повестках с плохим информированием" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Матвиенко связала критику закона об электронных повестках с плохим информированием</div>
+				<div class="news-article__text">При этом спикер Совфеда не согласилась с мнением, что его разработали спонтанно.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:48
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Kapremont_peresecheniya_prospekta_Energetikov_i_shosse_Revolyucii_/" title="Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/56cxIK9i4sVYlcwd8XwdKuoaLDKqagrO.webp" alt="Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей" title="Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/56cxIK9i4sVYlcwd8XwdKuoaLDKqagrO.webp" alt="Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей" title="Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Капремонт пересечения проспекта Энергетиков и шоссе Революции оценён в 1,1 млрд рублей</div>
+				<div class="news-article__text">Завершить капитальный ремонт необходимо не позже 3 ноября 2025 года. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:27
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Minoboroni_RF_rossijskie_vojska_unichtozhili_do_50_ukrainskih_voennih_na_Hersonskom_napravlenii/" title="Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["TdDaFyQYHOdsK5DtTvzlpsLcbRpvJR5O.webp","8uRQz9aplTKiOW9pQdxrDNOUXRuBb4a0.webp","FLPJyWjS1qv5DMBp3mDVgCCRfbtcMFCS.webp","1mF6cfqMReNmx2tc9BxnxbzyiFvCsMbO.webp","Ke40BBTwYtv6fmOsh0O2i9blnhr0FgbC.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/previews/dbyskUG5mNOSt1SVKQsVlIhaWwzL1oye.webp" alt="Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении" title="Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/previews/dbyskUG5mNOSt1SVKQsVlIhaWwzL1oye.webp" alt="Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении" title="Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Минобороны РФ: российские войска уничтожили до 50 украинских военных на Херсонском направлении</div>
+				<div class="news-article__text">Также российские войска поразили склад военно-технического имущества бригады территориальной обороны ВСУ.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:26
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Gorodskie_fontani_gotovyatsya_k_letnemu_sezonu/" title="В Петербурге 22 апреля заработает 71 фонтан" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/kJOFPfhTUpHJUvCQ58Y0X3R2FwqxPxER.webp" alt="В Петербурге 22 апреля заработает 71 фонтан" title="В Петербурге 22 апреля заработает 71 фонтан" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/kJOFPfhTUpHJUvCQ58Y0X3R2FwqxPxER.webp" alt="В Петербурге 22 апреля заработает 71 фонтан" title="В Петербурге 22 апреля заработает 71 фонтан" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Петербурге 22 апреля заработает 71 фонтан</div>
+				<div class="news-article__text">Ещё пять фонтанов включат 1 мая.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:06
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Peskov_zakon_ob_elektronnih_povestkah_prizvan_ispravit_bardak_v_voenkomatah/" title="Песков: закон об электронных повестках призван исправить бардак в военкоматах" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["dfVbMSk3bnLnJtOeu1gE6OtBCs7xdTw4.webp","58SiheVbfT86tIkyOYFk3QT5lM9oF3VN.webp","tl4LTPBnQ9slf9M8GG6UyQnu7pslBn2R.webp","8lsWNaVlJSDD2JR7XUoid7wlKnYmeknl.webp","qHWuNVtf04sFG19jg20Wnt2IDgU0G16a.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/DjFmevH7NyTqriCDK8P0cDiXHrGCvlQn.webp" alt="Песков: закон об электронных повестках призван исправить бардак в военкоматах" title="Песков: закон об электронных повестках призван исправить бардак в военкоматах" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/previews/DjFmevH7NyTqriCDK8P0cDiXHrGCvlQn.webp" alt="Песков: закон об электронных повестках призван исправить бардак в военкоматах" title="Песков: закон об электронных повестках призван исправить бардак в военкоматах" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Песков: закон об электронных повестках призван исправить бардак в военкоматах</div>
+				<div class="news-article__text">По его словам, после начала спецоперации начался бардак во многих военкоматах.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 14:02
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Ozdorovitelnie_lagerya_Lenoblast_/" title="Более 540 оздоровительных лагерей заработают в Ленобласти летом" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/L1tSNNr1cT4Mf5sX2omexvM1SvCSY8VE.webp" alt="Более 540 оздоровительных лагерей заработают в Ленобласти летом" title="Более 540 оздоровительных лагерей заработают в Ленобласти летом" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/news_photos/L1tSNNr1cT4Mf5sX2omexvM1SvCSY8VE.webp" alt="Более 540 оздоровительных лагерей заработают в Ленобласти летом" title="Более 540 оздоровительных лагерей заработают в Ленобласти летом" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Более 540 оздоровительных лагерей заработают в Ленобласти летом</div>
+				<div class="news-article__text">Продаж путёвок в учреждения уже стартовали. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 13:54
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Protest_vladelcev_opechatannih_barov_na_Dumskoj/" title="Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/w6NI1MJ63lLpSQi0OejCqrc734kBKFpH.webp" alt="Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений" title="Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/w6NI1MJ63lLpSQi0OejCqrc734kBKFpH.webp" alt="Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений" title="Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Владельцы опечатанных баров на Думской и Ломоносова протестуют против закрытия заведений</div>
+				<div class="news-article__text">Бизнесмены написали коллективное обращение к правоохранительным органам. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 13:41
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Sotrudnikami_policii_zaderzhan_podozrevaemij_v_razboe/" title="Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["x8E4SMpQ3BcOErvIsD2ycgN72OGKm94i.webp","CQPzlGdzJ4QgMwUoum7tlFg06stl7nts.webp","C2NmwmfBERt3NQRCp6L5BO2Un13BFa8B.webp","SBL4z9m0zIR7tYyRm8GSlETUVoVBW7YT.webp","Kg5Mch2Bc89lB6CXWb95whauICN0T0TH.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/previews/7uirJOrgDgeExzDafXcFv4HfbXX3CNKv.webp" alt="Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;" title="Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/previews/7uirJOrgDgeExzDafXcFv4HfbXX3CNKv.webp" alt="Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;" title="Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Полицейскими задержан подозреваемый в разбое, который украл у мужчины 700 тысяч рублей у метро &quot;Площадь Ленина&quot;</div>
+				<div class="news-article__text">Пострадавший хотел обменять наличные на криптовалюту. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 13:28
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Rejdi_po_parkovkam_dlya_invalidov_/" title="Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга " class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["ipcU5w8nRfcRr1WJPWWdxe7m5so5fjfR.webp","dK3CWmv3vTzi78P4x560cfJVwVcv1BkQ.webp","Nl68bT5LlggVtcOlQbf7oTpna1XaQM38.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/previews/j9gFGlBIzsWt11bz7c1gng4cdHD0Dmwf.webp" alt="Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга " title="Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга " />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/previews/j9gFGlBIzsWt11bz7c1gng4cdHD0Dmwf.webp" alt="Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга " title="Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга " /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Сотрудники ГИБДД проводят массовые рейды на парковках для инвалидов в центре Петербурга </div>
+				<div class="news-article__text">Авто нарушителей оперативно эвакуируют.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 13:22
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Lenoblast_otremontiruet_trassi_na_yuge_i_vostoke_regiona/" title="Ленобласть отремонтирует трассы на юге и востоке региона" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/UwDYhzc91x49eC6B86CHxHxVMHJSBq2G.webp" alt="Ленобласть отремонтирует трассы на юге и востоке региона" title="Ленобласть отремонтирует трассы на юге и востоке региона" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/UwDYhzc91x49eC6B86CHxHxVMHJSBq2G.webp" alt="Ленобласть отремонтирует трассы на юге и востоке региона" title="Ленобласть отремонтирует трассы на юге и востоке региона" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Ленобласть отремонтирует трассы на юге и востоке региона</div>
+				<div class="news-article__text">Здесь предусмотрен выборочный ремонт дорожного полотна крупными участками в течение мая-июня. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 13:17
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Novij_vice_spiker_ZakSa/" title="В ЗакСе Петербурга выбрали нового вице-спикера" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/news_photos/peS8Iw5aHU3y8pItDbiq39BVo7fpHrc7.webp" alt="В ЗакСе Петербурга выбрали нового вице-спикера" title="В ЗакСе Петербурга выбрали нового вице-спикера" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/news_photos/peS8Iw5aHU3y8pItDbiq39BVo7fpHrc7.webp" alt="В ЗакСе Петербурга выбрали нового вице-спикера" title="В ЗакСе Петербурга выбрали нового вице-спикера" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В ЗакСе Петербурга выбрали нового вице-спикера</div>
+				<div class="news-article__text">За кандидатуру Павла Иткина проголосовали 30 депутатов. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:55
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/bdt_tovstonogova_hudruk_moguchij/" title="Андрей Могучий больше не является худруком БДТ имени Товстоногова " class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/BsOtqHGYP2TWrvmoQyyrTztsn7CIlSIR.webp" alt="Андрей Могучий больше не является худруком БДТ имени Товстоногова " title="Андрей Могучий больше не является худруком БДТ имени Товстоногова " />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/BsOtqHGYP2TWrvmoQyyrTztsn7CIlSIR.webp" alt="Андрей Могучий больше не является худруком БДТ имени Товстоногова " title="Андрей Могучий больше не является худруком БДТ имени Товстоногова " /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Андрей Могучий больше не является худруком БДТ имени Товстоногова </div>
+				<div class="news-article__text">Контракт с ним завершился 9 апреля. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:52
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Nezryachij_peterburzhec_sud_s_metropolitenom_iz_za_sobaki_povodirya/" title="Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["b5sTv7lYveiof7nwgG98qEdWmqjyyjMs.webp","Sfq0nUxbL58iGVoRh28w5b8UxsXLu1qb.webp","rPGajp6gtMXFRnMJuM5mRNtts0mvCdnx.webp","M2mK22JCkOi0Ig2gb3HG05PhaDur2fYN.webp","ESNcN5kGBsbb7izuCrfINaeGxVuGOlCW.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/previews/G563tyUYE7eqMFXzwXVQXcnJr0jn7oUX.webp" alt="Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря" title="Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/previews/G563tyUYE7eqMFXzwXVQXcnJr0jn7oUX.webp" alt="Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря" title="Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Незрячий петербуржец судится с метрополитеном из-за необходимости надевать намордник на собаку-поводыря</div>
+				<div class="news-article__text">Мужчина требует признать актуальный правовой акт частично недействующим.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:47
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/V_Indiane_zavod_nachal_videlyat_toksichnij_dim_iz_za_pozhara/" title="В Индиане завод начал выделять токсичный дым из-за пожара" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["cUHTDJt65k26ssqztdfkCK58ybXs7zBM.webp","cWevixdKpP1pVSVXkG8ogE9GqV4GitaV.webp","ls0FeUNpwlK3jWEdovBfg20C23mPEvDL.webp","vhBiHvrmmIG9rN9ramS9BcsHvk1aePKD.webp","TmBWXWaSTI5VVvympsyNH4Eqd3Vp06nN.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/previews/BaRoaTbdO5oP7wtEeBBDm3rO1wdnDjQS.webp" alt="В Индиане завод начал выделять токсичный дым из-за пожара" title="В Индиане завод начал выделять токсичный дым из-за пожара" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/previews/BaRoaTbdO5oP7wtEeBBDm3rO1wdnDjQS.webp" alt="В Индиане завод начал выделять токсичный дым из-за пожара" title="В Индиане завод начал выделять токсичный дым из-за пожара" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В Индиане завод начал выделять токсичный дым из-за пожара</div>
+				<div class="news-article__text">Жителей города, где произошел пожар, эвакуируют из опасной зоны.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:46
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/V_pervom_kvartale_2023_goda_SZPPK_perevezla_17_9_millionov_passazhirov/" title="В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/tPjIIObhcrzafznTSNprNQ6iOUGdjtzu.webp" alt="В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров" title="В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/tPjIIObhcrzafznTSNprNQ6iOUGdjtzu.webp" alt="В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров" title="В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">В первом квартале 2023 года СЗППК перевезла 17,9 миллионов пассажиров</div>
+				<div class="news-article__text">СЗППК превзошла допандемийные показатели.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:38
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/_Rubin_obyavil_o_naznachenii_Rashida_Rahimova_na_post_glavnogo_trenera/" title="&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["CbqelzR4bslI4CvScJFrPrTmTdRFpDHS.webp","sBI11dSnz032RHSdJ1DiFlmn8CFfU70g.webp","ke6wEtY3a0jPstD0mnTiG5DFtYttxd0x.webp","Cxpw4CVI2Tf3jb0hEdwrXsvGdr522WLT.webp","zKBsX0ixIvVGcSpHnqmfcJgeQmTWL0gM.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/previews/uB5fBjmvvyf0iJ2V9RLvC7CuO7Y5vYFl.webp" alt="&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера" title="&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/previews/uB5fBjmvvyf0iJ2V9RLvC7CuO7Y5vYFl.webp" alt="&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера" title="&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">&quot;Рубин&quot; объявил о назначении Рашида Рахимова на пост главного тренера</div>
+				<div class="news-article__text">Подробности соглашения не уточняются.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:23
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Germaniya_v_subbotu_ostanovit_poslednie_3_AES_mnenie_ekspertov_/" title="Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов " class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static2.piter.tv/images/news_photos/c1ufqtlLn16hdqt1zLl2Y2sNzPhqetz7.webp" alt="Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов " title="Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов " />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/news_photos/c1ufqtlLn16hdqt1zLl2Y2sNzPhqetz7.webp" alt="Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов " title="Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов " /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Германия остановит последние 3 свои АЭС до конца недели: мнение экспертов </div>
+				<div class="news-article__text">К 2030 году в стране планируется довести долю возобновляемых источников энергии до 80%. </div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 12:04
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/100_pachek_sigaret_v_kolese_avto/" title="Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["uiPilbLE410Id6isYGcRQLODKWDMHE28.webp","vBjuEGDJ6mjOIl6eSw8KpHyTo07CiXKD.webp","cbawIqLCc4LygvnUHRDq6rlikmi2c8Rw.webp","98faUd2OfbrBllXRVk84jQEbLkksbM7q.webp","B2WX1ITuTaLDrqQsiIlgLR7KKS8kaNbp.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/vkBV7sCdP03V47t9s4mFIRHqjcHoCxuI.webp" alt="Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет" title="Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/previews/vkBV7sCdP03V47t9s4mFIRHqjcHoCxuI.webp" alt="Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет" title="Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Выборгские таможенники нашли в колесе автомобиля 100 пачек сигарет</div>
+				<div class="news-article__text">В отношении гражданина Финляндии возбуждено дело об административном правонарушении.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 11:59
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/A24_vipustila_trejler_filma_uzhasov_Pogovori_so_mnoj_/" title="A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["ec2iHVmYvfgVmdkWhLD5TzljX86ncei1.webp","xQJFs3VQ1HwJOT8guxjYHjUGCyc77EtB.webp","Nlb1KIqyRwnll6ClOKBluuFFQJ5uoMeC.webp","2tpJn72RQGGtGIbhOzorYOFeRzy8TxWO.webp","YCYIf2jOxtRF6plDpq4TpgxyJ7W9TLsS.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/8cHNGKJSycX1BkK8sIWPkxe6lVLCxU6S.webp" alt="A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;" title="A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;" />
+    <noscript><img width="304" height="190" src="https://static3.piter.tv/images/previews/8cHNGKJSycX1BkK8sIWPkxe6lVLCxU6S.webp" alt="A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;" title="A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">A24 выпустила трейлер фильма ужасов &quot;Поговори со мной&quot;</div>
+				<div class="news-article__text">Картина выйдет в мировой прокат 28 июля.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 11:57
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/Netflix_vipustil_trejler_boevika_Mat_s_Dzhennifer_Lopes/" title="Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='["6ItzaoDcQf1IM3UypnUvMQm7TED9kPod.webp","KSoepgXksdpsLFMggsEagLUSG4gvHY3Y.webp","q8ix9cbLLMUQHysWqiTVJb47TIDTds6j.webp","4Hdq3KWONyjV0H5VN7YG5ncMuOUEqsmx.webp","LSH51dbK3OcDR1Wmb35lMXRbsO4PvkJE.webp"]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static1.piter.tv/images/previews/8i3rcBWXnDIkLhmmWnwewz6FOGre02ao.webp" alt="Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес" title="Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/previews/8i3rcBWXnDIkLhmmWnwewz6FOGre02ao.webp" alt="Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес" title="Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Netflix выпустил трейлер боевика &quot;Мать&quot; с Дженнифер Лопес</div>
+				<div class="news-article__text">Мировая премьера состоится 12 мая.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 11:26
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/kak_vibrat_kulich_0/" title="Петербуржцам рассказали, как выбрать готовый кулич" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/49tIoGFiCsJerM9ut4DB2tD0iyrQpdTr.webp" alt="Петербуржцам рассказали, как выбрать готовый кулич" title="Петербуржцам рассказали, как выбрать готовый кулич" />
+    <noscript><img width="304" height="190" src="https://static1.piter.tv/images/news_photos/49tIoGFiCsJerM9ut4DB2tD0iyrQpdTr.webp" alt="Петербуржцам рассказали, как выбрать готовый кулич" title="Петербуржцам рассказали, как выбрать готовый кулич" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">Петербуржцам рассказали, как выбрать готовый кулич</div>
+				<div class="news-article__text">Предпочтение следует отдавать куличам с натуральными украшениями.</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 11:21
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+<li class="category__item">
+	<article class="news-article news-article_category">
+		<a href="https://piter.tv/event/DTP_v_kotorom_postradalo_3_nesovershennoletnih/" title="На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей" class="news-article__link">
+			<div class="news-article__image">
+				
+<span class="previewCarouselBlock"  sources='[]' style='' >
+    <img class="__firstPreview lazyload" src="https://static.piter.tv/img/news_default_small.png" width="304" height="190"  data-src="https://static3.piter.tv/images/news_photos/nJveUTRb7E5tucOCWO8v7svbaYk38hJg.webp" alt="На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей" title="На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей" />
+    <noscript><img width="304" height="190" src="https://static2.piter.tv/images/news_photos/nJveUTRb7E5tucOCWO8v7svbaYk38hJg.webp" alt="На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей" title="На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей" /></noscript>
+</span>
+
+			</div>
+			<div class="news-article__w">
+				<div class="news-article__title">На трассе &quot;Скандинавия&quot; в ДТП пострадали женщина и её трое детей</div>
+				<div class="news-article__text">Проводится проверка полицией.
+</div>
+				<div class="news-article__meta">
+					<div class="news-article__date">
+						<svg class="news-article__date-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_date-icon"></use></svg>Сегодня 11:00
+					</div>
+				</div>
+			</div>
+		</a>
+	</article>
+</li>
+
+						</ul>
+					</div>
+				</div>
+			</section>
+			
+	<div class="pagination main__pagination">
+		<div class="pagination__buttons">
+			
+	<a class="pagination__button pagination__button_prev" title="">Назад
+		<svg class="pagination__button-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_arrow-right"></use></svg>
+	</a>
+
+			
+	<a href="?block=35" class="pagination__button pagination__button_next" onclick="" title="Следующая страница">Вперед
+		<svg class="pagination__button-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_arrow-right"></use></svg>
+	</a>
+
+		</div>
+		<ul class="pagination__list">
+			
+	<li class="pagination__item pagination__item_active">
+		<a class="pagination__link">1 из 9695</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=35" onclick="" class="pagination__link" title="Перейти на страницу № 2">2</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=70" onclick="" class="pagination__link" title="Перейти на страницу № 3">3</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=105" onclick="" class="pagination__link" title="Перейти на страницу № 4">4</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=140" onclick="" class="pagination__link" title="Перейти на страницу № 5">5</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=175" onclick="" class="pagination__link" title="Перейти на страницу № 6">6</a>
+	</li>
+
+	<li class="pagination__item">
+		<a href="?block=210" onclick="" class="pagination__link" title="Перейти на страницу № 7">7</a>
+	</li>
+
+	<li class="pagination__item">
+		<span class="pagination__sep">…</span>
+	</li>
+	<li class="pagination__item">
+		<a href="?block=339290" onclick="" class="pagination__link" title="Последняя страница (9695)">9695</a>
+	</li>
+
+		</ul>
+		<!--<div class="pagination__more-w">
+			<a href="#" class="pagination__more">Показать еще 10</a>
+		</div>-->
+	</div>
+
+		</div>
+		<aside class="sidebar sidebar__cat main__sidebar">
+			
+	<div class="sidenav sidebar__row sidenav_wide">
+		<header class="sidenav__header sidebar__header">
+			<h2 class="sidenav__title title title_side">Категории</h2>
+		</header>
+		<ul class="sidenav__list">
+			
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Stati/" class="sidenav__link">Статьи</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Video_All/" class="sidenav__link">Видео</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Koronavirus_v_Peterburge/" class="sidenav__link">Коронавирус в Петербурге</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/3716/" class="sidenav__link">Картина дня</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/3874/" class="sidenav__link">Тема дня</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/60/" class="sidenav__link">Лента новостей</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Novosti_Leningradskoj_ob/" class="sidenav__link">Новости Ленинградской области</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/kuda_shodit_v_peterburge/" class="sidenav__link">Куда сходить в Петербурге</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Viborg/" class="sidenav__link">Выборг</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/3665/" class="sidenav__link">Новости шоу-бизнеса России</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/2498/" class="sidenav__link">Блокада Ленинграда</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/2519/" class="sidenav__link">Музыка</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Fabrika_Znanij/" class="sidenav__link">Фабрика Знаний</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/3839/" class="sidenav__link">M-1 Global в Петербурге</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/3844/" class="sidenav__link">Новости Выборгского района</a>
+	</li>
+
+	<li class="sidenav__item">
+		<a href="https://piter.tv/news/Sudebnaya_praktika/" class="sidenav__link">Судебная практика</a>
+	</li>
+
+		</ul>
+	</div>
+
+			
+			
+	<div class="sidefeed latest-news latest-news_side sidebar__feed sidebar__row">
+		<header class="sidefeed__header sidebar__header">
+			<h2 class="sidefeed__title title title_side">Лента новостей</h2><a href="https://piter.tv/news/60/" class="sidefeed__all-news"><svg
+				class="sidefeed__all-icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_arrow-right"></use></svg>Все новости</a>
+		</header>
+		<ul class="sidefeed__list latest-news__list">
+			
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:54</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/_Aeroflot_napravil_samolet_A330_na_remont_v_Iran_mnenie_ekspertov/" class="latest-news__news-title" title="&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов">&quot;Аэрофлот&quot; направил самолет А330 на ремонт в Иран: мнение экспертов</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:52</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/pogoda_lenoblast_13_aprelya_0/" class="latest-news__news-title" title="В Ленобласти 13 апреля ожидается до +10 градусов">В Ленобласти 13 апреля ожидается до +10 градусов</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:48</div>
+			<div class="latest-news__video-w">
+<a href="https://piter.tv/event/Borisov_zayavil_chto_osnovnie_parametri_novoj_ROS_opredeleni/" class="latest-news__video"></a>
+</div>
+		</div><a href="https://piter.tv/event/Borisov_zayavil_chto_osnovnie_parametri_novoj_ROS_opredeleni/" class="latest-news__news-title" title="Борисов заявил, что основные параметры новой РОС определены">Борисов заявил, что основные параметры новой РОС определены</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:35</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/Ograblenie_manikyurnogo_salona_Murino/" class="latest-news__news-title" title="В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом">В Мурино подростки ворвались в маникюрный салон с игрушечным пистолетом</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:35</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/V_Leningradskoj_oblasti_gazificirovani_dve_derevni_v_Lomonosovskom_rajone_/" class="latest-news__news-title" title="В Ленобласти газифицированы две деревни в Ломоносовском районе">В Ленобласти газифицированы две деревни в Ломоносовском районе</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">16:24</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/Sud_postanovil_viplatit_devochke_300_tisyach_za_razvratnie_dejstviya_soseda_pedofila/" class="latest-news__news-title" title="В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила">В Петербурге суд постановил выплатить девочке 300 тысяч за развратные действия соседа-педофила</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">15:58</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/Kontrol_za_gidami_perevodchikami/" class="latest-news__news-title" title="В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков">В ЗакСе Петербурга приняли закон, контролирующий гидов-переводчиков</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">15:55</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/shtraf_za_vigul_sobak_beh_namordnika/" class="latest-news__news-title" title="Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка">Петербуржцев будут штрафовать за выгул опасных собак без намордника и поводка</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">15:41</div>
+			<div class="latest-news__video-w"></div>
+		</div><a href="https://piter.tv/event/Blagoustrojstvo_Lenoblast_/" class="latest-news__news-title" title="Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ">Ленобласть третий раз подряд стала лидером реестра лучших практик по благоустройству в РФ</a>
+	</li>
+
+	<li class="sidefeed__item latest-news__item latest-news__item__">
+		<div class="latest-news__meta">
+			<div class="latest-news__date">15:40</div>
+			<div class="latest-news__video-w">
+<a href="https://piter.tv/event/SHAMAN_predstavil_klip_na_trek_Mi_s_proyavivshim_geroizm_malchikom_Fedorom/" class="latest-news__video"></a>
+</div>
+		</div><a href="https://piter.tv/event/SHAMAN_predstavil_klip_na_trek_Mi_s_proyavivshim_geroizm_malchikom_Fedorom/" class="latest-news__news-title" title="SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором">SHAMAN представил клип на трек &quot;Мы&quot; с проявившим героизм мальчиком Федором</a>
+	</li>
+
+			
+		</ul>
+	</div>
+
+		</aside>
+	</div>
+</div>
+
+
+</main>
+
+<footer class="footer">
+	<div class="footer__top">
+		<div class="footer__in footer__in_top">
+			<div class="footer__copyright">&copy; Интернет-телевидение «Piter.TV»</div>
+			<nav class="footer__nav footer__nav_top nav nav_bottom">
+				<ul class="nav__list">
+					<li class="nav__item">
+						<a href="https://piter.tv/pages/about_us/" class="nav__link" title="Команда проекта PITER TV">О проекте</a>
+					</li>
+					<li class="nav__item">
+						<a href="https://piter.tv/pages/rights_owners/" class="nav__link" title="Владельцам авторских прав">Правообладателям</a>
+					</li>
+					<li class="nav__item">
+						<a href="https://piter.tv/price_list/" class="nav__link">Реклама на сайте</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+	<div class="footer__body">
+		<div class="footer__in footer__in_body">
+			<div class="footer__nav-w">
+				<nav class="footer__nav nav nav_vert">
+					<ul class="nav__list">
+						<li class="nav__item">
+							<a href="https://piter.tv/news/60/" class="nav__link">Новости</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav__link" href="https://piter.tv/videohosting/" title="Размещенеи видео в интернете">Видеохостинг</a>
+						</li>
+						<li class="nav__item">
+							<a href="https://piter.tv/map_page/" class="nav__link" title="Интерактивная карта города">Новостная карта города</a>
+						</li>
+					</ul>
+				</nav>
+				<nav class="footer__nav nav nav_vert">
+					<ul class="nav__list">
+						<li class="nav__item">
+							<a href="https://piter.tv/channels/" class="nav__link">Каналы</a>
+						</li>
+						<li class="nav__item">
+							<a href="https://piter.tv/video_catalog/2224/" class="nav__link">Ваше видео</a>
+						</li>
+						<li class="nav__item">
+							<a class="nav__link" href="https://piter.tv/persons/" title="Ключевые персоны">Лица</a>
+						</li>
+					</ul>
+				</nav>
+				<nav class="footer__nav nav nav_vert">
+					<ul class="nav__list">
+						<li class="nav__item">
+							<a href="https://piter.tv/pages/user_agreement/" class="nav__link" title="Правила использования сервиса">Пользовательское соглашение</a>
+						</li>
+						<li class="nav__item">
+							<a href="https://piter.tv/reference_catalog/" class="nav__link">Справочник</a>
+						</li>
+						<li class="nav__item">
+							<a href="https://piter.tv/news/proisshestviya/" class="nav__link">Происшествия</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+			<ul class="footer__social social">
+				<li class="social__item social__item_vk">
+					<a href="https://vk.com/pitertv" target="_blank" class="social__link">
+						<svg class="social__icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_vk-icon"></use></svg>
+					</a>
+				</li>
+				<li class="social__item social__item_inst">
+					<a href="https://t.me/piter_tv" target="_blank" class="social__link">
+						<svg class="social__icon"><use xlink:href="https://piter.tv/static/ptv2/assets/images/icon.svg#icon_tg-icon"></use></svg>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="footer__bottom">
+		<div class="footer__in">
+			<p class="footer__cert">Свидетельство о регистрации СМИ ЭЛ № ФС77-77336 от 25.12.2019 выдано Федеральной службой по надзору в сфере связи, информационных
+				технологий и массовых коммуникаций (РОСКОМНАДЗОР). Учредитель ООО "Медиа Платформа" </p>
+		</div>
+	</div>
+	<div class="counters">
+		<div class="footer__in">
+
+			<script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter4881571 = new Ya.Metrika({id:4881571, webvisor:true, clickmap:true, trackLinks:true, accurateTrackBounce:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/4881571" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+			<div class="counter">
+				
+				<a href="//metrika.yandex.ru/stat/?id=4881571&amp;from=informer" target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/4881571/3_1_FFFFFFFF_EFEFEFFF_0_pageviews" style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" onclick="try{Ya.Metrika.informer({i:this,id:4881571,lang:'ru'});return false}catch(e){}"/></a>
+			</div>
+		</div>
+	</div>
+</footer>
+
+
+<script language="javascript" src="//static.piter.tv/ptv2/assets/scripts/app.min_6446.js" type="text/javascript"></script>
+
+<script language="javascript" src="//static.piter.tv/ptv2/assets/scripts/app.bundle.min_6446.js" type="text/javascript"></script>
+
+<!--#SER Master WEB03 (vps) -->
+</body>
+
+</html>
