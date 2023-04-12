@@ -42,6 +42,9 @@ class IncorrectEncodingError(Exception):
 class IncorrectTimeoutError(Exception):
     pass
 
+class RequestError(Exception):
+    pass
+
 
 class IncorrectVerifyError(Exception):
     pass
@@ -96,15 +99,13 @@ class Config:
         if not isinstance(config_dto.total_articles, int) or config_dto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_dto.num_articles < 1 or config_dto.num_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        headers = config_dto.headers
-        if not isinstance(headers, dict):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        encoding = config_dto.encoding
-        if not isinstance(encoding, str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
         timeout = config_dto.timeout
@@ -119,7 +120,7 @@ class Config:
         """
         Retrieve seed urls
         """
-        return self._config_dto.seed_urls
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
@@ -167,6 +168,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
+    if response.status_code != 200:
+        raise RequestError
     return response
 
 
