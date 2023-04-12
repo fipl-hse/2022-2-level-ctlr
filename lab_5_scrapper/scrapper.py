@@ -186,7 +186,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(2,7))
+    time.sleep(random.randint(2,5))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     return response
@@ -217,23 +217,23 @@ class Crawler:
                 continue
             elif link[0:5] == '/news' and link.count('/') == 2:
                 self.urls.append('https://tvspb.ru' + link)
-        #return
+        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        # for url in self.get_search_urls():
-        #     try:
-        #         response = make_request(url, self.config)
-
-
+        for url in self.get_search_urls():
+            response = make_request(url, self.config)
+            if response.status_code == 200:
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                self._extract_url(main_bs)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -245,13 +245,18 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        body_bs = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
+        all_paragraphs = body_bs.find_all('p')
+        self.article.text = all_paragraphs
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
