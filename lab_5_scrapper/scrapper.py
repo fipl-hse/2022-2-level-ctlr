@@ -101,7 +101,7 @@ class Config:
             raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+            if not isinstance(url, str) or not re.match(r'^https?://.*/', url):
                 raise IncorrectSeedURLError("Invalid seed url")
 
         if (not isinstance(dto.total_articles, int)
@@ -307,8 +307,8 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
-    for i, full_url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
+    for i, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=configuration)
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
