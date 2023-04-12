@@ -275,7 +275,7 @@ class HTMLParser:
         if date:
             try:
                 self.article.date = self.unify_date_format(date.text)
-            except AttributeError:
+            except ValueError:
                 raise AttributeError
 
         topics = [topic.text for topic in article_soup.find_all('a', class_="hashtagBlock")]
