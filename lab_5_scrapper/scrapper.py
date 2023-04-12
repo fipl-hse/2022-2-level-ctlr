@@ -199,7 +199,6 @@ class Crawler:
             return 'https://sovainfo.ru' + str(url)
         return ''
 
-
     def find_articles(self) -> None:
         """
         Finds articles
