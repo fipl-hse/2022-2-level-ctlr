@@ -3,12 +3,12 @@ Crawler implementation
 """
 import datetime
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
 import requests
-import validators
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
@@ -94,24 +94,30 @@ class Config:
         Returns config values
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_dict = json.load(f)
-        return ConfigDTO(**config_dict)
+            config_dto = json.load(f)
+        config_dict = ConfigDTO(config_dto['seed_urls'],
+                                config_dto['total_articles_to_find_and_parse'],
+                                config_dto['headers'],
+                                config_dto['encoding'],
+                                config_dto['timeout'],
+                                config_dto['should_verify_certificate'],
+                                config_dto['headless_mode'])
+        return config_dict
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as config_file:
-            config_dict = json.load(config_file)
+        config_dto = self._extract_config_content()
 
-        seed_urls = config_dict['seed_urls']
-        headers = config_dict['headers']
-        total_articles_to_find_and_parse = config_dict['total_articles_to_find_and_parse']
-        encoding = config_dict['encoding']
-        timeout = config_dict['timeout']
-        should_verify_certificate = config_dict['should_verify_certificate']
-        headless_mode = config_dict['headless_mode']
+        seed_urls = config_dto.seed_urls
+        headers = config_dto.headers
+        total_articles_to_find_and_parse = config_dto.total_articles_to_find_and_parse
+        encoding = config_dto.encoding
+        timeout = config_dto.timeout
+        should_verify_certificate = config_dto.should_verify_certificate
+        headless_mode = config_dto.headless_mode
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
@@ -119,7 +125,7 @@ class Config:
         for url in seed_urls:
             if not isinstance(url, str):
                 raise IncorrectSeedURLError
-            if not validators.url(url):
+            if not not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(total_articles_to_find_and_parse, int)
