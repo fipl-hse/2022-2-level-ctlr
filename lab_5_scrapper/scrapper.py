@@ -270,10 +270,10 @@ class HTMLParser:
         """
         title = article_soup.find('h1').get_text()
 
-        if not title:
-            self.article.title = "NOT FOUND"
-            
-        self.article.title = title
+        if title:
+            self.article.title = title
+
+        self.article.author = ["NOT FOUND"]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
