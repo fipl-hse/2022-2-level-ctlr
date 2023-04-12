@@ -95,13 +95,7 @@ class Config:
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config_content = json.load(f)
-        return ConfigDTO(config_content['seed_urls'],
-                         config_content['total_articles_to_find_and_parse'],
-                         config_content['headers'],
-                         config_content['encoding'],
-                         config_content['timeout'],
-                         config_content['should_verify_certificate'],
-                         config_content['headless_mode'])
+        return ConfigDTO(**config_content)
 
     def _validate_config_content(self) -> None:
         """
@@ -109,38 +103,33 @@ class Config:
         are not corrupt
         """
         config = self._extract_config_content()
-        seed_urls = config.seed_urls
-        total_articles = config.total_articles
-        headers = config.headers
-        encoding = config.encoding
-        timeout = config.timeout
-        verify_certificate = config.should_verify_certificate
-        headless_mode = config.headless_mode
 
-        if not isinstance(seed_urls, list):
+        if not isinstance(config.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
+        for url in config.seed_urls:
             if not re.fullmatch(r'https://.+', url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(total_articles, int) or total_articles < 1:
+        if not isinstance(config.total_articles, int)\
+                or config.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(headers, dict):
+        if not isinstance(config.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if not isinstance(config.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT \
-                or timeout > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(config.timeout, int) or config.timeout < TIMEOUT_LOWER_LIMIT\
+            or config.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
+        if not isinstance(config.should_verify_certificate, bool) \
+                or not isinstance(config.headless_mode, bool):
             raise IncorrectVerifyError
 
 
@@ -195,6 +184,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     time.sleep(random.randint(1, 3))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -218,7 +208,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if isinstance(href, str) and re.fullmatch(r'/novosti/.+', href):
+        if href and re.fullmatch(r'/novosti/.+', href):
             return href
         return ' '
 
@@ -232,7 +222,7 @@ class Crawler:
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
                 article_url = self._extract_url(link)
-                if article_url is None or article_url == ' ':
+                if article_url is None or article_url == ' ' or article_url in self.urls:
                     continue
                 self.urls.append('https://www.vgoroden.ru' + article_url)
                 if len(self.urls) >= self.config.get_num_articles():
@@ -276,8 +266,7 @@ class HTMLParser:
         if title:
             self.article.title = title
         author = article_soup.find('span', {'class': 'toolbar-opposite__author-text'}).text
-        if author:
-            self.article.author.append(author)
+        self.article.author.append(author) if author else self.article.author.append('NOT FOUND')
         date_bs = article_soup.find('time', {'class': 'toolbar__text'}).get('datetime')
         if isinstance(date_bs, str):
             date_and_time = re.search(r'\d{4}-\d{2}-\d{2}', date_bs).group() + \
@@ -334,12 +323,10 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(configuration)
     crawler.find_articles()
-    print(crawler.get_search_urls())
-    print(len(crawler.get_search_urls()))
     for i, full_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
-        if isinstance(article, Article):
+        if Article:
             to_raw(article)
             to_meta(article)
 
