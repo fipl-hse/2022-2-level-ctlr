@@ -3,7 +3,6 @@ Crawler implementation
 """
 import datetime
 import json
-import os
 import random
 import re
 import shutil
@@ -314,7 +313,7 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
-            # to_meta(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
