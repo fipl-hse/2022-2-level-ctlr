@@ -78,6 +78,7 @@ class WebsiteError(Exception):
     """
     pass
 
+
 class Config:
     """
     Unpacks and validates configurations
