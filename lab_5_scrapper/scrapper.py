@@ -4,6 +4,7 @@ Crawler implementation
 import shutil
 from typing import Pattern, Union
 import json
+import random
 import re
 import time
 import datetime
@@ -75,7 +76,7 @@ class Config:
         self._seed_urls = config_dto.seed_urls
         self._headers = config_dto.headers
         self._num_articles = config_dto.total_articles
-        self._get_encoding = config_dto.encoding
+        self._encoding = config_dto.encoding
         self._timeout = config_dto.timeout
         self._should_verify_certificate = config_dto.should_verify_certificate
         self._headless_mode = config_dto.headless_mode
@@ -145,7 +146,7 @@ class Config:
         """
         Retrieve encoding to use during parsing
         """
-        return self._get_encoding
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
@@ -163,7 +164,7 @@ class Config:
         """
         Retrieve whether to use headless mode
         """
-
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -171,7 +172,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(8)
+    time.sleep(random.randint(1, 10))
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
@@ -210,13 +211,15 @@ class Crawler:
         """
         for url in self._seed_urls:
             response = make_request(url, self._config)
-            if response.status_code == 200:
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                link = self._extract_url(main_bs)
+            if response.status_code != 200:
+                continue
+            main_bs = BeautifulSoup(response.text, 'lxml')
+            for one in main_bs.find_all('a', class_='news-article_link'):
+                link = self._extract_url(one)
                 if not url:
                     continue
-                self.urls.append(link)
-
+                if len(self.urls) < self._config.get_num_articles():
+                    self.urls.append(link)
 
     def get_search_urls(self) -> list:
         """

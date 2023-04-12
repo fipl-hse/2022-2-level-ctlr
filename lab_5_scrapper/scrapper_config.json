@@ -3,7 +3,9 @@
                   "https://piter.tv/news/60/?block=70",
                   "https://piter.tv/news/60/?block=105",
                   "https://piter.tv/news/60/?block=140",
-                  "https://piter.tv/news/60/?block=175"
+                  "https://piter.tv/news/60/?block=175",
+                  "https://piter.tv/news/60/?block=210",
+                  "https://piter.tv/news/60/?block=245"
                   ],
     "headers": {"accept-encoding" : "gzip, deflate, br",
                 "accept-language": "ru,en;q=0.9,ja;q=0.8,es;q=0.7",
@@ -21,7 +23,7 @@
                 "Upgrade-Insecure-Requests": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 YaBrowser/23.3.0.2246 Yowser/2.5 Safari/537.36}"
                 },
-    "total_articles_to_find_and_parse": 101,
+    "total_articles_to_find_and_parse": 7,
     "encoding": "utf-8",
     "timeout": 8,
     "should_verify_certificate": true,
