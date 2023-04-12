@@ -209,8 +209,10 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if isinstance(href, str) and href.startswith('/news/') and len(re.findall('[0-9]', href)) >= 8:
+        if isinstance(href, str) and href.startswith('/news/') \
+                and len(re.findall('[0-9]', href)) >= 8:
             return "https://livennov.ru" + href
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -220,8 +222,10 @@ class Crawler:
             response = make_request(link, self.config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             url = self._extract_url(main_bs)
-            if url not in self.urls and len(self.urls) < self.config.get_num_articles():
+            if url not in self.urls:
                 self.urls.append(url)
+            elif len(self.urls) >= self.config.get_num_articles():
+                return
 
     def get_search_urls(self) -> list:
         """
