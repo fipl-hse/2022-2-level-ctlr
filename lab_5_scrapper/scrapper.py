@@ -136,7 +136,8 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT \
+                or timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
@@ -262,9 +263,9 @@ class HTMLParser:
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
-        main_bs.find('div', {'class': 'article__body'}).find_all(['p', 'div', {'class': 'quote-text'}])
         """
-        article_body = article_soup.find('div', {'class': 'article__body'}).find_all(['p', 'div', {'class': 'quote-text'}])
+        article_body = article_soup.find('div', {'class': 'article__body'}).find_all\
+            (['p', 'div', {'class': 'quote-text'}])
         art_text = ' '.join(i.text for i in article_body)
         self.article.text = art_text
 
