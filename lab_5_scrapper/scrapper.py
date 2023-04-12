@@ -3,7 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
-import os
+# import os
 import random
 import re
 import shutil
