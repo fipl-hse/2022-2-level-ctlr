@@ -12,7 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 
@@ -236,13 +236,16 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        self.article.author = ["NOT FOUND"]
+        self.article.topics = [article_soup.find("div", class_="tag").text]
+        # self.article.date = self.unify_date_format(article_soup.find("div", class_="date").get_text())
+        self.article.title = article_soup.find("h1").text
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -251,7 +254,7 @@ class HTMLParser:
         response = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article_bs)
-        # self._fill_article_with_meta_information(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
@@ -277,6 +280,7 @@ def main() -> None:
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
         to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
