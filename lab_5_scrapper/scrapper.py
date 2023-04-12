@@ -221,7 +221,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return article_bs.get('href')
+        return article_bs['href']
 
     def find_articles(self) -> None:
         """
@@ -301,7 +301,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.full_url)
+        response = requests.get(self.full_url, timeout=3)
         if response.status_code == 200:
             a_bs = BeautifulSoup(response.text, 'lxml')
             self._fill_article_with_text(a_bs)
