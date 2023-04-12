@@ -75,7 +75,15 @@ class Config:
         """
         with open(self.path_to_config, "r", encoding="utf-8") as f:
             config = json.load(f)
-        return ConfigDTO(**config)
+        return ConfigDTO(
+            seed_urls=config['seed_urls'],
+            total_articles_to_find_and_parse=config['total_articles_to_find_and_parse'],
+            headers=config['headers'],
+            encoding=config['encoding'],
+            timeout=config['timeout'],
+            should_verify_certificate=config['should_verify_certificate'],
+            headless_mode=config['headless_mode']
+        )
 
     def _validate_config_content(self) -> None:
         """
@@ -248,23 +256,17 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.text
-        # break into lines and remove leading and trailing space on each
-        lines = (line.strip() for line in text.splitlines())
-        # break multi-headlines into a line each
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        # drop blank lines
-        text = "\n".join(chunk for chunk in chunks if chunk)
-        title = article_soup.find('div').get('h1')
-        self.article.text, self.article.title = text, title
-
-
+        texts_tag = article_soup.find('div')
+        passages = texts_tag.find_all('p')
+        self.article.text = ' '.join([clean_passage.strip() for clean_passage in passages])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('div').get('h1')
+        if title:
+            self.article.title = title
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -277,7 +279,9 @@ class HTMLParser:
         Parses each article
         """
         response = make_request(self.full_url, self.config).text
-        self._fill_article_with_text(BeautifulSoup(response, "lxml"))
+        main_bs = BeautifulSoup(response, "lxml")
+        self._fill_article_with_text(main_bs)
+        self._fill_article_with_meta_information(main_bs)
         return self.article
 
 
