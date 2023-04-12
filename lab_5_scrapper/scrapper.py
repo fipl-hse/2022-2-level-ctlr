@@ -20,7 +20,7 @@ import datetime
 from selenium import webdriver
 
 
-class IncorrectSeedURLError(Exception):
+class IncorrectSeedURLError(TypeError):
     """
     seed URL does not match standard pattern
     """
@@ -97,12 +97,16 @@ class Config:
         """
         config = self._extract_config_content()
 
+        if not isinstance(config.seed_urls, list):
+            raise IncorrectSeedURLError('seed URL is not a list')
+
         for url in config.seed_urls:
             if not re.match(re.compile(r"https?://w?."), url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(config.total_articles, int)
-                or isinstance(config.total_articles, bool)):
+                or isinstance(config.total_articles, bool)
+                or config.total_articles <= 0):
             raise IncorrectNumberOfArticlesError
 
         if config.total_articles > NUM_ARTICLES_UPPER_LIMIT \
@@ -115,11 +119,15 @@ class Config:
         if not isinstance(config.encoding, str):
             raise IncorrectEncodingError
 
-        if config.timeout < TIMEOUT_LOWER_LIMIT or config.timeout > TIMEOUT_UPPER_LIMIT:
+        if not isinstance(config.timeout, int) or \
+                not TIMEOUT_LOWER_LIMIT <= config.timeout <= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         if not isinstance(config.should_verify_certificate, bool):
             raise IncorrectVerifyError
+
+        if not isinstance(config.headless_mode, bool):
+            raise IncorrectVerifyError()
 
     def get_seed_urls(self) -> list[str]:
         """
