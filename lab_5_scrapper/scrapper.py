@@ -256,9 +256,13 @@ class HTMLParser:
         """
         Finds text of article
         """
-        texts_tag = article_soup.find('div', class_='page-content io-article-body')
-        passages = texts_tag.find_all('p')
-        self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
+        texts_tag = article_soup.find_all('div')
+        final_text = []
+        for div in texts_tag:
+            for text in div.find_all('p'):
+                final_text.append(text.text(strip=True))
+        self.article.text = ' '.join(final_text)
+        # self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -278,8 +282,8 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = make_request(self.full_url, self.config).text
-        main_bs = BeautifulSoup(response, "lxml")
+        response = make_request(self.full_url, self.config)
+        main_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(main_bs)
         self._fill_article_with_meta_information(main_bs)
         return self.article
