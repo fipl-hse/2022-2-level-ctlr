@@ -20,31 +20,51 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
 
 
 class IncorrectSeedURLError(Exception):
+    """
+    seed URL does not match standard pattern 'https?://w?w?w?.'
+    """
     pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    total number of articles is out of range from 1 to 150
+    """
     pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
+    """
+    total number of articles to parse is not integer
+    """
     pass
 
 
 class IncorrectHeadersError(Exception):
+    """
+    headers are not in a form of dictionary
+    """
     pass
 
 
 class IncorrectEncodingError(Exception):
+    """
+    encoding is not specified as a string
+    """
     pass
 
 
 class IncorrectTimeoutError(Exception):
+    """
+    timeout value is not a positive integer less than 60
+    """
     pass
 
 
 class IncorrectVerifyError(Exception):
-    pass
+    """
+    verify certificate value is not True or False
+    """
 
 
 class Config:
