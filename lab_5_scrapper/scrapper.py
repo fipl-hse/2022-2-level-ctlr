@@ -5,7 +5,6 @@ from typing import Pattern, Union
 import json
 from pathlib import Path
 
-
 from core_utils.config_dto import ConfigDTO
 import re
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -204,23 +203,21 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        href = article_bs.get('href')
-        if href.startswith('https://moskvichmag.ru/') and href.count('/') == 5:
-            return href
-        return "None"
+        pass
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
+        url1 = "https://prmira.ru"
         for url in self._seed_url:
             response = make_request(url, self._config)
-            soup = BeautifulSoup(response.text, 'lxml')
-            for elem in soup.find_all('a', {'class': "js-articlesItemTitleLink"}):
-                current_url = self._extract_url(elem)
-                if str(self._extract_url(elem)) != 'None' and len(self.urls) < self._config.get_num_articles() \
-                        and current_url not in self.urls:
-                    self.urls.append(current_url)
+            file = response.json()
+            for values in file.values():
+                for elem in values:
+                    if isinstance(elem, dict):
+                        self.urls.append(url1 + elem['path'])
+        print(self.urls)
 
     def get_search_urls(self) -> list:
         """
@@ -247,10 +244,13 @@ class HTMLParser:
         """
         Finds text of article
         """
-        element = article_soup.find('div', {'itemprop': 'articleBody'})
-        texts = element.find_all('p')
-        text = " ".join([text.get_text(strip=True) for text in texts])
-        self.article.text = text
+        elements = article_soup.find_all("div", class_='mb-[24px] lg:mb-[28px]')
+        paragraphs = ""
+        for elem in elements:
+            par = elem.find_all('p')
+            paragraphs += " ".join([text.get_text(strip=True) for text in par])
+            paragraphs += " "
+        self.article.text = paragraphs
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -296,6 +296,7 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
+
 
 if __name__ == "__main__":
     main()

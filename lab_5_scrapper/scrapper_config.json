@@ -1,5 +1,7 @@
 {
-    "seed_urls": ["https://moskvichmag.ru/", "https://moskvichmag.ru/2023-04-10/"],
+    "seed_urls": ["https://prmira.ru/api/site/matters?date_start=&date_end=&page=1",
+        "https://prmira.ru/api/site/matters?date_start=&date_end=&page=2",
+        "https://prmira.ru/api/site/matters?date_start=&date_end=&page=3"],
     "headers": {},
     "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
