@@ -7,8 +7,10 @@ import re
 import shutil
 from pathlib import Path
 from typing import Pattern, Union
+
 import requests
 from bs4 import BeautifulSoup
+
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
@@ -168,7 +170,7 @@ class Config:
         """
         if isinstance(self._headers, dict):
             return self._headers
-        return dict[str, str]
+        return {'': ''}
 
     def get_encoding(self) -> str:
         """
@@ -319,7 +321,7 @@ class HTMLParser:
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
-        if isinstance(auth_txt[0], str):
+        if auth_txt and isinstance(auth_txt[0], str):
             self.article.author = [auth_txt[0]]
         else:
             self.article.author = ['None']
