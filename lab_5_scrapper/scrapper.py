@@ -5,8 +5,8 @@ import datetime
 import json
 import shutil
 import validators
-from typing import Pattern, Union
 from pathlib import Path
+from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
