@@ -75,7 +75,7 @@ class Config:
         dto = self._extract_config_content()
         self._validate_config_content()
         self._seed_urls = dto.seed_urls
-        self._total_articles = dto.total_articles
+        self._num_articles = dto.total_articles
         self._headers = dto.headers
         self._encoding = dto.encoding
         self._timeout = dto.timeout
@@ -139,7 +139,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -177,7 +177,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randrange(3, 8))
+    time.sleep(random.randrange(1, 8))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
@@ -218,12 +218,24 @@ class Crawler:
             response = make_request(link, self.config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             url = self._extract_url(main_bs)
+            if len(self.urls) >= self.config.get_num_articles():
+                return
             if not url:
                 continue
             if url not in self.seed_urls:
                 self.urls.append(url)
-            if len(self.urls) >= self.config.get_num_articles():
-                return
+
+        # for link in self.seed_urls:
+        #     response = make_request(link, self.config)
+        #     links_bs = BeautifulSoup(response.text, 'lxml').find_all('a')
+        #     for link_bs in links_bs:
+        #         url = self._extract_url(link_bs)
+        #         if not url:
+        #             continue
+        #         if url not in self.seed_urls:
+        #             self.urls.append(url)
+        #         if len(self.urls) >= self.config.get_num_articles():
+        #             return
 
     def get_search_urls(self) -> list:
         """
@@ -261,10 +273,11 @@ class HTMLParser:
         title_info = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
         self.article.title = title_info
 
-        author_info = [author.get_text(strip=True)
-                       for author in article_soup.find('div', itemprop="author")
-                       if author.get_text(strip=True)]
-        self.article.author = author_info
+        author_info = article_soup.find('div', itemprop="author")
+        if author_info:
+            self.article.author.append(author_info.get_text(strip=True))
+        else:
+            self.article.author.append('NOT FOUND')
 
         date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
         self.article.date = self.unify_date_format(date_info)
