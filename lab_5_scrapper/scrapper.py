@@ -13,7 +13,6 @@ from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
                                   TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT)
 import shutil
-from urllib.error import HTTPError, URLError
 
 
 class IncorrectSeedURLError(Exception):
