@@ -93,7 +93,7 @@ class Config:
             if not re.match(r'^https?://.*', urls):
                 raise IncorrectSeedURLError
 
-        if not isinstance(config_dto.num_articles, int):
+        if not isinstance(config_dto.total_articles, int) or config_dto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
         if config_dto.num_articles < 1 or config_dto.num_articles > NUM_ARTICLES_UPPER_LIMIT:
@@ -166,7 +166,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
 
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
-    response.encoding = 'utf-8'
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -197,13 +197,13 @@ class Crawler:
         """
         Finds articles
         """
-        for url1 in self._seed_urls:
-            response = make_request(url1, self._config)
+        for seed_url in self._seed_urls:
+            response = make_request(seed_url, self._config)
             if response.status_code == 200:
                 main_bs = BeautifulSoup(response.text, 'lxml')
-                for url2 in main_bs.find_all('a'):
-                    url3 = self._extract_url(url2)
-                    self.urls.append(url3)
+                for url in main_bs.find_all('a'):
+                    final_url = self._extract_url(url)
+                    self.urls.append(final_url)
                     if len(self.urls) >= self._config.get_num_articles():
                         return
 
