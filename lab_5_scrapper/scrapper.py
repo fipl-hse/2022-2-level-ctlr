@@ -64,7 +64,7 @@ class IncorrectVerifyError(Exception):
     """
 
 
-class NoArticleDownloaded(Exception):
+class NoPageDownloaded(Exception):
     """
     Article was not downloaded
     """
@@ -208,9 +208,16 @@ class Crawler:
         Finds articles
         """
         for seed_url in self.get_search_urls():
-            req = make_request(seed_url, self.config)
+            req = 0
+            while True:
+                req = make_request(seed_url, self.config)
+                page_bs = BeautifulSoup(req.text, 'lxml')
+                if not page_bs.find('section', {'id': 'block-views-main-block-1'}):
+                    raise NoPageDownloaded
+                else:
+                    break
             if req.status_code == 200:
-                for a_href in BeautifulSoup(req.text, 'lxml').find_all('a'):
+                for a_href in page_bs.find_all('a'):
                     if len(self.urls) >= self.config.get_num_articles():
                         return
                     try:
@@ -249,7 +256,7 @@ class HTMLParser:
         self.article.text = '\n'.join(text for paragraph in text_div.find_all('p')
                                       if (text := paragraph.text.strip()))
         if not self.article.text:
-            raise NoArticleDownloaded
+            raise NoPageDownloaded
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -297,7 +304,7 @@ class HTMLParser:
                 self._fill_article_with_text(article_bs)
                 self._fill_article_with_meta_information(article_bs)
                 return self.article
-            except NoArticleDownloaded:
+            except NoPageDownloaded:
                 continue
 
 
