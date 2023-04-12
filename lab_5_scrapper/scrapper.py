@@ -4,6 +4,9 @@ Crawler implementation
 from typing import Pattern, Union
 import json
 from pathlib import Path
+
+from selenium.webdriver.chrome.options import Options
+
 from core_utils.config_dto import ConfigDTO
 import re
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -215,7 +218,14 @@ class Crawler:
         Finds articles
         """
         for url in self._seed_url:
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+            chrome_options = Options()
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install(), chrome_options=chrome_options))
+
 
             driver.get(url=url)
             last_height = driver.execute_script("return document.body.scrollHeight")
