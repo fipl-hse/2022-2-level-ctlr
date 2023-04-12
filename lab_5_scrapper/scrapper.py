@@ -17,8 +17,7 @@ from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
-                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+                                  NUM_ARTICLES_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -193,10 +192,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
+    time.sleep(random.randint(1, 5))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     return response
-
 
 
 class Crawler:
@@ -233,10 +231,11 @@ class Crawler:
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
                 article_url = self._extract_url(link)
-                if article_url is not None and article_url != ' ':
-                    self.urls.append('https://www.vgoroden.ru' + article_url)
+                if article_url is None or article_url != ' ':
+                    continue
+                self.urls.append('https://www.vgoroden.ru' + article_url)
                 if len(self.urls) == self.config.get_num_articles():
-                    return
+                    break
 
 
     def get_search_urls(self) -> list:
