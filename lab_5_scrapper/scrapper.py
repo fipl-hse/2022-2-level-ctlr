@@ -209,12 +209,14 @@ class Crawler:
         """
         for seed_url in self.get_search_urls():
             while True:
-                req = make_request(seed_url, self.config)
-                page_bs = BeautifulSoup(req.text, 'lxml')
-                if not page_bs.find('section', {'id': 'block-views-main-block-1'}):
-                    print(page_bs.text)
-                    raise NoPageDownloaded
-                break
+                try:
+                    req = make_request(seed_url, self.config)
+                    page_bs = BeautifulSoup(req.text, 'lxml')
+                    if not page_bs.find('section', {'id': 'block-views-main-block-1'}):
+                        raise NoPageDownloaded
+                    break
+                except NoPageDownloaded:
+                    pass
             if req.status_code == 200:
                 for a_href in page_bs.find_all('a'):
                     if len(self.urls) >= self.config.get_num_articles():
