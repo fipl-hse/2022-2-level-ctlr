@@ -213,9 +213,12 @@ class Crawler:
         for url in self._seed_url:
             response = make_request(url, self._config)
             file = response.json()
+            print(file)
             for values in file.values():
                 for elem in values:
-                    if isinstance(elem, dict) and len(self.urls) < self._config.get_num_articles():
+                    if isinstance(elem, dict):
+                        if len(self.urls) == self._config.get_num_articles():
+                            break
                         self.urls.append(url1 + elem['path'])
 
     def get_search_urls(self) -> list:
