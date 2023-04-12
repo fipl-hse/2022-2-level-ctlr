@@ -203,7 +203,7 @@ class Crawler:
                 href = self._extract_url(link_bs)
                 if href is None:
                     continue
-                elif href.startswith('fn') and '.html' in href:
+                if href.startswith('fn') and '.html' in href:
                     if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
@@ -244,12 +244,9 @@ class HTMLParser:
 
         self.article.author = ["NOT FOUND"]
 
-        date_bs = article_soup.find('div', {'class':'detale-news-block-icon'})
+        date_bs = article_soup.find('div', {'class': 'detale-news-block-icon'})
         date_elements = date_bs.find_all('span')
-        date_list = []
-        for date_element in date_elements:
-            date_list.append(date_element.text)
-        date_joined = ' '.join(date_list)
+        date_joined = ' '.join([date_element.text for date_element in date_elements])
         self.article.date = self.unify_date_format(date_joined)
 
         topics_bs = article_soup.find('div', {'class': 'detale-news-block__in'})
