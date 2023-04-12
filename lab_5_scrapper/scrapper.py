@@ -216,8 +216,6 @@ class Crawler:
         """
         for url in self._seed_url:
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-            #driver = webdriver.Chrome(executable_path="C:\\Users\\Ольга\\Desktop\\2022-2-level-ctlr\\chrome "
-                                              #"driver\\chromedriver_win32\\chromedriver.exe")
 
             driver.get(url=url)
             last_height = driver.execute_script("return document.body.scrollHeight")
