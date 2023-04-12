@@ -206,8 +206,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        digits = len(re.findall('[0-9]', url))
-        if url and url.startswith('/news/') and digits >= 8:
+        if url and url.startswith('/news/'):
             return str(url)
         return ''
 
