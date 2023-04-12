@@ -3,6 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
+import os
 import random
 import re
 import shutil
@@ -198,39 +199,36 @@ class Crawler:
         """
         self.urls = []
         self.config = config
-        self.seed_urls = config.get_seed_urls()
         self.number_of_articles = config.get_num_articles()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        href = article_bs.get('href')
-        if isinstance(href, str) and href.startswith('/news/') \
-                and len(re.findall('[0-9]', href)) >= 8:
-            return "https://livennov.ru" + href
+        url = article_bs.get('href')
+        if url and (url.startswith('/news/')) and len(re.findall('[0-9]', url)) >= 8:
+            return str(url)
         return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self.seed_urls:
-            response = make_request(seed_url, self.config)
+        for url in self.get_search_urls():
+            response = make_request(url, self.config)
             main_bs = BeautifulSoup(response.content, "lxml")
-            for link in main_bs.find_all('a', {'class': "btn btn-primary"}):
-                if len(self.urls) >= self.config.get_num_articles():
-                    return
-                url = self._extract_url(link)
-                if not url or url in self.urls:
-                    continue
-                self.urls.append(url)
+            for link in main_bs.find_all('a'):
+                if self._extract_url(link):
+                    cor_url = 'https://livennov.ru' + str(self._extract_url(link))
+                    self.urls.append(cor_url)
+                    if len(self.urls) >= self.config.get_num_articles():
+                        return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.seed_urls
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -287,7 +285,8 @@ class HTMLParser:
         Parses each article
         """
         response = make_request(self.full_url, self.config)
-        main_bs = BeautifulSoup(response.content, "lxml")
+        # if response.status_code == 200:
+        main_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(main_bs)
         self._fill_article_with_meta_information(main_bs)
         return self.article
