@@ -1,12 +1,12 @@
 """
 Article implementation
 """
-import enum
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Protocol, Sequence
 
+from core_utils.article.constants import ArtifactType
 from core_utils.constants import ASSETS_PATH
 
 
@@ -34,37 +34,16 @@ def split_by_sentence(text: str) -> list[str]:
                  and len(sentence) > 10]
     return sentences
 
-
 # pylint: disable=too-few-public-methods
 class SentenceProtocol(Protocol):
     """
     Protocol definition for sentences to make dependency inversion from direct
     import from lab 6 implementation of ConlluSentence
     """
-
     def get_cleaned_sentence(self) -> str:
         """
         All tokens should be normalized and joined with a space
         """
-
-    def get_tokens(self) -> list:
-        """
-        All tokens should be ConlluToken instance
-        """
-
-    def get_conllu_text(self, include_morphological_tags: bool) -> str:
-        """
-        Gets the text in the CONLL-U format
-        """
-
-
-class ArtifactType(enum.Enum):
-    """
-    Types of artifacts that can be created by text processing pipelines
-    """
-    CLEANED = 'cleaned'
-    MORPHOLOGICAL_CONLLU = 'morphological_conllu'
-    POS_CONLLU = 'pos_conllu'
 
 
 class Article:
@@ -114,12 +93,11 @@ class Article:
         """
         return self.text
 
-    def get_conllu_text(self, include_morphological_tags: bool) -> str:
+    def get_conllu_text(self) -> str:
         """
         Gets the text in the CONLL-U format
         """
-        return '\n'.join([sentence.get_conllu_text(include_morphological_tags) for sentence in
-                          self._conllu_sentences]) + '\n'
+        return '\n'.join([str(sentence) for sentence in self._conllu_sentences]) + '\n'
 
     def set_conllu_sentences(self, sentences: Sequence[SentenceProtocol]) -> None:
         """
@@ -166,7 +144,7 @@ class Article:
         kind: variant of a file -- ArtifactType
         """
 
-        conllu = kind in (ArtifactType.POS_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
+        conllu = kind in (ArtifactType.FULL_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
 
         extension = '.conllu' if conllu else '.txt'
         article_name = f"{self.article_id}_{kind.value}{extension}"
