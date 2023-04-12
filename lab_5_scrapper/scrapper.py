@@ -220,7 +220,7 @@ class Crawler:
             response = make_request(link, self.config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             url = self._extract_url(main_bs)
-            if url not in self.urls:
+            if url not in self.urls and len(self.urls) < self.config.get_num_articles():
                 self.urls.append(url)
 
     def get_search_urls(self) -> list:
