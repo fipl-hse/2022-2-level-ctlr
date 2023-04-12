@@ -230,6 +230,7 @@ class Crawler:
         """
         Finds articles
         """
+        num = 0
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
@@ -245,9 +246,10 @@ class Crawler:
                         '/society') or href.startswith('/business'):
                     if href.count('/') == 3 and 'comment' not in href:
                         found_url = "https://chelny-biz.ru" + href
-                        if found_url not in self.urls and\
-                                len(self.urls) < self._config.get_num_articles():
+                        if found_url not in self.urls and \
+                                (num < self._config.get_num_articles()):
                             self.urls.append(found_url)
+                            num += 1
 
     def get_search_urls(self) -> list:
         """
