@@ -5,64 +5,59 @@ import shutil
 from typing import Pattern, Union
 import json
 import re
-from bs4 import BeautifulSoup
-import requests
 import time
 import datetime
+from pathlib import Path
+
+import requests
+from bs4 import BeautifulSoup
+
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT,\
     TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT
-from pathlib import Path
 
 
 class IncorrectSeedURLError(Exception):
     """
     Checks seed_url format
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Checks whether total number of articles is out of range
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Checks headers
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Checks number of article format
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Checks encoding format
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
     """
     Checks timeout format
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
     Checks verify certificate format
     """
-    pass
 
 
 class Config:
@@ -220,7 +215,7 @@ class Crawler:
                 link = self._extract_url(main_bs)
                 if not url:
                     continue
-                self.urls.append(url)
+                self.urls.append(link)
 
 
     def get_search_urls(self) -> list:
@@ -255,23 +250,24 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
         page = make_request(self._full_url, self._config)
-        article_bs = BeautifulSoup(page.content, 'lxml')
-        self._fill_article_with_text(article_bs)
-        return self._article
-
+        if page.status_code == 200:
+            article_bs = BeautifulSoup(page.content, 'lxml')
+            self._fill_article_with_text(article_bs)
+            return self._article
+        return False
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
@@ -290,9 +286,9 @@ def main() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(configuration)
     crawler.find_articles()
-    for index, url in enumerate(crawler.urls, 1):
-        parser = HTMLParser(url, index, configuration)
-        article = parser.parse()
+    #for index, url in enumerate(crawler.urls, 1):
+        #parser = HTMLParser(url, index, configuration)
+        #article = parser.parse()
 
 
 
