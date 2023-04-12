@@ -7,8 +7,8 @@ import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
-import validators
 import requests
+import validators
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
@@ -51,6 +51,14 @@ class Config:
     """
     Unpacks and validates configurations
     """
+
+    seed_urls: list[str]
+    total_articles_to_find_and_parse: int
+    headers: dict[str, str]
+    encoding: str
+    timeout: int
+    verify_certificate: bool
+    headless_mode: bool
 
     def __init__(self, path_to_config: Path) -> None:
         """
