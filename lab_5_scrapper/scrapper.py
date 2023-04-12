@@ -236,7 +236,7 @@ class Crawler:
                 self.urls.append('https://www.vgoroden.ru' + article_url)
                 print(self.urls)
                 if len(self.urls) >= self.config.get_num_articles():
-                    break
+                    return
 
 
     def get_search_urls(self) -> list:
