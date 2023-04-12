@@ -3,11 +3,24 @@
         "https://www.vgoroden.ru/?page=2",
         "https://www.vgoroden.ru/?page=3",
         "https://www.vgoroden.ru/?page=4"],
-    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'"
+    "headers": {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,ru;q=0.7",
+                "cache-control": "max-age=0",
+        "cookie": "__ddg1_=4Yc06mLT2UK4AQBm8iGH; _ym_uid=1680783557751427492; _ym_d=1680783557; _ga=GA1.2.1388493142.1680783557; adrcid=AROLq-h1KLShBZEkoQnbpWg; __ddgid_=Yt7UnNPa0iadFGuh; __ddg2_=IUkvt8J16edNEzTu; _gid=GA1.2.2032753357.1681220649; adrdel=1; _gat=1; _ym_isad=2",
+        "referer": "https://www.vgoroden.ru/",
+        "ec-ch-ua": "'Google Chrome';v='111', 'Not(A:Brand';v='8', 'Chromium';v='111'",
+        "sec-ch-ua-mobile": "?0",
+        "ec-ch-ua-platform": "'Windows'",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'"
         },
     "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
-    "timeout": 2,
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
