@@ -43,6 +43,10 @@ class IncorrectTimeoutError(Exception):
     pass
 
 
+class RequestError(Exception):
+    pass
+
+
 class IncorrectVerifyError(Exception):
     pass
 
@@ -93,18 +97,16 @@ class Config:
             if not re.match(r'^https?://.*', urls):
                 raise IncorrectSeedURLError
 
-        if not isinstance(config_dto.num_articles, int):
+        if not isinstance(config_dto.total_articles, int) or config_dto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_dto.num_articles < 1 or config_dto.num_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        headers = config_dto.headers
-        if not isinstance(headers, dict):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        encoding = config_dto.encoding
-        if not isinstance(encoding, str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
         timeout = config_dto.timeout
@@ -112,14 +114,14 @@ class Config:
             raise IncorrectTimeoutError
 
         should_verify_certificate = config_dto.should_verify_certificate
-        if not isinstance(should_verify_certificate, bool):
+        if not isinstance(should_verify_certificate, bool) or not isinstance(config_dto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        return self._config_dto.seed_urls
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
@@ -137,25 +139,25 @@ class Config:
         """
         Retrieve encoding to use during parsing
         """
-        return self._config_dto.encoding
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        return self._config_dto.timeout
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self._config_dto.should_verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        return self._config_dto.headless_mode
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -166,7 +168,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
 
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
-    response.encoding = 'utf-8'
+    response.encoding = config.get_encoding()
+    if response.status_code != 200:
+        raise RequestError(Exception)
     return response
 
 
@@ -197,13 +201,13 @@ class Crawler:
         """
         Finds articles
         """
-        for url1 in self._seed_urls:
-            response = make_request(url1, self._config)
+        for seed_url in self._seed_urls:
+            response = make_request(seed_url, self._config)
             if response.status_code == 200:
                 main_bs = BeautifulSoup(response.text, 'lxml')
-                for url2 in main_bs.find_all('a'):
-                    url3 = self._extract_url(url2)
-                    self.urls.append(url3)
+                for url in main_bs.find_all('a'):
+                    final_url = self._extract_url(url)
+                    self.urls.append(final_url)
                     if len(self.urls) >= self._config.get_num_articles():
                         return
 
