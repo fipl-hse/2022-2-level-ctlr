@@ -195,7 +195,6 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
-    response.encoding = config.get_encoding()
     return response
 
 
@@ -213,13 +212,15 @@ class Crawler:
         """
         self.config = config
         self.urls = []
+        self.seed_urls = self.config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        if article_bs.get('href') and re.fullmatch(r'/novosti/.+', article_bs['href'][0]):
-            return article_bs['href'][0]
+        href = article_bs.get('href')
+        if href and re.fullmatch(r'/novosti/.+', href):
+            return href
         return ' '
 
 
@@ -227,11 +228,11 @@ class Crawler:
         """
         Finds articles
         """
-        for url in self.config.get_seed_urls():
+        for url in self.seed_urls:
             response = make_request(url, self.config)
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
-                article_url = 'https://www.vgoroden.ru' + self._extract_url(link)
+                article_url = self._extract_url(link)
                 if article_url is None or article_url == ' ':
                     continue
                 self.urls.append(article_url)
