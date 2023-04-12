@@ -170,7 +170,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     if response.status_code != 200:
-        raise RequestError
+        raise RequestError(Exception)
     return response
 
 
