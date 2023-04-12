@@ -264,9 +264,8 @@ class HTMLParser:
         """
         Finds text of article
         """
-        article_body = article_soup.find('div', {'class': 'article__body'}).find_all\
-            (['p', 'div', {'class': 'quote-text'}])
-        art_text = ' '.join(i.text for i in article_body)
+        article_body = article_soup.find('div', {'class' :'article__body'}).stripped_strings
+        art_text = ' '.join(i for i in article_body)
         self.article.text = art_text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
