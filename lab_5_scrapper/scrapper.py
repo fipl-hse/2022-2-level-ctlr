@@ -314,9 +314,8 @@ def main() -> None:
         parser = HTMLParser(full_url=url, article_id=i + 1, config=config)
         text = parser.parse()
         if isinstance(text, Article):
-            if len(text) > 50:
-                to_raw(text)
-                to_meta(text)
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
