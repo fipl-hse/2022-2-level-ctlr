@@ -211,7 +211,6 @@ class Crawler:
         href = article_bs.get('href')
         if isinstance(href, str) and href.startswith('/news/') and len(re.findall('[0-9]', href)) >= 8:
             return "https://livennov.ru" + href
-            # oh
 
     def find_articles(self) -> None:
         """
@@ -261,12 +260,12 @@ class HTMLParser:
         author_info = article_soup.find('div', {'class': "b-meta-item b-meta-item--bold"}).find('span',
                                                                                                 {'itemprop': 'name'})
         if author_info:
-            self.article.author = author_info.text.strip()
+            self.article.author = author_info.get_text(strip=True)
 
         date_info = article_soup.find('time', {'class': "b-meta-item"}).text.strip()
         self.article.date = self.unify_date_format(date_info)
 
-        self.article.topic = article_soup.find('div', {'class': "lid-detail"}).text.strip()
+        self.article.topics = article_soup.find('div', {'class': "lid-detail"}).get_text(strip=True)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
