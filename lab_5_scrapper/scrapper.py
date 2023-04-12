@@ -94,30 +94,24 @@ class Config:
         Returns config values
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_dto = json.load(f)
-        config_dict = ConfigDTO(config_dto['seed_urls'],
-                                config_dto['total_articles_to_find_and_parse'],
-                                config_dto['headers'],
-                                config_dto['encoding'],
-                                config_dto['timeout'],
-                                config_dto['should_verify_certificate'],
-                                config_dto['headless_mode'])
-        return config_dict
+            config_dict = json.load(f)
+        return ConfigDTO(**config_dict)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        config_dto = self._extract_config_content()
+        with open(self.path_to_config, 'r', encoding='utf-8') as config_file:
+            config_content = json.load(config_file)
 
-        seed_urls = config_dto.seed_urls
-        headers = config_dto.headers
-        total_articles_to_find_and_parse = config_dto.total_articles_to_find_and_parse
-        encoding = config_dto.encoding
-        timeout = config_dto.timeout
-        should_verify_certificate = config_dto.should_verify_certificate
-        headless_mode = config_dto.headless_mode
+        seed_urls = config_content['seed_urls']
+        headers = config_content['headers']
+        total_articles_to_find_and_parse = config_content['total_articles_to_find_and_parse']
+        encoding = config_content['encoding']
+        timeout = config_content['timeout']
+        verify_certificate = config_content['should_verify_certificate']
+        headless_mode = config_content['headless_mode']
 
         if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
@@ -125,7 +119,7 @@ class Config:
         for url in seed_urls:
             if not isinstance(url, str):
                 raise IncorrectSeedURLError
-            if not not re.match(r'https?://.*/', url):
+            if not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(total_articles_to_find_and_parse, int)
@@ -147,7 +141,7 @@ class Config:
                 or timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(should_verify_certificate, bool):
+        if not isinstance(verify_certificate, bool):
             raise IncorrectVerifyError
 
         if not isinstance(headless_mode, bool):
@@ -310,7 +304,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.full_url, timeout=3)
+        response = requests.get(self.full_url, self.config)
         if response.status_code == 200:
             a_bs = BeautifulSoup(response.text, 'lxml')
             self._fill_article_with_text(a_bs)
