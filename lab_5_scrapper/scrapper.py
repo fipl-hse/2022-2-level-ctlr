@@ -177,7 +177,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
+    time.sleep(random.randint(1, 3))
     timeout = config.get_timeout()
     headers = config.get_headers()
 
@@ -210,16 +210,21 @@ class Crawler:
         """
         Finds articles
         """
-        while len(self.urls) < self._config.get_num_articles():
-            url1 = "https://prmira.ru"
-            for url in self._seed_url:
-                response = make_request(url, self._config)
-                file = response.json()
-                print(file)
-                for values in file.values():
-                    for elem in values:
-                        if isinstance(elem, dict) and len(self.urls) < self._config.get_num_articles():
-                            self.urls.append(url1 + elem['path'])
+        #while len(self.urls) < self._config.get_num_articles():
+        url1 = "https://prmira.ru"
+        for url in self._seed_url:
+            response = make_request(url, self._config)
+            file = response.json()
+            print(file)
+            for values in file.values():
+                for elem in values:
+                    if isinstance(elem, dict):
+                        if len(self.urls) >= self._config.get_num_articles():
+                            return
+                        link = url1 + elem['path']
+                        if not link or link in self.urls:
+                            continue
+                        self.urls.append(url1 + elem['path'])
 
         print(self.urls)
 
