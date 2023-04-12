@@ -193,7 +193,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep((random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)))
+    time.sleep((random.randint(3, 7)))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     return response
 
@@ -233,18 +233,17 @@ class Crawler:
             res_bs = BeautifulSoup(response.text, 'lxml')
             for link in res_bs.find_all('a'):
                 article_url = self._extract_url(link)
-                if article_url is None or article_url == ' ':
-                    continue
-                self.urls.append(article_url)
+                if article_url is not None and article_url != ' ':
+                    self.urls.append('https://www.vgoroden.ru' + article_url)
                 if len(self.urls) == self.config.get_num_articles():
-                    break
+                    return
 
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self.seed_urls
 
 
 class HTMLParser:
