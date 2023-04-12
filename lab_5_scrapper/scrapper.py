@@ -168,8 +168,12 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     random_timeout = random.randint(1, 10) / 10
     time.sleep(random_timeout)
-    response = requests.get(url, headers=config.get_headers(),
-                            timeout=config.get_timeout(), verify=config.get_verify_certificate())
+    status = -1
+    response = 0
+    while status != 200:
+        response = requests.get(url, headers=config.get_headers(),
+                                timeout=config.get_timeout(), verify=config.get_verify_certificate())
+        status = response.status_code
     response.encoding = config.get_encoding()
     return response
 
