@@ -204,6 +204,7 @@ class Crawler:
         """
         Finds articles
         """
+
         for url in self._seed_url:
             driver = webdriver.Chrome(executable_path="C:\\Users\\Ольга\\Desktop\\2022-2-level-ctlr\\chrome "
                                               "driver\\chromedriver_win32\\chromedriver.exe")
