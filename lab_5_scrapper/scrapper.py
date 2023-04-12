@@ -5,47 +5,63 @@ import shutil
 from typing import Pattern, Union
 import json
 import re
+from bs4 import BeautifulSoup
+import requests
+import time
+import datetime
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT,\
     TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT
 from pathlib import Path
-from bs4 import BeautifulSoup
-import requests
-import time
-import datetime
 
-#added to check if the advice works
 
 class IncorrectSeedURLError(Exception):
+    """
+    Checks seed_url format
+    """
     pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Checks whether total number of articles is out of range
+    """
     pass
 
 
 class IncorrectHeadersError(Exception):
+    """
+    Checks headers
+    """
     pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
+    """
+    Checks number of article format
+    """
     pass
 
 
 class IncorrectEncodingError(Exception):
+    """
+    Checks encoding format
+    """
     pass
 
 
 class IncorrectTimeoutError(Exception):
+    """
+    Checks timeout format
+    """
     pass
 
 
 class IncorrectVerifyError(Exception):
-    pass
-
-
-class IncorrectHeadlessError(Exception):
+    """
+    Checks verify certificate format
+    """
     pass
 
 
@@ -91,7 +107,8 @@ class Config:
             if not re.match(r'https?://w?w?w?.', url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
-        if not isinstance(parameters.total_articles, int) or isinstance(parameters.total_articles, bool)\
+        if not isinstance(parameters.total_articles, int)\
+                or isinstance(parameters.total_articles, bool)\
                 or parameters.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
@@ -107,7 +124,8 @@ class Config:
         if parameters.timeout not in range(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(parameters.should_verify_certificate, bool)  or not isinstance(parameters.headless_mode, bool):
+        if not isinstance(parameters.should_verify_certificate, bool)\
+                or not isinstance(parameters.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -159,7 +177,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(8)
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(), verify=config.get_verify_certificate())
+    response = requests.get(url,
+                            headers=config.get_headers(),
+                            timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     return response
 
