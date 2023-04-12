@@ -224,7 +224,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if link:
+        if isinstance(link, str):
             if re.fullmatch(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+/', link):
                 return link
         return ''
