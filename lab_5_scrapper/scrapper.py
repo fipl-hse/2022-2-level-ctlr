@@ -96,6 +96,7 @@ class Config:
         for urls in config_dto.seed_urls:
             if not re.match(r'^https?://.*', urls):
                 raise IncorrectSeedURLError
+
         total_articles_to_find_and_parse = config_dto.total_articles
         if not isinstance(total_articles_to_find_and_parse, int) \
                 or total_articles_to_find_and_parse < 1:
@@ -188,7 +189,6 @@ class Crawler:
         """
         self.urls = []
         self._config = config
-        self._seed_urls = config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
@@ -204,7 +204,7 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self._seed_urls:
+        for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
             if response.status_code == 200:
                 main_bs = BeautifulSoup(response.text, 'lxml')
