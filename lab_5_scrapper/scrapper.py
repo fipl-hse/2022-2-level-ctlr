@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import datetime
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
-
+import shutil
 
 
 class IncorrectSeedURLError(Exception):
@@ -185,7 +185,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(2,5))
+    #time.sleep(random.randint(2,5))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     return response
@@ -273,14 +273,19 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        page = make_request(self.full_url, self.config)
+        main_bs = BeautifulSoup(page.text, 'lxml')
+        self._fill_article_with_text(main_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
@@ -296,6 +301,7 @@ def main() -> None:
         parser = HTMLParser(url, index, config)
         article = parser.parse()
         to_raw(article)
+
 
 if __name__ == "__main__":
     main()
