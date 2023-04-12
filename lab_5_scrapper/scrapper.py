@@ -260,10 +260,10 @@ class HTMLParser:
         title_info = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
         self.article.title = title_info
 
-        author_info = article_soup.find('div', {
-            'class': "b-meta-item b-meta-item--bold"}).find('span',
-                                                            {'itemprop': 'name'})
-        self.article.author = author_info.get_text(strip=True)
+        author_info = article_soup.find('div',
+                                        {'class': "b-meta-item b-meta-item--bold"}).\
+            find('span', {'itemprop': 'name'}).get_text(strip=True)
+        self.article.author = author_info
 
         date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
         self.article.date = self.unify_date_format(date_info)
