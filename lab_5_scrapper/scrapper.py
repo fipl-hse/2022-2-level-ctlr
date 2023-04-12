@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Pattern, Union
 
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -71,8 +72,8 @@ class Config:
         Returns config values
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as file:
-            configuration = json.load(file)
-        return ConfigDTO(**configuration)
+            config_dto = json.load(file)
+        return ConfigDTO(**config_dto)
 
     def _validate_config_content(self) -> None:
         """
@@ -84,12 +85,13 @@ class Config:
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for i in config_dto.seed_urls:
+        for urls in config_dto.seed_urls:
             if not isinstance(i, str):
                 raise IncorrectSeedURLError
 
-        if not config_dto.seed_url or not re.match(r'^https?://w?w?w?.', config_dto.seed_url):
-            raise IncorrectSeedURLError
+        for urls in config_dto.seed_urls:
+            if not re.match(r'^https?://.*', urls):
+                raise IncorrectSeedURLError
 
         if not isinstance(config_dto.num_articles, int):
             raise IncorrectNumberOfArticlesError
