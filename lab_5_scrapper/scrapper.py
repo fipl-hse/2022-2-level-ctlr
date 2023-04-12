@@ -252,28 +252,32 @@ class HTMLParser:
         Finds text of article
         """
         text = article_soup.find('div', class_="news-text_wrapper")
-        if text is not None:
-            self.article.text = "\n".join([el.get_text(strip=True) for el in text])
+        self.article.text = "\n".join([el.get_text(strip=True) for el in text]) if text else "NOT FOUND"
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
         title = article_soup.find('h1')
-        if title:
-            self.article.title = title.text
+        self.article.title = title.get_text(strip=True) if title else "NOT FOUND"
+
         self.article.author = ["NOT FOUND"]
-        data = article_soup.find('p', class_="dateElement")
-        date_str = str(data.text)
-        self.article.date = self.unify_date_format(date_str)
-        topics = article_soup.find('div', class_="hashtagBlock").find_all('a')
-        self.article.topics = [topic.text for topic in topics if topic.text != '#']
+
+        data = article_soup.find('p', {"class": "dateElement"})
+        if data:
+            date_str = str(data.get_text(strip=True))
+            self.article.date = self.unify_date_format(date_str) if data else "NOT FOUND"
+
+        topics = article_soup.find('div', {"class": "hashtagBlock"})
+        if topics:
+            topics = topics.find_all('a')
+            self.article.topics = [topic.get_text(strip=True) for topic in topics if topic.text != '#']
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """

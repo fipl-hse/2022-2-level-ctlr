@@ -1,6 +1,6 @@
 {
-    "seed_urls": ["https://gorod48.ru/news/?PAGEN_1=3",
-                  "https://gorod48.ru/news/?PAGEN_1=4"],
+    "seed_urls": ["https://gorod48.ru/news/?PAGEN_1=4",
+                  "https://gorod48.ru/news/?PAGEN_1=5"],
     "headers": {"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
                 "accept-encoding": "gzip, deflate, br",
                 "accept-language": "ru-RU,ru;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5,sq;q=0.4",
