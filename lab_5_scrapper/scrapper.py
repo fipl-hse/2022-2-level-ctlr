@@ -105,33 +105,36 @@ class Config:
         dto = self._extract_config_content()
 
         if not (dto.seed_urls and isinstance(dto.seed_urls, list)):
-            raise IncorrectSeedURLError
+            raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
             if not isinstance(url, str) or not re.match(r'https?://.*/', url):
-                raise IncorrectSeedURLError
+                raise IncorrectSeedURLError("Invalid seed url")
 
         if (not isinstance(dto.total_articles, int)
                 or isinstance(dto.total_articles, bool)
                 or dto.total_articles < 1):
-            raise IncorrectNumberOfArticlesError
+            raise IncorrectNumberOfArticlesError(
+                "Invalid value for total_articles_to_find_and_parse")
 
         if dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
-            raise NumberOfArticlesOutOfRangeError
+            raise NumberOfArticlesOutOfRangeError(
+                "Invalid value for total_articles_to_find_and_parse")
 
         if not isinstance(dto.headers, dict):
-            raise IncorrectHeadersError
+            raise IncorrectHeadersError("Invalid value for headers")
 
         if not isinstance(dto.encoding, str):
-            raise IncorrectEncodingError
+            raise IncorrectEncodingError("Invalid value for encoding")
 
         if not isinstance(dto.timeout, int) or dto.timeout < TIMEOUT_LOWER_LIMIT or \
                 dto.timeout > TIMEOUT_UPPER_LIMIT:
-            raise IncorrectTimeoutError
+            raise IncorrectTimeoutError("Invalid value for timeout")
 
         if not isinstance(dto.should_verify_certificate, bool) or \
                 not isinstance(dto.headless_mode, bool):
-            raise IncorrectVerifyError
+            raise IncorrectVerifyError(
+                "Invalid value for should_verify_certificate or headless_mode")
 
     def get_seed_urls(self) -> list[str]:
         """
