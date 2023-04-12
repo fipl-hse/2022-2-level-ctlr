@@ -154,25 +154,31 @@ class Config:
         """
         if isinstance(self._seed_urls, list):
             return self._seed_urls
-        return list[str]
+        return ['']
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        return self._num_articles
+        if isinstance(self._num_articles, int):
+            return self._num_articles
+        return 0
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        return self._headers
+        if isinstance(self._headers, dict):
+            return self._headers
+        return dict[str, str]
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        return self._encoding
+        if isinstance(self._encoding, str):
+            return self._encoding
+        return ''
 
     def get_timeout(self) -> int:
         """
@@ -194,7 +200,9 @@ class Config:
         """
         Retrieve whether to use headless mode
         """
-        return self._headless_mode
+        if isinstance(self._headless_mode, bool):
+            return self._headless_mode
+        return False
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -229,8 +237,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if re.fullmatch(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+/', link):
-            return link
+        if isinstance(link, str):
+            if re.fullmatch(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+/', link):
+                return link
         return ''
 
     def find_articles(self) -> None:
@@ -307,7 +316,8 @@ class HTMLParser:
 
         if date_bs:
             date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
-            self.article.date = self.unify_date_format(date_txt[0])
+            if date_txt:
+                self.article.date = self.unify_date_format(date_txt[0])
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
