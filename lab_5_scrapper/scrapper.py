@@ -105,7 +105,7 @@ class Config:
 
         for url in seed_urls:
             if not re.match(r"https?://.*/", url) or not isinstance(url, str):
-                raise
+                raise IncorrectSeedURLError
 
         if not isinstance(headers, dict):
             raise IncorrectHeadersError
