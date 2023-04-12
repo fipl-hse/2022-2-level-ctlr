@@ -15,6 +15,7 @@ import requests
 import time
 import datetime
 
+#added to check if the advice works
 
 class IncorrectSeedURLError(Exception):
     pass
