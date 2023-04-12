@@ -212,6 +212,7 @@ class Crawler:
                 req = make_request(seed_url, self.config)
                 page_bs = BeautifulSoup(req.text, 'lxml')
                 if not page_bs.find('section', {'id': 'block-views-main-block-1'}):
+                    print(page_bs.text)
                     raise NoPageDownloaded
                 break
             if req.status_code == 200:
