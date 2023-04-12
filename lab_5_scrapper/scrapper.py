@@ -221,7 +221,8 @@ class Crawler:
                 if href is None:
                     continue
                 if href.startswith('fn') and '.html' in href:
-                    if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
+                    if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls \
+                            and len(self.urls) < self._config.get_num_articles():
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
     def get_search_urls(self) -> list:
