@@ -14,7 +14,8 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT,
+                                  NUM_ARTICLES_UPPER_LIMIT)
 
 
 
@@ -92,7 +93,7 @@ class Config:
         if not isinstance(config_dto.num_articles, int):
             raise IncorrectNumberOfArticlesError
 
-        if config_dto.num_articles < 1 or config_dto.num_articles > 150:
+        if config_dto.num_articles < 1 or config_dto.num_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         headers = config_dto.get('headers')
