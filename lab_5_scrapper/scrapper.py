@@ -54,7 +54,7 @@ class IncorrectEncodingError(Exception):
 
 class IncorrectTimeoutError(Exception):
     """
-    timeout value is not a positive integer less than 60
+    Timeout value is not a positive integer less than 60
     """
 
 
