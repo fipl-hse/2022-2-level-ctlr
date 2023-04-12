@@ -237,7 +237,11 @@ class Crawler:
                 continue
 
             main_bs = BeautifulSoup(response.text, 'lxml')
-            paragraphs = main_bs.find_all('h1', {'class': 'elementor-heading-title elementor-size-default'})
+            paragraphs = main_bs.find_all('h1',
+                                          {'class':
+                                               'elementor-heading-title elementor-size-default'
+                                           }
+                                          )
 
             for each_par in paragraphs:
                 if len(self.urls) > self.config.get_num_articles():
@@ -303,7 +307,12 @@ class HTMLParser:
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
         self.article.author = [auth_txt[0]]
 
-        topic_bs = article_soup.find('h3', {'class': 'elementor-heading-title elementor-size-default'})
+        topic_bs = article_soup.find('h3',
+                                     {
+                                         'class':
+                                             'elementor-heading-title elementor-size-default'
+                                     }
+                                     )
         topic_txt = topic_bs.find('span').text
         self.article.topics = [topic_txt]
 
