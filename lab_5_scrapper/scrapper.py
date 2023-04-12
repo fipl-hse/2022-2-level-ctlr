@@ -257,8 +257,7 @@ class HTMLParser:
         Finds text of article
         """
         texts_tag = article_soup.find('div')
-        passages = texts_tag.find_all('p')
-        self.article.text = ' '.join([clean_passage.strip() for clean_passage in passages])
+        self.article.text = ' '.join([clean_passage.p.strip() for clean_passage in texts_tag])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
