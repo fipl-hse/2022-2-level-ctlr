@@ -1,5 +1,8 @@
 {
-    "seed_urls": ["https://sovainfo.ru/news/"],
+    "seed_urls": ["https://sovainfo.ru/news/", "https://sovainfo.ru/news/?PAGEN_1=2",
+        "https://sovainfo.ru/news/?PAGEN_1=3","https://sovainfo.ru/news/?PAGEN_1=4",
+        "https://sovainfo.ru/news/?PAGEN_1=5", "https://sovainfo.ru/news/?PAGEN_1=6",
+        "https://sovainfo.ru/news/?PAGEN_1=7", "https://sovainfo.ru/news/?PAGEN_1=8"],
     "headers": {
         "user-agent": "Mozillaand/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'"
                             },
