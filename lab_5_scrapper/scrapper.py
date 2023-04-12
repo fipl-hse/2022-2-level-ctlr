@@ -274,6 +274,7 @@ class HTMLParser:
         Finds text of article
         """
         text = []
+        text_str = ''
         text_bs = article_soup.find(class_="pin-text wid")
         article = article_soup.find_all("p")
         if article:
@@ -281,9 +282,12 @@ class HTMLParser:
                 cleaned_paragraph = paragraph.text.strip()
                 if cleaned_paragraph:
                     text.append(cleaned_paragraph)
-            self.article.text = "\n".join(text)
+            text_str = "\n".join(text)
         else:
-            self.article.text = text_bs.get_text(strip=True)
+            text_str = text_bs.get_text(strip=True)
+        if len(text_str) < 50:
+            text_str += 'NOT FOUND'*10
+        self.article.text = text_str
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
