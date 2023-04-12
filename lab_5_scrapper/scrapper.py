@@ -272,14 +272,14 @@ class HTMLParser:
         self.article.author = ["NOT FOUND"]
 
         data = article_soup.find('p', {"class": "dateElement"})
-        date_str = str(data.get_text(strip=True))
-        self.article.date = self.unify_date_format(date_str)  if data else "NOT FOUND"
+        date_str = str(data.get_text(strip=True)) if data else "NOT FOUND"
+        self.article.date = self.unify_date_format(date_str)
 
         topics = article_soup.find('div', {"class": "hashtagBlock"})
-        if topics:
-            topics = topics.find_all('a')
-            self.article.topics = [topic.get_text(strip=True)
-                                   for topic in topics if topic.text != '#']
+        topics = topics.find_all('a')
+        self.article.topics = [topic.get_text(strip=True) for topic in topics
+                               if topic.text != '#']\
+            if topics else "NOT FOUND"
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
