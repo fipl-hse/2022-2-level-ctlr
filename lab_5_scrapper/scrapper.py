@@ -2,20 +2,19 @@
 Crawler implementation
 """
 import json
-#import os.path
 import re
 import random
 from typing import Pattern, Union
 import time
 from core_utils.config_dto import ConfigDTO
-#from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
+from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 import datetime
 from core_utils.article.article import Article
-#from core_utils.article.io import to_raw
-#import shutil
+from core_utils.article.io import to_raw
+
 
 
 class IncorrectSeedURLError(Exception):
@@ -289,8 +288,14 @@ def main() -> None:
     Entrypoint for scrapper module
     """
     # YOUR CODE GOES HERE
-    pass
-
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config)
+    crawler.find_articles()
+    for index, url in enumerate(crawler.urls):
+        parser = HTMLParser(url, index, config)
+        article = parser.parse()
+        to_raw(article)
 
 if __name__ == "__main__":
     main()
