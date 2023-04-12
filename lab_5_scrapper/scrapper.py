@@ -301,10 +301,10 @@ class HTMLParser:
 
         date_bs = article_soup.find('li', {'itemprop': 'datePublished'})
 
-        if date_bs:
-            date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
-            if date_txt:
-                self.article.date = self.unify_date_format(date_txt[0])
+        # if date_bs:
+        date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
+        if date_txt:
+            self.article.date = self.unify_date_format(date_txt[0])
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
