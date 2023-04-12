@@ -276,7 +276,8 @@ class HTMLParser:
         self.article.date = self.unify_date_format(date_str)\
             if date_str != "NOT FOUND" else "NOT FOUND"
 
-        topics = [topic.text for topic in article_soup.find_all('a', class_="hashtagBlock")]
+        topics = [topic.text
+                  for topic in article_soup.find_all('a', class_="hashtagBlock")]
         if topics:
             self.article.topics = topics
 
