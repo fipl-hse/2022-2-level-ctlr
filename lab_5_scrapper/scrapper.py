@@ -245,9 +245,9 @@ class Crawler:
                         '/society') or href.startswith('/business'):
                     if href.count('/') == 3 and 'comment' not in href:
                         found_url = "https://chelny-biz.ru" + href
-                        if found_url not in self.urls:
-                            if len(self.urls) < self._config.get_num_articles():
-                                self.urls.append(found_url)
+                        if found_url not in self.urls and\
+                                len(self.urls) < self._config.get_num_articles():
+                            self.urls.append(found_url)
 
     def get_search_urls(self) -> list:
         """
