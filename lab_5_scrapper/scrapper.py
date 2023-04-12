@@ -182,6 +182,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     headers = config.get_headers()
 
     response = requests.get(url, timeout=timeout, headers=headers)
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -210,12 +211,10 @@ class Crawler:
         """
         Finds articles
         """
-        #while len(self.urls) < self._config.get_num_articles():
         url1 = "https://prmira.ru"
         for url in self._seed_url:
             response = make_request(url, self._config)
             file = response.json()
-            print(file)
             for values in file.values():
                 for elem in values:
                     if isinstance(elem, dict):
@@ -225,8 +224,6 @@ class Crawler:
                         if not link or link in self.urls:
                             continue
                         self.urls.append(url1 + elem['path'])
-
-        print(self.urls)
 
     def get_search_urls(self) -> list:
         """
