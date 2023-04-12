@@ -136,7 +136,7 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or timeout < 0 or timeout > 60:
+        if not isinstance(timeout, int) or timeout < TIMEOUT_LOWER_LIMIT or timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         if not isinstance(verify_certificate, bool) or not isinstance(headless_mode, bool):
@@ -192,7 +192,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
+    time.sleep(random.randint(1, 3))
     response = requests.get(url, timeout=config.get_timeout(), headers=config.get_headers())
     return response
 
@@ -234,7 +234,6 @@ class Crawler:
                 if article_url is None or article_url == ' ':
                     continue
                 self.urls.append('https://www.vgoroden.ru' + article_url)
-                print(self.urls)
                 if len(self.urls) >= self.config.get_num_articles():
                     return
 
@@ -263,11 +262,11 @@ class HTMLParser:
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
+        main_bs.find('div', {'class': 'article__body'}).find_all(['p', 'div', {'class': 'quote-text'}])
         """
-        article_body = article_soup.find('div', {'class': 'article__body'})
-        article_text = article_body.find_all(['p', 'div'], {'class': 'quote-text'})
-        art_text = [i.text for i in article_text]
-        self.article.text = '\n'.join(art_text)
+        article_body = article_soup.find('div', {'class': 'article__body'}).find_all(['p', 'div', {'class': 'quote-text'}])
+        art_text = ' '.join(i.text for i in article_body)
+        self.article.text = art_text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
