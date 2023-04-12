@@ -189,6 +189,8 @@ def make_request(url: str, config: Config) -> requests.models.Response:
         return response
     except requests.exceptions.ReadTimeout:
         time.sleep(3)
+        response = requests.get(url, headers=headers, timeout=timeout)
+        return response
 
 
 class Crawler:
