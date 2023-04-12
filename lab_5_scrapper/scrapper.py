@@ -102,15 +102,15 @@ class Config:
         if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
-            raise NumberOfArticlesOutOfRangeError
-
         if (
             not isinstance(config_dto.total_articles, int)
             or isinstance(config_dto.total_articles, bool)
             or config_dto.total_articles < 1
         ):
             raise IncorrectNumberOfArticlesError
+
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
