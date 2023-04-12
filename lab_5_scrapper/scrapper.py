@@ -18,6 +18,8 @@ from core_utils.article.io import to_raw
 from core_utils.article.article import Article
 import datetime
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class IncorrectSeedURLError(TypeError):
@@ -213,8 +215,9 @@ class Crawler:
         Finds articles
         """
         for url in self._seed_url:
-            driver = webdriver.Chrome(executable_path="C:\\Users\\Ольга\\Desktop\\2022-2-level-ctlr\\chrome "
-                                              "driver\\chromedriver_win32\\chromedriver.exe")
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            #driver = webdriver.Chrome(executable_path="C:\\Users\\Ольга\\Desktop\\2022-2-level-ctlr\\chrome "
+                                              #"driver\\chromedriver_win32\\chromedriver.exe")
 
             driver.get(url=url)
             last_height = driver.execute_script("return document.body.scrollHeight")
@@ -232,7 +235,6 @@ class Crawler:
                 new_height = driver.execute_script("return document.body.scrollHeight")
                 last_height = new_height
 
-            driver.quit()
 
 
     def get_search_urls(self) -> list:
