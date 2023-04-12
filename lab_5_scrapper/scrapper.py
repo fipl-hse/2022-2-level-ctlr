@@ -168,13 +168,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     random_timeout = random.randint(1, 10) / 10
     time.sleep(random_timeout)
-    status = -1
-    response = 0
-    while status != 200:
-        response = requests.get(url, headers=config.get_headers(),
-                                timeout=config.get_timeout(),
-                                verify=config.get_verify_certificate())
-        status = response.status_code
+    response = requests.get(url, headers=config.get_headers(),
+                            timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     return response
 
@@ -287,6 +283,8 @@ class HTMLParser:
         Parses each article
         """
         req = make_request(self.full_url, self.config)
+        while req.status_code != 200:
+            req = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(req.text, 'lxml')
         self._fill_article_with_text(article_bs)
         self._fill_article_with_meta_information(article_bs)
