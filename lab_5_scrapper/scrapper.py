@@ -152,7 +152,9 @@ class Config:
         """
         Retrieve seed urls
         """
-        return self._seed_urls
+        if isinstance(self._seed_urls, list):
+            return self._seed_urls
+        return list[str]
 
     def get_num_articles(self) -> int:
         """
@@ -176,13 +178,17 @@ class Config:
         """
         Retrieve number of seconds to wait for response
         """
-        return self._timeout
+        if isinstance(self._timeout, int):
+            return self._timeout
+        return 0
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        return self._should_verify_certificate
+        if isinstance(self._should_verify_certificate, bool):
+            return self._should_verify_certificate
+        return False
 
     def get_headless_mode(self) -> bool:
         """
@@ -305,7 +311,10 @@ class HTMLParser:
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
-        self.article.author = [auth_txt[0]]
+        if auth_txt[0]:
+            self.article.author = [auth_txt[0]]
+        else:
+            self.article.author = ['None']
 
         topic_bs = article_soup.find('h3',
                                      {
