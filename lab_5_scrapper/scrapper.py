@@ -215,9 +215,8 @@ class Crawler:
             file = response.json()
             for values in file.values():
                 for elem in values:
-                    if isinstance(elem, dict):
+                    if isinstance(elem, dict) and len(self.urls) < self._config.get_num_articles():
                         self.urls.append(url1 + elem['path'])
-        print(self.urls)
 
     def get_search_urls(self) -> list:
         """
