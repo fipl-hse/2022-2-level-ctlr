@@ -163,7 +163,7 @@ class Config:
         """
         Retrieve whether to use headless mode
         """
-        pass
+
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
