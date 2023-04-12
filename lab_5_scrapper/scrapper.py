@@ -214,7 +214,7 @@ class Crawler:
             if response.status_code != 200:
                 continue
             main_bs = BeautifulSoup(response.text, 'lxml')
-            for one in main_bs.find_all('a', class_='news-article_link'):
+            for one in main_bs.find_all('a', class_='news-article__link'):
                 link = self._extract_url(one)
                 if not url:
                     continue
