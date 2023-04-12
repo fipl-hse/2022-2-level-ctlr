@@ -90,39 +90,47 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config_content = self._extract_config_content()
+        content = self._extract_config_content()
 
-        if not isinstance(config_content.seed_urls, list):
+        seed_urls = content.seed_urls
+        headers = content.headers
+        total_articles_to_find_and_parse = content.total_articles_to_find_and_parse
+        encoding = content.encoding
+        timeout = content.timeout
+        should_verify_certificate = content.should_verify_certificate
+        headless_mode = content.headless_mode
+
+        if not isinstance(seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in config_content.seed_urls:
+        for url in seed_urls:
             if not re.match(r"https?://.*/", url) or not isinstance(url, str):
-                raise IncorrectSeedURLError
+                raise
 
-        if config_content.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
+        if not isinstance(headers, dict):
+            raise IncorrectHeadersError
+
+        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if (
-            not isinstance(config_content.total_articles_to_find_and_parse, int)
-            or isinstance(config_content.total_articles_to_find_and_parse, bool)
-            or config_content.total_articles_to_find_and_parse < 1
+            not isinstance(total_articles_to_find_and_parse, int)
+            or isinstance(total_articles_to_find_and_parse, bool)
+            or total_articles_to_find_and_parse < 1
         ):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(config_content.headers, dict):
-            raise IncorrectHeadersError
-
-        if not isinstance(config_content.encoding, str):
+        if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
         if (
-            not isinstance(config_content.timeout, int)
-            or not TIMEOUT_LOWER_LIMIT < config_content.timeout < TIMEOUT_UPPER_LIMIT
+            not isinstance(timeout, int)
+            or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT
         ):
             raise IncorrectTimeoutError
 
-        if not isinstance(config_content.should_verify_certificate, bool) or not isinstance(
-            config_content.headless_mode, bool
+        if not isinstance(should_verify_certificate, bool) or not isinstance(
+            headless_mode, bool
         ):
             raise IncorrectVerifyError
 
