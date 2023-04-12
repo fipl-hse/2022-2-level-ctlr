@@ -3,6 +3,7 @@ Crawler implementation
 """
 import datetime
 import json
+import os
 import random
 import re
 import shutil
@@ -218,9 +219,10 @@ class Crawler:
             response = make_request(link, self.config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             url = self._extract_url(main_bs)
-            if not url or url == '':
+            if not url:
                 continue
-            self.urls.append(url)
+            if url not in self.seed_urls:
+                self.urls.append(url)
             if len(self.urls) >= self.config.get_num_articles():
                 return
 
@@ -262,7 +264,7 @@ class HTMLParser:
 
         author_info = [author.get_text(strip=True)
                        for author in article_soup.find('div', itemprop="author")
-                       if author.get_text(strip=True) != '']
+                       if author.get_text(strip=True)]
         self.article.author = author_info
 
         date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
@@ -270,7 +272,7 @@ class HTMLParser:
 
         topics_info = [topic.get_text(strip=True)
                        for topic in article_soup.find_all('div', {'class': "lid-detail"})
-                       if topic.get_text(strip=True) != '']
+                       if topic.get_text(strip=True)]
         self.article.topics = topics_info
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
@@ -296,7 +298,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     if base_path.exists():
         shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+    os.makedirs(base_path)
 
 
 def main() -> None:
