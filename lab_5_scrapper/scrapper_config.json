@@ -1,9 +1,6 @@
 {
     "seed_urls": ["https://newstula.ru/cat_economy.html",
-        "https://newstula.ru/cat_guns_opk.html",
-        "https://newstula.ru/cat_agro.html",
         "https://newstula.ru/cat_investigation.html",
-        "https://newstula.ru/cat_interview.html",
         "https://newstula.ru/cat_company.html",
         "https://newstula.ru/cat_analytics.html"],
     "headers": {
