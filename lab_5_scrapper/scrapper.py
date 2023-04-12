@@ -206,11 +206,11 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        href = article_bs.get('href')
-        if (href is not None) and (href.startswith('/news/19'))\
-                and (href.endswith('#comments') is False):
-            return href
-        return ""
+        url: Union[str, list, None] = article_bs.get('href')
+        if (url is not None) and (url.startswith('/news/19'))\
+                and (url.endswith('#comments') is False):
+            return url
+        return ''
 
     def find_articles(self) -> None:
         """
