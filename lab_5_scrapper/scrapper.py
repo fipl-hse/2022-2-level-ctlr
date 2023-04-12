@@ -264,10 +264,10 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        self.full_url = full_url
+        self._full_url = full_url
         self.article_id = article_id
-        self.config = config
-        self.article = Article(self.full_url, self.article_id)
+        self._config = config
+        self.article = Article(self._full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -304,7 +304,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.full_url, self.config)
+        response = make_request(self._full_url, self._config)
         if response.status_code == 200:
             a_bs = BeautifulSoup(response.text, 'lxml')
             self._fill_article_with_text(a_bs)
