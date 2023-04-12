@@ -221,25 +221,28 @@ class Crawler:
         links = article_bs.find_all('a', class_=lambda value: value
                     and ('mininews' in value or 'midinews' in value))
 
+        urls = []
         for link in links:
             href = link.get('href')
-            if href:
-                return urljoin(str(current_url), str(href))
-        return ''
+            if isinstance(href, str):
+                urls.append(urljoin(str(current_url), str(href)))
+        return urls
 
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self.seed_urls:
-            response = make_request(seed_url, self.config)
-            html = response.text
-            main_bs = BeautifulSoup(html, 'html.parser')
-            urls = self._extract_url(main_bs)
-            self.urls.append(urls)
-            if len(self.urls) >= self.config.get_num_articles():
-                return
+        while len(self.urls) < self.config.get_num_articles():
+            for seed_url in self.seed_urls:
+                response = make_request(seed_url, self.config)
+                html = response.text
+                main_bs = BeautifulSoup(html, 'html.parser')
+                urls = self._extract_url(main_bs)
+                self.urls.extend(urls)
+                if len(self.urls) >= self.config.get_num_articles():
+                    break
+
 
     def get_search_urls(self) -> list:
         """
@@ -354,6 +357,17 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     if base_path.exists():
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
+
+
+class CrawlerRecursive(Crawler):
+    """
+    Recursive Crawler
+    """
+
+    def __init__(self, config: Config) -> None:
+        super().__init__(config)
+        self.start_url = config.seed_urls[0]
+
 
 
 def main() -> None:
