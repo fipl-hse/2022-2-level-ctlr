@@ -89,7 +89,6 @@ class Config:
         self._headless_mode = self.config.headless_mode
 
 
-
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
