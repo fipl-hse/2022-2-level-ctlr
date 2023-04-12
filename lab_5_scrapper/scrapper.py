@@ -96,11 +96,12 @@ class Config:
         for urls in config_dto.seed_urls:
             if not re.match(r'^https?://.*', urls):
                 raise IncorrectSeedURLError
-
-        if not isinstance(config_dto.total_articles, int) or config_dto.total_articles < 1:
+        total_articles_to_find_and_parse = config_dto.total_articles
+        if not isinstance(total_articles_to_find_and_parse, int) \
+                or total_articles_to_find_and_parse < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(config_dto.headers, dict):
@@ -193,9 +194,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        url = article_bs['href']
-        if (isinstance(url, str)) and (url.count('/') > 3) and (url.startswith('/news/')):
+        url = article_bs.get('href')
+        if (isinstance(url, str)) and (url.count('/') >= 3) and (url.startswith('/news/')):
             return url
+
 
     def find_articles(self) -> None:
         """
@@ -265,14 +267,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    if isinstance(base_path, str):
-        base_path = Path(base_path)
-
     if base_path.exists():
         shutil.rmtree(base_path)
-
-    else:
-        base_path.mkdir(parents=True)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
