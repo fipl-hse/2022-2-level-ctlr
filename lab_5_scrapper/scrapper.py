@@ -62,7 +62,7 @@ class Config:
         self._validate_config_content()
         config_content = self._extract_config_content()
         self._seed_urls = config_content.seed_urls
-        self._num_articles = config_content.total_articles_to_find_and_parse
+        self._num_articles = config_content.total_articles
         self._headers = config_content.headers
         self._encoding = config_content.encoding
         self._timeout = config_content.timeout
@@ -92,45 +92,37 @@ class Config:
         """
         content = self._extract_config_content()
 
-        seed_urls = content.seed_urls
-        headers = content.headers
-        total_articles_to_find_and_parse = content.total_articles
-        encoding = content.encoding
-        timeout = content.timeout
-        should_verify_certificate = content.should_verify_certificate
-        headless_mode = content.headless_mode
-
-        if not isinstance(seed_urls, list):
+        if not isinstance(content.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
+        for url in content.seed_urls:
             if not re.match(r"https?://.*/", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
-        if not isinstance(headers, dict):
+        if not isinstance(content.headers, dict):
             raise IncorrectHeadersError
 
-        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
+        if content.total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if (
-            not isinstance(total_articles_to_find_and_parse, int)
-            or isinstance(total_articles_to_find_and_parse, bool)
-            or total_articles_to_find_and_parse < 1
+            not isinstance(content.total_articles_to_find_and_parse, int)
+            or isinstance(content.total_articles_to_find_and_parse, bool)
+            or content.total_articles_to_find_and_parse < 1
         ):
             raise IncorrectNumberOfArticlesError
 
-        if not isinstance(encoding, str):
+        if not isinstance(content.encoding, str):
             raise IncorrectEncodingError
 
         if (
-            not isinstance(timeout, int)
-            or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT
+            not isinstance(content.timeout, int)
+            or not TIMEOUT_LOWER_LIMIT < content.timeout < TIMEOUT_UPPER_LIMIT
         ):
             raise IncorrectTimeoutError
 
-        if not isinstance(should_verify_certificate, bool) or not isinstance(
-            headless_mode, bool
+        if not isinstance(content.should_verify_certificate, bool) or not isinstance(
+            content.headless_mode, bool
         ):
             raise IncorrectVerifyError
 
