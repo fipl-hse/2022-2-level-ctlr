@@ -88,15 +88,7 @@ class Config:
         with open(self.path_to_config, 'r', encoding='utf-8') as file:
             info = json.load(file)
 
-        config_dto = ConfigDTO(info['seed_urls'],
-                               info['total_articles_to_find_and_parse'],
-                               info['headers'],
-                               info['encoding'],
-                               info['timeout'],
-                               info['should_verify_certificate'],
-                               info['headless_mode'])
-
-        return config_dto
+        return ConfigDTO(**info)
 
     def _validate_config_content(self) -> None:
         """
@@ -105,7 +97,7 @@ class Config:
         """
         config_dto = self._extract_config_content()
 
-        if not isinstance(config_dto.seed_urls, list):
+        if not isinstance(config_dto.seed_urls, list) or config_dto.seed_urls == []:
             raise IncorrectSeedURLError
 
         for url in config_dto.seed_urls:
@@ -189,7 +181,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     """
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
-    response.encoding = 'utf-8'
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -266,12 +258,14 @@ class HTMLParser:
         title = article_soup.find('h1', attrs={'itemprop': 'headline'})
         if not title:
             self.article.title = 'WITHOUT TITLE'
-        self.article.title = title.text
+        else:
+            self.article.title = title.text
 
         authors = article_soup.find_all('a', class_='article-info_articleInfoAuthor__W0ZnW')
         if not authors:
             self.article.author = ["NOT FOUND"]
-        self.article.author = [author.text for author in authors]
+        else:
+            self.article.author = [author.text for author in authors]
 
         topics = article_soup.find_all("a", class_='article-tags_articleTagsLink__El86x')
         if topics:
