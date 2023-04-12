@@ -221,7 +221,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return article_bs['href']
+        url = article_bs['href']
+        if isinstance(url, str):
+            return url
+        return url[0]
 
     def find_articles(self) -> None:
         """
