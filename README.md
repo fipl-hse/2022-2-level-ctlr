@@ -51,6 +51,7 @@ Instructors:
 | 24.03.2022 | **Seminar:** Headers and introduction to `bs4`. | [Listing][12]                |
 | 03.04.2022 | **Lecture:** Access file system via `pathlib`.  | [Listing][13], [Listing][14] |
 | 07.04.2022 | **Seminar:** Early version of `HTMLParser`.     | [Listing][15]                |
+| 10.04.2022 | **Lecture:** Working with dates via `datetime`. | [Listing][15]                |
 
 You can find a more complete summary from lectures as a 
 [list of topics](./docs/public/lectures_content.md). 
