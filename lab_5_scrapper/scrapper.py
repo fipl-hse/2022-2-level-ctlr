@@ -221,8 +221,7 @@ class Crawler:
                 if href is None:
                     continue
                 if href.startswith('fn') and '.html' in href:
-                    if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls \
-                            and len(self.urls) < self._config.get_num_articles():
+                    if 'https://newstula.ru/' + href[:href.find(".html") + 5] not in self.urls:
                         self.urls.append('https://newstula.ru/' + href[:href.find(".html") + 5])
 
     def get_search_urls(self) -> list:
@@ -313,10 +312,11 @@ def main() -> None:
 
     for i, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=i, config=config)
-        text = parser.parse()
-        if isinstance(text, Article):
-            to_raw(text)
-            to_meta(text)
+        if i <= config.get_num_articles():
+            text = parser.parse()
+            if isinstance(text, Article):
+                to_raw(text)
+                to_meta(text)
 
 
 if __name__ == "__main__":
