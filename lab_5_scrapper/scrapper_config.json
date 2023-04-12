@@ -9,8 +9,7 @@
         "https://glasnaya.media/page/7/",
         "https://glasnaya.media/page/8/",
         "https://glasnaya.media/page/9/",
-        "https://glasnaya.media/page/10/",
-        "https://glasnaya.media/page/11/"
+        "https://glasnaya.media/page/10/"
     ],
     "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
     "total_articles_to_find_and_parse": 50,
