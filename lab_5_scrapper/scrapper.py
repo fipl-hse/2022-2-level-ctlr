@@ -274,12 +274,16 @@ class HTMLParser:
         Finds text of article
         """
         text = []
+        text_bs = article_soup.find(class_="pin-text wid")
         article = article_soup.find_all("p")
-        for paragraph in article:
-            cleaned_paragraph = paragraph.text.strip()
-            if cleaned_paragraph:
-                text.append(cleaned_paragraph)
-        self.article.text = "\n".join(text)
+        if article:
+            for paragraph in article:
+                cleaned_paragraph = paragraph.text.strip()
+                if cleaned_paragraph:
+                    text.append(cleaned_paragraph)
+            self.article.text = "\n".join(text)
+        else:
+            self.article.text = text_bs.get_text(strip=True)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
