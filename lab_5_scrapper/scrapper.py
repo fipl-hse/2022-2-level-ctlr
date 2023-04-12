@@ -306,16 +306,16 @@ class HTMLParser:
         day = ''
         hour_minute = ''
 
-        for d in list_date:
-            if ':' in d:
-                hour_minute += d
-            if d in months_collection:
-                month += months_collection[d]
+        for data_element in list_date:
+            if ':' in data_element:
+                hour_minute += data_element
+            if data_element in months_collection:
+                month += months_collection[data_element]
             digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-            if d.isdigit() and d in digits:
-                day += '0' + d
-            if d.isdigit() and d not in digits:
-                day += d
+            if data_element.isdigit() and data_element in digits:
+                day += '0' + data_element
+            if data_element.isdigit() and data_element not in digits:
+                day += data_element
 
         new_date_str = year + '-' + month + '-' + day + ' ' + hour_minute
         return datetime.datetime.strptime(new_date_str, '%Y-%m-%d %H:%M')
