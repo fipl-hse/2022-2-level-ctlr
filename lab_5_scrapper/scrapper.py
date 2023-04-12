@@ -86,7 +86,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for urls in config_dto.seed_urls:
-            if not isinstance(i, str):
+            if not isinstance(urls, str):
                 raise IncorrectSeedURLError
 
         for urls in config_dto.seed_urls:
