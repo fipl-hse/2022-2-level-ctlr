@@ -206,7 +206,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        base = self.get_search_urls()[0]
+        base = str(self.get_search_urls()[0])
         return urllib.parse.urljoin(base, str(article_bs.get('href')))
 
     def find_articles(self) -> None:
