@@ -260,7 +260,7 @@ class HTMLParser:
         final_text = []
         for div in texts_tag:
             for text in div.find_all('p'):
-                final_text.append(text.text(strip=True))
+                final_text.append(text.get_text(strip=True))
         self.article.text = ' '.join(final_text)
         # self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
 
