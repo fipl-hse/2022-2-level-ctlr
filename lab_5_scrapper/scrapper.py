@@ -2,15 +2,18 @@
 Crawler implementation
 """
 import json
-import requests
 import datetime
 import re
 import shutil
-from bs4 import BeautifulSoup
 from pathlib import Path
 from typing import Pattern, Union
+import requests
+from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH, TIMEOUT_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT
+from core_utils.constants import (
+    CRAWLER_CONFIG_PATH, ASSETS_PATH,
+    TIMEOUT_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT
+)
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
 
@@ -112,17 +115,23 @@ class Config:
         if not isinstance(self.content['total_articles_to_find_and_parse'], int)\
                 or isinstance(self.content['total_articles_to_find_and_parse'], bool)\
                 or self.content['total_articles_to_find_and_parse'] <= 0:
-            raise IncorrectNumberOfArticlesError("Total number of articles to parse is not integer")
+            raise IncorrectNumberOfArticlesError(
+                "Total number of articles to parse is not integer"
+            )
 
         if self.content['total_articles_to_find_and_parse'] < 1 \
                 or self.content['total_articles_to_find_and_parse'] > 150:
-            raise NumberOfArticlesOutOfRangeError("Total number of articles is out of range from 1 to 150")
+            raise NumberOfArticlesOutOfRangeError(
+                "Total number of articles is out of range from 1 to 150"
+            )
 
         if not isinstance(self.content['headers'], dict):
             raise IncorrectHeadersError("Headers are not in a form of dictionary")
 
         if not isinstance(self.content['encoding'], str):
-            raise IncorrectEncodingError("Encoding must be specified as a string")
+            raise IncorrectEncodingError(
+                "Encoding must be specified as a string"
+            )
 
         if not isinstance(self.content['timeout'], int):
             raise IncorrectTimeoutError
@@ -267,8 +276,8 @@ class HTMLParser:
                 'elementor-section-wrap'})
         texts = texts_bs.find_all('p')
         result = []
-        for el in texts:
-            result.append(el.get_text(strip=True))
+        for one_txt in texts:
+            result.append(one_txt.get_text(strip=True))
         self.article.text = ' '.join(result)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
