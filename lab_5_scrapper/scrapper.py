@@ -60,7 +60,7 @@ class IncorrectTimeoutError(Exception):
 
 class IncorrectVerifyError(Exception):
     """
-    verify certificate value is not boolean
+    Verify certificate value is not boolean
     """
 
 
