@@ -1,9 +1,9 @@
 {
-    "seed_urls": ["https://prmira.ru"],
+    "seed_urls": ["https://moskvichmag.ru/", "https://moskvichmag.ru/2023-04-10/"],
     "headers": {},
-    "total_articles_to_find_and_parse": 100,
+    "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
     "timeout": 10,
     "should_verify_certificate": true,
-    "headless_mode": false
+    "headless_mode": true
 }

@@ -5,7 +5,6 @@ from typing import Pattern, Union
 import json
 from pathlib import Path
 
-from selenium.webdriver.chrome.options import Options
 
 from core_utils.config_dto import ConfigDTO
 import re
@@ -20,9 +19,6 @@ from bs4 import BeautifulSoup
 from core_utils.article.io import to_raw
 from core_utils.article.article import Article
 import datetime
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 class IncorrectSeedURLError(TypeError):
@@ -209,7 +205,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get('href')
-        if href.startswith('/news/') and href.count('/') == 3:
+        if href.startswith('https://moskvichmag.ru/') and href.count('/') == 5:
             return href
         return "None"
 
@@ -218,32 +214,13 @@ class Crawler:
         Finds articles
         """
         for url in self._seed_url:
-
-            chrome_options = Options()
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install(), chrome_options=chrome_options))
-
-
-            driver.get(url=url)
-            last_height = driver.execute_script("return document.body.scrollHeight")
-
-            while len(self.urls) < self._config.get_num_articles():
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(0.5)
-                soup = BeautifulSoup(driver.page_source, features="html.parser")
-                for elem in soup.find_all('a'):
-                    current_url = url + str(self._extract_url(elem))
-                    if str(self._extract_url(elem)) != 'None' and len(self.urls) < self._config.get_num_articles() \
-                            and current_url not in self.urls:
-                        self.urls.append(current_url)
-
-                new_height = driver.execute_script("return document.body.scrollHeight")
-                last_height = new_height
-
-
+            response = make_request(url, self._config)
+            soup = BeautifulSoup(response.text, 'lxml')
+            for elem in soup.find_all('a', {'class': "js-articlesItemTitleLink"}):
+                current_url = self._extract_url(elem)
+                if str(self._extract_url(elem)) != 'None' and len(self.urls) < self._config.get_num_articles() \
+                        and current_url not in self.urls:
+                    self.urls.append(current_url)
 
     def get_search_urls(self) -> list:
         """
@@ -270,13 +247,10 @@ class HTMLParser:
         """
         Finds text of article
         """
-        elements = article_soup.find_all("div", class_='mb-[24px] lg:mb-[28px]')
-        paragraphs = ""
-        for elem in elements:
-            par = elem.find_all('p')
-            paragraphs += " ".join([text.get_text(strip=True) for text in par])
-            paragraphs += " "
-        self.article.text = paragraphs
+        element = article_soup.find('div', {'itemprop': 'articleBody'})
+        texts = element.find_all('p')
+        text = " ".join([text.get_text(strip=True) for text in texts])
+        self.article.text = text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
