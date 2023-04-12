@@ -18,8 +18,6 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWE
                                   NUM_ARTICLES_UPPER_LIMIT)
 
 
-
-
 class IncorrectSeedURLError(Exception):
     pass
 
@@ -236,12 +234,10 @@ class HTMLParser:
         paragraphs_text = [paragraph.text for paragraph in text]
         self.article.text = '\n'.join(paragraphs_text)
 
-
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
