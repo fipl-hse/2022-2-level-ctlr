@@ -232,8 +232,13 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('span', {'itemprop': 'articleBody'}).find_all('p')
-        self.article.text = '\n'.join([p.get_text(strip=True) for p in text])
+        text_bs = article_soup.find('span', {'itemprop': 'articleBody'})
+        paragraphs = text_bs.find_all('p')
+        if paragraphs:
+            self.article.text = '\n'.join([p.get_text(strip=True) for p in paragraphs])
+        else:
+            text_str = text_bs.get_text(strip=True)
+            self.article.text = text_str
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -292,8 +297,9 @@ def main() -> None:
         parser = HTMLParser(full_url=url, article_id=i + 1, config=config)
         text = parser.parse()
         if isinstance(text, Article):
-            to_raw(text)
-            to_meta(text)
+            if len(text) > 50:
+                to_raw(text)
+                to_meta(text)
 
 
 if __name__ == "__main__":
