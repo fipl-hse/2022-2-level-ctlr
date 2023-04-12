@@ -244,13 +244,29 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('h1')
+        if title:
+            self.article.title = title.text.strip()
+
+        self.article.author = ["NOT FOUND"]
+
+        date_bs = article_soup.find('div', {'class':'detale-news-block-icon'})
+        date_elements = date_bs.find_all('span')
+        date_list = []
+        for date_element in date_elements:
+            date_list.append(date_element.text)
+        date_joined = ' '.join(date_list)
+        self.article.date = self.unify_date_format(date_joined)
+
+        topic_bs = article_soup.find('div', {'class':'detale-news-block__in'})
+        topic = topic_bs.find('a')
+        self.article.topics = topic.text
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%d/%m/%Y %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -263,6 +279,7 @@ class HTMLParser:
 
         article_bs = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
@@ -279,7 +296,17 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    prepare_environment(ASSETS_PATH)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    crawler = Crawler(config=config)
+    crawler.find_articles()
+
+    for i, url in enumerate(crawler.urls):
+        parser = HTMLParser(full_url=url, article_id=i + 1, config=config)
+        text = parser.parse()
+        if isinstance(text, Article):
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
