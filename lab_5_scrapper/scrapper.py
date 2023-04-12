@@ -26,7 +26,6 @@ class IncorrectSeedURLError(Exception):
     Exception raised when seed_urls value in configuration
     file is not a list of strings or a string is not a valid URL
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
@@ -34,14 +33,12 @@ class NumberOfArticlesOutOfRangeError(Exception):
     Exception raised when total_articles_to_find_and_parse value
     in configuration file is out of range
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Exception raised when headers value in configuration file is not a dictionary
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
@@ -49,14 +46,12 @@ class IncorrectNumberOfArticlesError(Exception):
     Exception raised when total_articles_to_find_and_parse
     value in configuration file is not an integer greater than 0
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Exception raised when encoding value in configuration file is not a string
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
@@ -64,7 +59,6 @@ class IncorrectTimeoutError(Exception):
     Exception raised when timeout value in configuration file
     is not an integer between 1 and 30
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
@@ -72,7 +66,6 @@ class IncorrectVerifyError(Exception):
     Exception raised when should_verify_certificate
     value in configuration file is not a boolean
     """
-    pass
 
 
 class Config:
