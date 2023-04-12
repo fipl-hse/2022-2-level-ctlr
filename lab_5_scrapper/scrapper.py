@@ -77,132 +77,119 @@ class Config:
         """
         self.path_to_config = path_to_config
 
-        with open(self.path_to_config, 'r', encoding='utf-8') as json_file:
-            self.content = json.load(json_file)
-
         self._validate_config_content()
-
-        self._seed_urls = self.content['seed_urls']
-        self._num_articles = self.content['total_articles_to_find_and_parse']
-        self._headers = self.content['headers']
-        self._encoding = self.content['encoding']
-        self._timeout = self.content['timeout']
-        self._should_verify_certificate = self.content['should_verify_certificate']
-        self._headless_mode = self.content['headless_mode']
-
         self.config_obj = self._extract_config_content()
+
+        self._seed_urls = self.config_obj.seed_urls
+        self._num_articles = self.config_obj.total_articles
+        self._headers = self.config_obj.headers
+        self._encoding = self.config_obj.encoding
+        self._timeout = self.config_obj.timeout
+        self._should_verify_certificate = self.config_obj.should_verify_certificate
+        self._headless_mode = self.config_obj.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        return ConfigDTO(**self.content)
+        with open(self.path_to_config, 'r', encoding='utf-8') as json_file:
+            content = json.load(json_file)
+
+        return ConfigDTO(**content)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        if not isinstance(self.content['seed_urls'], list):
+        content = self._extract_config_content()
+
+        if not isinstance(content.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for element in self.content['seed_urls']:
+        for element in content.seed_urls:
             if not isinstance(element, str):
                 raise IncorrectSeedURLError
 
             if 'https://' not in element:
                 raise IncorrectSeedURLError
 
-        if not isinstance(self.content['total_articles_to_find_and_parse'], int)\
-                or isinstance(self.content['total_articles_to_find_and_parse'], bool)\
-                or self.content['total_articles_to_find_and_parse'] <= 0:
+        if not isinstance(content.total_articles, int)\
+                or isinstance(content.total_articles, bool)\
+                or content.total_articles <= 0:
             raise IncorrectNumberOfArticlesError(
                 "Total number of articles to parse is not integer"
             )
 
-        if self.content['total_articles_to_find_and_parse'] > NUM_ARTICLES_UPPER_LIMIT:
+        if content.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError(
                 "Total number of articles is out of range from 1 to 150"
             )
 
-        if not isinstance(self.content['headers'], dict):
+        if not isinstance(content.headers, dict):
             raise IncorrectHeadersError("Headers are not in a form of dictionary")
 
-        if not isinstance(self.content['encoding'], str):
+        if not isinstance(content.encoding, str):
             raise IncorrectEncodingError(
                 "Encoding must be specified as a string"
             )
 
-        if not isinstance(self.content['timeout'], int):
+        if not isinstance(content.timeout, int):
             raise IncorrectTimeoutError
 
-        if self.content['timeout'] <= TIMEOUT_LOWER_LIMIT\
-                or self.content['timeout'] > TIMEOUT_UPPER_LIMIT:
+        if content.timeout <= TIMEOUT_LOWER_LIMIT\
+                or content.timeout > TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError(
                 "Timeout value must be a positive integer less than 60"
             )
 
-        if not isinstance(self.content['headless_mode'], bool):
+        if not isinstance(content.headless_mode, bool):
             raise IncorrectVerifyError
 
-        if not isinstance(self.content['should_verify_certificate'], bool):
+        if not isinstance(content.should_verify_certificate, bool):
             raise IncorrectVerifyError("Verify certificate value must either be True or False")
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        if isinstance(self._seed_urls, list):
-            return self._seed_urls
-        return ['']
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        if isinstance(self._num_articles, int):
-            return self._num_articles
-        return 0
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        if isinstance(self._headers, dict):
-            return self._headers
-        return {'': ''}
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        if isinstance(self._encoding, str):
-            return self._encoding
-        return ''
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        if isinstance(self._timeout, int):
-            return self._timeout
-        return 0
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        if isinstance(self._should_verify_certificate, bool):
-            return self._should_verify_certificate
-        return False
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        if isinstance(self._headless_mode, bool):
-            return self._headless_mode
-        return False
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -237,7 +224,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if isinstance(link, str):
+        if link:
             if re.fullmatch(r'https://glasnaya.media/\d{4}/\d{2}/\d{2}/\S+/', link):
                 return link
         return ''
@@ -324,7 +311,7 @@ class HTMLParser:
         if auth_txt and isinstance(auth_txt[0], str):
             self.article.author = [auth_txt[0]]
         else:
-            self.article.author = ['None']
+            self.article.author = ['NOT FOUND']
 
         topic_bs = article_soup.find('h3',
                                      {
@@ -375,9 +362,9 @@ def main() -> None:
     for i, full_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+        # if isinstance(article, Article):
+        to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
