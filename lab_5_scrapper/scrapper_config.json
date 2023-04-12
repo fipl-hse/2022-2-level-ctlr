@@ -1,9 +1,15 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
-    "should_verify_certificate": true,
-    "headless_mode": true
+  "seed_urls": [
+    "https://newsroom24.ru/news/details/",
+    "https://newsroom24.ru/news/details/?PAGEN_1=2",
+    "https://newsroom24.ru/news/details/?PAGEN_1=3",
+    "https://newsroom24.ru/news/details/?PAGEN_1=4",
+    "https://newsroom24.ru/news/details/?PAGEN_1=5"
+  ],
+  "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"},
+  "total_articles_to_find_and_parse": 100,
+  "encoding": "utf-8",
+  "timeout": 5,
+  "should_verify_certificate": true,
+  "headless_mode": true
 }

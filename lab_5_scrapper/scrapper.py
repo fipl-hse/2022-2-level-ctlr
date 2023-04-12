@@ -1,9 +1,61 @@
 """
 Crawler implementation
 """
+import datetime
+import json
+import re
+from pathlib import Path
 from typing import Pattern, Union
 
-#testing change
+import requests
+from bs4 import BeautifulSoup
+
+from core_utils.article.article import Article
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import CRAWLER_CONFIG_PATH
+
+
+class IncorrectSeedURLError(Exception):
+    """
+    Incorrect seed URl
+    """
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Number Of Articles Out Of Range
+    """
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    """
+    Incorrect Number Of Articles Error
+    """
+
+
+class IncorrectHeadersError(Exception):
+    """
+    Incorrect Headers Error
+    """
+
+
+class IncorrectEncodingError(Exception):
+    """
+    Incorrect Encoding Error
+    """
+
+
+class IncorrectTimeoutError(Exception):
+    """
+    Incorrect Timeout Error
+    """
+
+
+class IncorrectVerifyError(Exception):
+    """
+    Incorrect Verify Error
+    """
+
 
 class Config:
     """
@@ -14,20 +66,47 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        pass
+        self.path_to_config = path_to_config
+        self._validate_config_content()
+        self._extract_config_content()
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config, "r") as f:
+            loaded = json.load(f)
+        return ConfigDTO(**loaded)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        configdto = self._extract_config_content()
+        if not isinstance(configdto.seed_urls, list):
+            raise IncorrectSeedURLError
+        for seedurl in configdto.seed_urls:
+            if not re.match(r"https?://w?w?w?.", seedurl):
+                raise IncorrectSeedURLError
+
+        if not isinstance(configdto.total_articles, int):
+            raise IncorrectNumberOfArticlesError
+
+        if configdto.total_articles < 1 or configdto.total_articles > 150:
+            raise NumberOfArticlesOutOfRangeError
+
+        if not isinstance(configdto.headers, dict):
+            raise IncorrectHeadersError
+
+        if not isinstance(configdto.encoding, str):
+            raise IncorrectEncodingError
+
+        if not isinstance(configdto.timeout, int) or configdto.timeout < 0 or configdto.timeout > 60:
+            raise IncorrectTimeoutError
+
+        if not isinstance(configdto.verify_certificate, bool) or not isinstance(configdto.headless_mode, bool):
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
@@ -159,7 +238,7 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
 
 
 if __name__ == "__main__":
