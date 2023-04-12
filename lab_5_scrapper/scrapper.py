@@ -170,9 +170,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(random.randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT))
-    #headers = config.get_headers()
     timeout = config.get_timeout()
-    #encoding = config.get_encoding()
 
     response = requests.get(url, timeout=timeout)
     return response
@@ -207,13 +205,25 @@ class Crawler:
         Finds articles
         """
         for url in self._seed_url:
-            response = make_request(url, config=self._config)
-            soup = BeautifulSoup(response.text, features="html.parser")
-            for elem in soup.find_all('a'):
-                current_url = url + str(self._extract_url(elem))
-                if str(self._extract_url(elem)) != 'None':
-                    self.urls.append(current_url)
-        print(self.urls)
+            driver = webdriver.Chrome(executable_path="C:\\Users\\Ольга\\Desktop\\2022-2-level-ctlr\\chrome "
+                                              "driver\\chromedriver_win32\\chromedriver.exe")
+
+            driver.get(url=url)
+            last_height = driver.execute_script("return document.body.scrollHeight")
+
+            while len(self.urls) < self._config.get_num_articles():
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(0.5)
+                soup = BeautifulSoup(driver.page_source, features="html.parser")
+                for elem in soup.find_all('a'):
+                    current_url = url + str(self._extract_url(elem))
+                    if str(self._extract_url(elem)) != 'None' and len(self.urls) < self._config.get_num_articles() \
+                            and current_url not in self.urls:
+                        self.urls.append(current_url)
+
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                last_height = new_height
+
 
     def get_search_urls(self) -> list:
         """
