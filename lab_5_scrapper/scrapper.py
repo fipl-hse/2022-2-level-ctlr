@@ -6,6 +6,7 @@ from pathlib import Path
 
 import json
 import validators
+import shutil
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,6 +17,7 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
 
 
 class IncorrectSeedURLError(Exception):
@@ -258,13 +260,20 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        title_bs = article_soup.find_all('h1')
+        self.article.title = title_bs[0].text
+
+        self.article.author = ["NOT FOUND"]
+        self.article.topics = []
+
+        date = article_soup.find_all(class_="pin-date wid bs-bb")[0].text
+        self.article.date = self.unify_date_format(date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -274,6 +283,7 @@ class HTMLParser:
         if response.status_code == 200:
             a_bs = BeautifulSoup(response.text, 'lxml')
             self._fill_article_with_text(a_bs)
+            self._fill_article_with_meta_information(a_bs)
             return self.article
         else:
             return False
@@ -284,7 +294,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
     if base_path.exists():
-        base_path.rmdir()
+        shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
 
@@ -292,7 +302,16 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config=config)
+    crawler.find_articles()
+    for i, url in enumerate(crawler.urls):
+        parser = HTMLParser(full_url=url, article_id=i + 1, config=config)
+        text = parser.parse()
+        if isinstance(text, Article):
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
