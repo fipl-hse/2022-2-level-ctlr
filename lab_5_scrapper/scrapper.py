@@ -214,7 +214,7 @@ class Crawler:
         Initializes an instance of the Crawler class
         """
         self._seed_urls = config.get_seed_urls()
-        self.config = config
+        self._config = config
         self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
@@ -231,7 +231,7 @@ class Crawler:
         Finds articles
         """
         for seed_url in self._seed_urls:
-            response = make_request(seed_url, self.config)
+            response = make_request(seed_url, self._config)
             if response.status_code != 200:
                 continue
             main_bs = BeautifulSoup(response.text, 'lxml')
@@ -245,7 +245,7 @@ class Crawler:
                         '/society') or href.startswith('/business'):
                     if href.count('/') == 3 and 'comment' not in href:
                         found_url = "https://chelny-biz.ru" + href
-                        if found_url not in self.urls:
+                        if found_url not in self.urls and len(self.urls) < self._config.get_num_articles():
                             self.urls.append(found_url)
 
     def get_search_urls(self) -> list:
@@ -283,10 +283,8 @@ class HTMLParser:
                 if cleaned_paragraph:
                     text.append(cleaned_paragraph)
             text_str = "\n".join(text)
-        else:
-            text_str = text_bs.get_text(strip=True)
         if len(text_str) < 50:
-            text_str += 'NOT FOUND'*10
+            text_str = text_bs.get_text(strip=True)
         self.article.text = text_str
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
