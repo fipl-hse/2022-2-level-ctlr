@@ -101,7 +101,7 @@ class Config:
             raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+            if not isinstance(url, str) or not re.match(r'^https?://.*/', url):
                 raise IncorrectSeedURLError("Invalid seed url")
 
         if (not isinstance(dto.total_articles, int)
