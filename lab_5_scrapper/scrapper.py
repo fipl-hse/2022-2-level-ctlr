@@ -319,6 +319,9 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
 
 class CrawlerRecursive(Crawler):
+    """
+     Recursive Crawler implementation
+    """
     def __init__(self, config: Config) -> None:
         super().__init__(config)
         self.count_of_page = 1
@@ -327,6 +330,9 @@ class CrawlerRecursive(Crawler):
         self.load_info_from_file()
 
     def load_info_from_file(self) -> None:
+        """
+        Download information from a file
+        """
         current_path = Path(__file__)
         crawler_data_path = current_path.parent / 'crawler_recursive_data.json'
         if crawler_data_path.exists():
@@ -336,6 +342,9 @@ class CrawlerRecursive(Crawler):
                 self.urls = data['urls']
 
     def save_data_in_file(self) -> None:
+        """
+        Saving information into the file
+        """
         data = {
             'count_of_page': self.count_of_page,
             'urls': self.urls
@@ -344,6 +353,9 @@ class CrawlerRecursive(Crawler):
             json.dump(data, outfile, ensure_ascii=True, indent=2)
 
     def find_articles(self) -> None:
+        """
+        Find articles
+        """
         url = f"{self.url}?PAGEN_1={self.count_of_page}"
         page = make_request(url, self._config)
         soup = BeautifulSoup(page.text, "html.parser")
@@ -380,6 +392,9 @@ def main() -> None:
 
 
 def main_recursive() -> None:
+    """
+    Entrypoint for Recursive Crawler
+    """
     config = Config(const.CRAWLER_CONFIG_PATH)
     prepare_environment(const.ASSETS_PATH)
     crawler_recursive = CrawlerRecursive(config)
@@ -393,6 +408,5 @@ def main_recursive() -> None:
             to_meta(article)
 
 
-main_recursive()
 if __name__ == "__main__":
     main()
