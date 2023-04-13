@@ -12,7 +12,7 @@ from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT, ASSETS_PATH)
+                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT, ASSETS_PATH, CRAWLER_CONFIG_PATH)
 import shutil
 
 

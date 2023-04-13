@@ -3,7 +3,7 @@
         "https://smolnarod.ru/cat/news/page/2/",
         "https://smolnarod.ru/cat/news/page/3/"],
     "headers": {"user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
-    "total_articles_to_find_and_parse": 10,
+    "total_articles_to_find_and_parse": 9,
     "encoding": "utf-8",
     "timeout": 5,
     "should_verify_certificate": true,
