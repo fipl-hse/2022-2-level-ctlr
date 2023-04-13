@@ -206,7 +206,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return "pass"
+        return str(article_bs)
 
     def find_articles(self) -> None:
         """
