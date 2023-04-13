@@ -8,7 +8,6 @@ import re
 import datetime
 import requests
 from bs4 import BeautifulSoup
-
 from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
@@ -76,14 +75,14 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        self._config_dto = self._extract_config_content()
-        self._seed_urls = self._config_dto.seed_urls
-        self._num_articles = self._config_dto.total_articles_to_find_and_parse
-        self._headers = self._config_dto.headers
-        self._encoding = self._config_dto.encoding
-        self._timeout = self._config_dto.timeout
-        self._verify_certificate = self._config_dto.should_verify_certificate
-        self._headless_mode = self._config_dto.headless_mode
+        config_dto = self._extract_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -98,33 +97,33 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-
-        if not isinstance(self._config_dto.seed_urls, list)\
-                or not not all(isinstance(url, str) for url in self._config_dto.seed_urls)\
-                or not all(re.match('https?://w?w?w?.', url) for url in self._config_dto.seed_urls)\
-                or len(self._config_dto.seed_urls) == 0:
+        config_dto = self._extract_config_content()
+        if not isinstance(config_dto.seed_urls, list) or not config_dto.seed_urls\
+                or not not all(isinstance(url, str) for url in config_dto.seed_urls)\
+                and not all(re.match('https?://.*/', url) for url in config_dto.seed_urls):
             raise IncorrectSeedURLError
 
-        if not isinstance(self._config_dto.headers, dict):
+        if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(self._config_dto.encoding, str):
+        if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(self._config_dto.should_verify_certificate, int):
+        if not isinstance(config_dto.total_articles, int):
             raise IncorrectNumberOfArticlesError
 
-        if self._config_dto.should_verify_certificate not in range(1, NUM_ARTICLES_UPPER_LIMIT + 1):
+        if config_dto.total_articles < 1 \
+                or config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(self._config_dto.timeout, int) or self._config_dto.timeout \
+        if not isinstance(config_dto.timeout, int) or config_dto.timeout \
                 not in range(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT + 1):
             raise IncorrectTimeoutError
 
-        if not isinstance(self._config_dto.should_verify_certificate, bool):
+        if not isinstance(config_dto.should_verify_certificate, bool):
             raise IncorrectVerifyError
 
-        if not isinstance(self._config_dto.headless_mode, bool):
+        if not isinstance(config_dto.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -205,7 +204,7 @@ class Crawler:
         #     return link
         # return ''
         url = article_bs['href']
-        if isinstance(url, str):
+        if isinstance(url, str) and url and url.count('/') == 5 and url.startswith('https://smolnarod.ru/news/'):
             return url
         return url[0]
 
@@ -213,22 +212,15 @@ class Crawler:
         """
         Finds articles
         """
-        # for seed_url in self._seed_urls:
-        #     response = make_request(seed_url, self.config)
-        #     if response.status_code == 200:
-        #         main_bs = BeautifulSoup(response.text, 'lxml')
-        #         all_links_bs = main_bs.find_all('a')
-        #         for link in all_links_bs:
-        #             url = self._extract_url(link)
-        #             if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
-        #                 self.urls.append(url)
-        for link in self._seed_urls:
-            response = make_request(link, self.config)
-            main_bs = BeautifulSoup(response.text, 'lxml')
-            for url in main_bs.find_all('a'):
-                link = self._extract_url(url)
-                if len(self.urls) < self.config.get_num_articles() and link.startswith('https://smolnarod.ru/news/'):
-                    self.urls.append(link)
+        for seed_url in self._seed_urls:
+            response = make_request(seed_url, self.config)
+            if response.status_code == 200:
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                all_links_bs = main_bs.find_all('a')
+                for link in all_links_bs:
+                    url = self._extract_url(link)
+                    if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
+                        self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
@@ -255,16 +247,16 @@ class HTMLParser:
         """
         Finds text of article
         """
-        pass
+        article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
+        all_paragraphs = article_body.find_all('p')
+        paragraph_texts = [par.text.strip() for par in all_paragraphs]
+        paragraph_texts = '\n'.join(paragraph_texts)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
-        all_paragraphs = article_body.find_all('p')
-        paragraph_texts = [par.text.strip() for par in all_paragraphs]
-        paragraph_texts = '\n'.join(paragraph_texts)
+        pass
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
