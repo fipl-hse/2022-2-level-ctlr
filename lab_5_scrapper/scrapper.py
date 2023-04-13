@@ -93,8 +93,8 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_dict = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as config_file:
+            config_dict = json.load(config_file)
         return ConfigDTO(**config_dict)
 
     def _validate_config_content(self) -> None:
@@ -102,49 +102,36 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as config_file:
-            config_content = json.load(config_file)
+        config = self._extract_config_content()
 
-        seed_urls = config_content['seed_urls']
-        headers = config_content['headers']
-        total_articles_to_find_and_parse = config_content['total_articles_to_find_and_parse']
-        encoding = config_content['encoding']
-        timeout = config_content['timeout']
-        verify_certificate = config_content['should_verify_certificate']
-        headless_mode = config_content['headless_mode']
-
-        if not isinstance(seed_urls, list):
+        if not isinstance(config.seed_urls, list) or not config.seed_urls:
             raise IncorrectSeedURLError
 
-        for url in seed_urls:
-            if not isinstance(url, str):
-                raise IncorrectSeedURLError
-            if not re.match(r'https?://.*/', url):
+        for url in config.seed_urls:
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
 
-        if (not isinstance(total_articles_to_find_and_parse, int)
-                or isinstance(total_articles_to_find_and_parse, bool)
-                or total_articles_to_find_and_parse < 1):
-            raise IncorrectNumberOfArticlesError
-
-        if total_articles_to_find_and_parse > NUM_ARTICLES_UPPER_LIMIT:
-            raise NumberOfArticlesOutOfRangeError
-
-        if not isinstance(headers, dict):
+        if not isinstance(config.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if (not isinstance(config.total_articles, int)
+                or isinstance(config.total_articles, bool)
+                or config.total_articles < 1):
+            raise IncorrectNumberOfArticlesError
+
+        if config.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError
+
+        if not isinstance(config.encoding, str):
             raise IncorrectEncodingError
 
-        if (not isinstance(timeout, int)
-                or timeout < TIMEOUT_LOWER_LIMIT
-                or timeout > TIMEOUT_UPPER_LIMIT):
+        if (not isinstance(config.timeout, int)
+                or config.timeout < TIMEOUT_LOWER_LIMIT
+                or config.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(verify_certificate, bool):
-            raise IncorrectVerifyError
-
-        if not isinstance(headless_mode, bool):
+        if not isinstance(config.should_verify_certificate, bool) \
+                or not isinstance(config.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -199,6 +186,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     timeout = config.get_timeout()
     verify = config.get_verify_certificate()
     response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -239,7 +227,6 @@ class Crawler:
             for link_bs in all_links_bs:
                 href = self._extract_url(link_bs)
                 if href is None:
-                    print(link_bs)
                     continue
                 if href.startswith('/news') or href.startswith('/gov') or href.startswith(
                         '/society') or href.startswith('/business'):
@@ -266,7 +253,7 @@ class HTMLParser:
         Initializes an instance of the HTMLParser class
         """
         self._full_url = full_url
-        self.article_id = article_id
+        self._article_id = article_id
         self._config = config
         self.article = Article(self._full_url, self.article_id)
 
