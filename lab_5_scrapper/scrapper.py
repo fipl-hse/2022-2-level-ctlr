@@ -203,7 +203,7 @@ class Crawler:
         link = article_bs.get('href')
         if link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
             return link
-        return link
+        return ''
 
     def find_articles(self) -> None:
         """
