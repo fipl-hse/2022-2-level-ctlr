@@ -96,7 +96,7 @@ class Config:
         """
         config = self._extract_config_content()
 
-        if not isinstance(config.seed_urls, list):
+        if not isinstance(config.seed_urls, list) or not config.seed_urls:
             raise IncorrectSeedURLError
 
         for url in config.seed_urls:
