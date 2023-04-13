@@ -14,7 +14,8 @@
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=13",
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=14",
     "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=15",
-    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=16"],
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=16",
+    "https://dzer.ru/korotko-o-glavnom/?PAGEN_1=17"],
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "accept-encoding": "gzip, deflate, br",
@@ -30,7 +31,7 @@
     },
         "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
-    "timeout": 5,
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
