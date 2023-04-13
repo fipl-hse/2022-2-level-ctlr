@@ -200,24 +200,35 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        link = article_bs.get('href')
-        if link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
-            return link
-        return ''
+        # link = article_bs.get('href')
+        # if link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
+        #     return link
+        # return ''
+        url = article_bs['href']
+        if isinstance(url, str):
+            return url
+        return url[0]
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self._seed_urls:
-            response = make_request(seed_url, self.config)
-            if response.status_code == 200:
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                all_links_bs = main_bs.find_all('a')
-                for link in all_links_bs:
-                    url = self._extract_url(link)
-                    if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
-                        self.urls.append(url)
+        # for seed_url in self._seed_urls:
+        #     response = make_request(seed_url, self.config)
+        #     if response.status_code == 200:
+        #         main_bs = BeautifulSoup(response.text, 'lxml')
+        #         all_links_bs = main_bs.find_all('a')
+        #         for link in all_links_bs:
+        #             url = self._extract_url(link)
+        #             if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
+        #                 self.urls.append(url)
+        for link in self._seed_urls:
+            response = make_request(link, self.config)
+            main_bs = BeautifulSoup(response.text, 'lxml')
+            for url in main_bs.find_all('a'):
+                link = self._extract_url(url)
+                if len(self.urls) < self.config.get_num_articles() and link.startswith('https://smolnarod.ru/news/'):
+                    self.urls.append(link)
 
     def get_search_urls(self) -> list:
         """
