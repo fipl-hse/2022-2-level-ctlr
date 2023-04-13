@@ -182,7 +182,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
-    time.sleep(random.randrange(1, 8))
+    time.sleep(random.randrange(2, 7))
     return response
 
 
@@ -218,9 +218,11 @@ class Crawler:
             response = make_request(url, self.config)
             main_bs = BeautifulSoup(response.content, "lxml")
             for link in main_bs.find_all('a'):
-                if self._extract_url(link):
+                if self._extract_url(link) and \
+                        '?PAGEN' not in self._extract_url(link):
                     cor_url = 'https://livennov.ru' + str(self._extract_url(link))
-                    self.urls.append(cor_url)
+                    if cor_url not in self.urls:
+                        self.urls.append(cor_url)
                     if len(self.urls) >= self.config.get_num_articles():
                         return
 
@@ -250,24 +252,29 @@ class HTMLParser:
         Finds text of article
         """
         main_text = article_soup.find('div', {
-            'itemprop': 'articleBody'}).text.replace('\n\n', ' ').replace('  ', '').strip()
-        self.article.text = main_text
+            'itemprop': 'articleBody'})
+        if main_text:
+            self.article.text = main_text.text.replace('\n\n', ' ').replace('  ', '').strip()
+        else:
+            self.article.text = 'NOT FOUND'
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title_info = article_soup.find('div', {'class', 'b-news-detail-top'}).find('h1').text
-        self.article.title = title_info
+        title_info = article_soup.find('div', {'class', 'b-news-detail-top'})
+        self.article.title = title_info.find('h1').get_text(strip=True) \
+            if title_info else 'NOT FOUND'
 
         author_info = article_soup.find('div', itemprop="author")
-        if author_info:
+        if author_info.get_text(strip=True):
             self.article.author.append(author_info.get_text(strip=True))
         else:
             self.article.author.append('NOT FOUND')
 
-        date_info = article_soup.find('time', {'class': "b-meta-item"}).get_text(strip=True)
-        self.article.date = self.unify_date_format(date_info)
+        date_info = article_soup.find('time', {'class': "b-meta-item"})
+        if date_info:
+            self.article.date = self.unify_date_format(date_info.get_text(strip=True))
 
         topics_info = [topic.get_text(strip=True)
                        for topic in article_soup.find_all('div', {'class': "lid-detail"})
