@@ -2,12 +2,12 @@
 Crawler implementation
 """
 import datetime
-import time
 import json
 import random
 import re
 import shutil
 from pathlib import Path
+import time
 from typing import Pattern, Union
 
 import requests
