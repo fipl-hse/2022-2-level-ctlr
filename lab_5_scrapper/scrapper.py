@@ -23,49 +23,42 @@ class IncorrectSeedURLError(Exception):
     """
     Seed URL does not match standard pattern
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Total number of articles is out of range from 1 to 150
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Total number of articles to parse is not integer
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Headers are not in a form of dictionary
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Encoding must be specified as a string
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
     """
     Timeout value must be a positive integer less than 60
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
     Verify certificate value must either be True or False
     """
-    pass
 
 
 class Config:
@@ -130,7 +123,7 @@ class Config:
         if not isinstance(encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) or not (TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT):
+        if not isinstance(timeout, int) or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         if not isinstance(should_verify_certificate, bool) or not isinstance(headless_mode, bool):
@@ -211,6 +204,8 @@ class Crawler:
         url = article_bs.get('href')
         if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 4:
             return url
+        else:
+            return ''
 
     def find_articles(self) -> None:
         """
@@ -274,13 +269,15 @@ class HTMLParser:
                 self.article.date = self.unify_date_format(time_and_date)
             except ValueError:
                 pass
-        authors = [author.text for author in article_soup.find_all('a', {'class': 'content-info__author'})]
+        authors = [author.text for author in article_soup.find_all(
+            'a', {'class': 'content-info__author'})]
         if authors:
             self.article.author = authors
         else:
             self.article.author = ['NOT FOUND']
         tag_section = article_soup.find_all('section', {'class': 'content-tags'})[0]
-        topics = [topic.text for topic in tag_section.find_all('a', {'class': 'content-tags__item tag'})]
+        topics = [topic.text for topic in tag_section.find_all(
+            'a', {'class': 'content-tags__item tag'})]
         if topics:
             self.article.topics = topics
 
