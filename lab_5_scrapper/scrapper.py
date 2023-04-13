@@ -216,7 +216,7 @@ class Crawler:
             main_bs = BeautifulSoup(response.text, 'lxml')
             for one in main_bs.find_all('a', class_='news-article__link'):
                 link = self._extract_url(one)
-                if not url:
+                if link is None:
                     continue
                 if len(self.urls) < self._config.get_num_articles():
                     self.urls.append(link)
