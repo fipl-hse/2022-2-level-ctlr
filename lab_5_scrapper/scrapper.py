@@ -16,9 +16,13 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
-                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+from core_utils.constants import (
+    ASSETS_PATH,
+    CRAWLER_CONFIG_PATH,
+    NUM_ARTICLES_UPPER_LIMIT,
+    TIMEOUT_LOWER_LIMIT,
+    TIMEOUT_UPPER_LIMIT,
+)
 
 
 class IncorrectSeedURLError(Exception):
@@ -76,13 +80,13 @@ class Config:
         with open(self.path_to_config, "r", encoding="utf-8") as f:
             config = json.load(f)
         return ConfigDTO(
-            config['seed_urls'],
-            config['total_articles_to_find_and_parse'],
-            config['headers'],
-            config['encoding'],
-            config['timeout'],
-            config['should_verify_certificate'],
-            config['headless_mode']
+            config["seed_urls"],
+            config["total_articles_to_find_and_parse"],
+            config["headers"],
+            config["encoding"],
+            config["timeout"],
+            config["should_verify_certificate"],
+            config["headless_mode"],
         )
 
     def _validate_config_content(self) -> None:
@@ -197,8 +201,8 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self._seed_urls = config.get_seed_urls()
         self.config = config
+        self._seed_urls = self.config.get_seed_urls()
         self.urls = []
 
     @staticmethod
@@ -221,16 +225,22 @@ class Crawler:
         for url in self.get_search_urls():
             # makes a get-response to a server
             response = make_request(url=url, config=self.config)
+
             if response.status_code != 200 or response.status_code == 404:
                 continue
+
             # gets html page
             page = BeautifulSoup(response.text, "lxml")
             page_links = page.find_all("a")
+
             for page_link in page_links:
                 link = self._extract_url(page_link)
-                if link is None or link == "":
+
+                if link is None or link == "" or link in self.urls:
                     continue
+
                 self.urls.append(link)
+
                 if len(self.urls) == self.config.get_num_articles():
                     break
 
@@ -259,19 +269,19 @@ class HTMLParser:
         """
         Finds text of article
         """
-        texts_tag = article_soup.find_all('div')
+        texts_tag = article_soup.find_all("div")
         final_text = []
         for div in texts_tag:
-            for text in div.find_all('p'):
+            for text in div.find_all("p"):
                 final_text.append(text.get_text(strip=True))
-        self.article.text = ' '.join(final_text)
+        self.article.text = " ".join(final_text)
         # self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title = article_soup.find('h1').get_text()
+        title = article_soup.find("h1").get_text()
 
         if title:
             self.article.title = title
