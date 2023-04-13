@@ -12,8 +12,6 @@
         "accept-encoding":"gzip, deflate, br",
         "referer":"https://irkutskmedia.ru/",
         "accept-language":"ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-        "sec-ch-ua-mobile":"?0",
-        "sec-ch-ua-platform":"Windows",
         "accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
     },
     "total_articles_to_find_and_parse": 20,
