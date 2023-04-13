@@ -269,7 +269,7 @@ class HTMLParser:
             self.article.topics = [tag.text for tag in topics_info]
 
         date_info = article_soup.find('div', class_='article__date')
-        date = date_info.find_all('#text')
+        date = date_info.get('#text')
         self.article.date = date
 
 
@@ -277,6 +277,20 @@ class HTMLParser:
         """
         Unifies date format
         """
+        #all_dates = date_str.strip()
+        #months = {"января":"01", "февраля":"02", "марта":"03",
+                  #"апреля":"04", "мая":"05", "июня":"06",
+                  #"июля":"07", "августа":"08", "сентября":"09",
+                  #"октября":"10", "ноября":"11", "декабря":"12", }
+
+        #year = '2023'
+        #for one in all_dates:
+            #for month, number in months:
+                #if month in one:
+                    #date_str.replace(month, number)
+
+
+        #return datetime.datetime.strptime(date, '%Y-%m-%d %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
