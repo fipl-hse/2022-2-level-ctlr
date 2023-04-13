@@ -203,7 +203,7 @@ class Crawler:
                 if href is None:
                     continue
                 if href.startswith('/news/'):
-                    if href.count('/') == 3:
+                    if href.count('/') >= 3:
                         final_url = "https://sovainfo.ru" + href
                         if (final_url not in self.urls) and (len(self.urls) < self._config.get_num_articles()):
                             self.urls.append(final_url)
