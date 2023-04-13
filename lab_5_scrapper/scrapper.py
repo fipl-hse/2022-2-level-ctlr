@@ -269,6 +269,7 @@ class HTMLParser:
         response = make_request(self._full_url, self._config)
         article_bs = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
