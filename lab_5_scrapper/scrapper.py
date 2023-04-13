@@ -288,7 +288,8 @@ class HTMLParser:
         title = title_tag.get_text(strip=True)
         self.article.title = title
 
-        author_tag = article_soup.select('p.article__prepared, b')
+        author_tag = article_soup.select('p.article__prepared, b, '
+                                         'div.article__paragraph.article__paragraph_second > span')
         authors = []
         if author_tag:
             for tag in author_tag:
@@ -361,16 +362,62 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
-
 class CrawlerRecursive(Crawler):
     """
-    Recursive Crawler
+    Recursive Crawler implementation
     """
 
     def __init__(self, config: Config) -> None:
+        """
+        Initializes an instance of the Recursive Crawler class
+        """
         super().__init__(config)
-        self.start_url = config.seed_urls[0]
+        self.start_url = self.get_search_urls()[0]
+        self.count_seed_url = 0
+        self.urls = []
+        self.state_file = Path('crawler_state.json')
+        if self.state_file.exists():
+            self._load_state()
 
+    def find_articles(self) -> None:
+        """
+        Finds articles recursively starting from the given URL
+        """
+        while len(self.urls) < self._config.get_num_articles():
+            response = make_request(self.start_url, self._config)
+            article_bs = BeautifulSoup(response.text, 'html.parser')
+            urls = article_bs.select('a[class*=mininews], a[class*=midinews]')
+            for elem in urls:
+                article_url = self._extract_url(elem)
+                if not article_url or 'http' not in article_url or article_url in self.urls:
+                    continue
+                self.urls.append(article_url)
+                self.start_url = article_url
+                self._save_state()
+                if len(self.urls) >= self._config.get_num_articles():
+                    break
+            if len(self.urls) < self._config.get_num_articles() and self.count_seed_url < len(self.get_search_urls()) - 1:
+                self.start_url = self.get_search_urls()[self.count_seed_url]
+                self.count_seed_url += 1
+            else:
+                break
+
+    def _save_state(self) -> None:
+        """
+        Save state of the crawler to file
+        """
+        with open(self.state_file, 'w') as f:
+            state = {'urls': self.urls, 'start_url': self.start_url}
+            json.dump(state, f)
+
+    def _load_state(self) -> None:
+        """
+        Loads the state of the crawler from a file
+        """
+        with self.state_file.open('r') as f:
+            state = json.load(f)
+            self.urls = state['urls']
+            self.start_url = state['start_url']
 
 
 def main() -> None:
@@ -391,6 +438,23 @@ def main() -> None:
             to_raw(article)
             to_meta(article)
 
+def main_recursive() -> None:
+    """
+    Entrypoint for scrapper module
+    """
+    config = Config(CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+
+    recursive_crawler = CrawlerRecursive(config)
+    recursive_crawler.find_articles()
+
+    for ind, url in enumerate(recursive_crawler.urls, 1):
+        parser = HTMLParser(url, ind, config)
+        article = parser.parse()
+
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
