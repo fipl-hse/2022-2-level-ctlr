@@ -255,7 +255,7 @@ class HTMLParser:
         self._full_url = full_url
         self._article_id = article_id
         self._config = config
-        self.article = Article(self._full_url, self.article_id)
+        self.article = Article(self._full_url, self._article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
