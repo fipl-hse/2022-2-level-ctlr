@@ -3,10 +3,8 @@ Crawler implementation
 """
 import datetime
 import json
-import random
 import re
 import shutil
-import time
 import urllib.parse
 from pathlib import Path
 from typing import Union
@@ -184,7 +182,6 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.uniform(0.1, 1))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = response.apparent_encoding
@@ -225,10 +222,16 @@ class Crawler:
                 continue
             soup = BeautifulSoup(response.text, 'html.parser')
             news = soup.find_all('a', {'class': 'card', 'href': True})
-            article_items.extend(news)
+            for article in news:
+                article_url = self._extract_url(article_bs=article)
+                try:
+                    response = make_request(url=article_url, config=self.config)
+                    response.raise_for_status()
+                except requests.exceptions.HTTPError:
+                    continue
+            article_items.append(article_url)
             number += 1
-        for article in article_items[:self.config.get_num_articles()]:
-            self.urls.append(self._extract_url(article_bs=article))
+        self.urls.extend(article_items[:self.config.get_num_articles()])
 
     def get_search_urls(self) -> list:
         """
