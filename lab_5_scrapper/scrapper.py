@@ -236,7 +236,7 @@ class HTMLParser:
         paragraphs = article_soup.find_all('p')
         text = ''
         for paragraph in paragraphs:
-            text += paragraph.get_text().lstrip() + '\n'
+            text += paragraph.get_text().strip() + '\n'
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
