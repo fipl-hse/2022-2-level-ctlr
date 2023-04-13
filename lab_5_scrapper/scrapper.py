@@ -183,12 +183,15 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(random.randrange(3, 10))
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
-    print(f'Made request to: {url}')
-    print(f'Headers: {config.get_headers()}')
-    print(f'Response code: {response.status_code}')
-    print(f'Response text: {response.text}')
-    return response
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+    try:
+        response = requests.get(url, headers=headers, timeout=timeout)
+        return response
+    except requests.exceptions.ReadTimeout:
+        time.sleep(5)
+        response = requests.get(url, headers=headers, timeout=timeout)
+        return response
 
 
 class Crawler:
