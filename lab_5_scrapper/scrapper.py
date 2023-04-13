@@ -192,6 +192,8 @@ class Crawler:
         """
         Finds articles
         """
+        themes = ['grazhdanam_dnr_i_lnr', 'kultura', 'nauka', 'obrazovanie', 'obshchestvo', 'politika', 'incidents',
+                  'spetsoperatsiya_na_ukraine', 'sport', 'ekonomica']
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
@@ -202,11 +204,12 @@ class Crawler:
                 href = self._extract_url(url)
                 if href is None:
                     continue
-                if href.startswith('/news/'):
-                    if href.count('/') >= 3:
-                        final_url = "https://sovainfo.ru" + href
-                        if (final_url not in self.urls) and (len(self.urls) < self._config.get_num_articles()):
-                            self.urls.append(final_url)
+                elif href.startswith('/news') and href.count('/') == 3:
+                    if any(el in href for el in themes):
+                        continue
+                    final_url = "https://sovainfo.ru" + href
+                    if (final_url not in self.urls) and (len(self.urls) < self._config.get_num_articles()):
+                        self.urls.append(final_url)
 
     def get_search_urls(self) -> list:
         """
