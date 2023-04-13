@@ -64,20 +64,6 @@ class IncorrectVerifyError(Exception):
     pass
 
 
-class IncorrectHeadlessError(Exception):
-    """
-    Raises when headless mode validation value does not match bool value either True or False
-    """
-    pass
-
-
-class WebsiteError(Exception):
-    """
-    Raises when couldn't take a respond from Webpage
-    """
-    pass
-
-
 class Config:
     """
     Unpacks and validates configurations
@@ -137,7 +123,7 @@ class Config:
             raise IncorrectVerifyError
 
         if not isinstance(self._config_dto.headless_mode, bool):
-            raise IncorrectHeadlessError
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
@@ -215,8 +201,8 @@ class Crawler:
         all_links_bs = article_bs.find_all('a')
         for links_bs in all_links_bs:
             link = links_bs.get('href')
-        # link = article_bs.get('href')
-            if link is not None and link.count('/') == 6 and '/cat/politroom/' in link and link[:8] == 'https://':
+            if link and link.count('/') == 5 and 'https://smolnarod.ru/news/' in link and link not in self.urls\
+                    and len(self.urls) < self.config.get_num_articles():
                 self.urls.append(link)
         return ''
 
@@ -225,12 +211,10 @@ class Crawler:
         Finds articles
         """
         for seed_url in self._seed_urls:
-            try:
-                response = make_request(seed_url, self.config)
+            response = make_request(seed_url, self.config)
+            if response.status_code == 200:
                 main_bs = BeautifulSoup(response.text, 'lxml')
                 self._extract_url(main_bs)
-            except WebsiteError:
-                continue
 
     def get_search_urls(self) -> list:
         """
