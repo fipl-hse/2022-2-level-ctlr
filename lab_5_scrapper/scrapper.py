@@ -1,21 +1,21 @@
 """
 Crawler implementation
 """
-import shutil
-from typing import Pattern, Union
+import datetime
+import time
 import json
 import random
 import re
-import time
-import datetime
+import shutil
 from pathlib import Path
+from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
 
-from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw, to_meta
+from core_utils.config_dto import ConfigDTO
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT,\
     TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT
 
@@ -276,7 +276,6 @@ class HTMLParser:
         """
         Unifies date format
         """
-
 
     def parse(self) -> Union[Article, bool, list]:
         """
