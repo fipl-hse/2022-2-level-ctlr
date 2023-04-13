@@ -206,6 +206,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
+        return "pass"
 
     def find_articles(self) -> None:
         """
@@ -264,7 +265,7 @@ class HTMLParser:
         """
         author = article_soup.find\
             ('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
-        self.article.author = author.text[1:] if author else["NOT FOUND"]
+        self.article.author = [author.text[1:] if author else["NOT FOUND"]]
 
         title = article_soup.find('h1')
         self.article.title = title.text
@@ -275,7 +276,7 @@ class HTMLParser:
             for topic in topics[1:]:
                 self.article.topics.append(topic.text[1:])
         else:
-            self.article.topics = "NOT FOUND"
+            self.article.topics = ["NOT FOUND"]
 
         date = article_soup.find('div', {'class': 'MatterTop_date__NIUrJ'})
         date_str = date.text if date else "NOT FOUND"
