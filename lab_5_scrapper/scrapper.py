@@ -5,7 +5,7 @@ from typing import Pattern, Union
 from pathlib import Path
 import json
 import re
-# import datetime
+import datetime
 import requests
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
@@ -198,12 +198,9 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_links_bs = article_bs.find_all('a')
-        for links_bs in all_links_bs:
-            link = links_bs.get('href')
-            if link and link.count('/') == 5 and 'https://smolnarod.ru/news/' in link and link not in self.urls\
-                    and len(self.urls) < self.config.get_num_articles():
-                self.urls.append(link)
+        link = article_bs.get('href')
+        if link and link.count('/') == 5 and 'https://smolnarod.ru/news/' in link:
+            return link
         return ''
 
     def find_articles(self) -> None:
@@ -214,7 +211,11 @@ class Crawler:
             response = make_request(seed_url, self.config)
             if response.status_code == 200:
                 main_bs = BeautifulSoup(response.text, 'lxml')
-                self._extract_url(main_bs)
+                all_links_bs = main_bs.find_all('a')
+                for link in all_links_bs:
+                    url = self._extract_url(link)
+                    if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
+                        self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
