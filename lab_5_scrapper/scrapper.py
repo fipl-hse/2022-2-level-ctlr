@@ -9,7 +9,6 @@ from pathlib import Path
 from random import randint
 from time import sleep
 from typing import Pattern, Union
-from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
