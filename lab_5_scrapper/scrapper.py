@@ -204,7 +204,7 @@ class Crawler:
                 href = self._extract_url(url)
                 if href is None:
                     continue
-                elif href.startswith('/news') and href.count('/') == 3:
+                elif href.startswith('/news') and href.count('/') == 3 and 'ekonomika' not in href:
                     if any(el in href for el in themes):
                         continue
                     final_url = "https://sovainfo.ru" + href
