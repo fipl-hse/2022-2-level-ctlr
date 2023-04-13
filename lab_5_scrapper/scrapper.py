@@ -193,7 +193,8 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        return 'https://ptzgovorit.ru' + article_bs.get('href')
+        if isinstance(href := article_bs.get('href'), str):
+            return 'https://ptzgovorit.ru' + href
 
     def find_articles(self) -> None:
         """
