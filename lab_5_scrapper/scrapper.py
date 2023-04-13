@@ -198,7 +198,6 @@ class Crawler:
         Initializes an instance of the Crawler class
         """
         self.config = config
-        self._seed_urls = config.get_seed_urls()
         self.urls = []
 
     @staticmethod
@@ -207,12 +206,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get("href")
-
-        if href is None:
-            return ""
-
-        if href.startswith("https://irkutskmedia.ru/news/"):
-            return href  # get links with matching attribute
+        if href and href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
+            return href
+        return ""
 
     def find_articles(self) -> None:
         """
@@ -222,29 +218,23 @@ class Crawler:
             # makes a get-response to a server
             response = make_request(url=url, config=self.config)
 
-            if response.status_code != 200 or response.status_code == 404:
-                raise IncorrectSeedURLError
-
-            # gets html page
             page = BeautifulSoup(response.text, "lxml")
             page_links = page.find_all("a")
 
             for page_link in page_links:
                 link = self._extract_url(page_link)
 
-                if link is None or link == "" or link in self.urls:
-                    continue
-
-                self.urls.append(link)
+                if not link and link not in self.urls:
+                    self.urls.append(link)
 
                 if len(self.urls) == self.config.get_num_articles():
-                    break
+                    return
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self._seed_urls
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
