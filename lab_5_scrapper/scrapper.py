@@ -64,12 +64,6 @@ class IncorrectVerifyError(Exception):
     """
 
 
-class NoPageDownloaded(Exception):
-    """
-    Article was not downloaded
-    """
-
-
 class Config:
     """
     Unpacks and validates configurations
@@ -199,9 +193,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        if isinstance(href := article_bs.get('href'), str):
-            return 'https://ptzgovorit.ru' + href
-        raise TypeError
+        return 'https://ptzgovorit.ru' + article_bs.get('href')
 
     def find_articles(self) -> None:
         """
@@ -209,24 +201,16 @@ class Crawler:
         """
         for seed_url in self.get_search_urls():
             while True:
-                try:
-                    req = make_request(seed_url, self.config)
-                    page_bs = BeautifulSoup(req.text, 'lxml')
-                    if not page_bs.find('section', {'id': 'block-views-main-block-1'}):
-                        raise NoPageDownloaded
+                req = make_request(seed_url, self.config)
+                page_bs = BeautifulSoup(req.text, 'lxml')
+                if page_bs.find('section', {'id': 'block-views-main-block-1'}):
                     break
-                except NoPageDownloaded:
-                    pass
-            if req.status_code == 200:
-                for a_href in page_bs.find_all('a'):
-                    if len(self.urls) >= self.config.get_num_articles():
-                        return
-                    try:
-                        url = self._extract_url(a_href)
-                        if url not in self.urls and url.startswith('https://ptzgovorit.ru/news/'):
-                            self.urls.append(url)
-                    except TypeError:  # in case "a" does not have "href" attribute
-                        pass
+            for a_href in page_bs.find_all('a', href=lambda href: isinstance(href, str)):
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
+                url = self._extract_url(a_href)
+                if url not in self.urls and url.startswith('https://ptzgovorit.ru/news/'):
+                    self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
@@ -256,8 +240,6 @@ class HTMLParser:
         text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
         self.article.text = '\n'.join(text for paragraph in text_div.find_all('p')
                                       if (text := paragraph.text.strip()))
-        if not self.article.text:
-            raise NoPageDownloaded
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -299,14 +281,13 @@ class HTMLParser:
         Parses each article
         """
         while True:
-            try:
-                req = make_request(self.full_url, self.config)
-                article_bs = BeautifulSoup(req.text, 'lxml')
-                self._fill_article_with_text(article_bs)
-                self._fill_article_with_meta_information(article_bs)
-                return self.article
-            except NoPageDownloaded:
+            req = make_request(self.full_url, self.config)
+            article_bs = BeautifulSoup(req.text, 'lxml')
+            self._fill_article_with_text(article_bs)
+            if not self.article.text:
                 continue
+            self._fill_article_with_meta_information(article_bs)
+            return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
