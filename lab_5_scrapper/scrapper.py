@@ -233,9 +233,10 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('p')
-        paragraphs_text = [paragraph.text for paragraph in text]
-        self.article.text = '\n'.join(paragraphs_text)
+        paragraphs = article_soup.find_all('p')
+        text = ''
+        for paragraph in paragraphs:
+            text += paragraph.get_text().lstrip() + '\n'
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
