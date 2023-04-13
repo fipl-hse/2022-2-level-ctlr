@@ -225,7 +225,8 @@ class Crawler:
                 if len(self.urls) >= self.config.get_num_articles():
                     return
                 article_url = self._extract_url(link)
-                if article_url is None or article_url == ' ' or ('https://www.vgoroden.ru' + article_url) in self.urls:
+                if article_url is None or article_url == ' ' or \
+                        ('https://www.vgoroden.ru' + article_url) in self.urls:
                     continue
                 self.urls.append('https://www.vgoroden.ru' + article_url)
 
@@ -321,17 +322,19 @@ class CrawlerRecursive(Crawler):
         self.visited_urls = []
         self.path = Path(__file__).parent / 'r_crawler_data.json'
 
-    def load_data(self):
+    def load_data(self) -> None:
         """
         Loads collected data from a file
         """
         if self.path.exists():
-            with open ("r_crawler_data.json", encoding=self.config.get_encoding()) as f:
+            with open("r_crawler_data.json", encoding=self.config.get_encoding()) as f:
                 data = json.load(f)
+                self.urls = data['urls']
 
 
 
-    def save_data(self):
+
+    def save_data(self) -> None:
         """
         Saves collected data to a file
         """
@@ -370,8 +373,6 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(configuration)
     crawler.find_articles()
-    a = crawler.urls
-    print(len(a))
     for i, full_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
@@ -388,8 +389,6 @@ def main_recursive() -> None:
     prepare_environment(ASSETS_PATH)
     r_crawler = CrawlerRecursive(configuration)
     r_crawler.find_articles()
-    a = r_crawler.urls
-    print(len(set(r_crawler.urls)))
     for i, full_url in enumerate(r_crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
@@ -400,4 +399,4 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
-    main_recursive()
+    main()
