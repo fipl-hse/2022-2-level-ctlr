@@ -268,7 +268,9 @@ class HTMLParser:
         self.article.title = title.get_text(strip=True)\
             if title else "NOT FOUND"
 
-        self.article.author = ["NOT FOUND"] #willchange!
+        authors = article_soup.find('span', {'itemprop': 'author'})
+        self.article.author = authors.get_text(strip=True)\
+            if authors else "NOT FOUND"
 
         date = article_soup.find('time', {"itemprop": "datePublished"})
         if date:
@@ -277,9 +279,12 @@ class HTMLParser:
             except AttributeError:
                 pass
 
-        topics = [topic.text for topic in article_soup.find_all('div', {"class": "article-items"})]
-        if topics:
-            self.article.topics = topics
+        topics = article_soup.find('ul', {"class": "dotted-list"}).find_all('li')
+
+        for topic in topics:
+            topic_str = topic.get_text(strip=True)
+            if topics:
+                self.article.topics = topic_str
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
