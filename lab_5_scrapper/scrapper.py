@@ -272,7 +272,7 @@ class HTMLParser:
         self.article.date = self.unify_date_format(date_joined)
 
         topics_bs = article_soup.find('div', {'class': 'detale-news-block__in'})
-        topics = [topic.text for topic in topics_bs.find_all('a')[0]]
+        topics = [topic.text for topic in topics_bs.find('a')]
         self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
