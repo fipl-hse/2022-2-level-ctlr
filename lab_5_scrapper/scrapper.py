@@ -101,7 +101,7 @@ class Config:
             raise IncorrectSeedURLError("Invalid value for seed_urls")
 
         for url in dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+            if not isinstance(url, str) or not re.match(r'https?://', url):
                 raise IncorrectSeedURLError("Invalid seed url")
 
         if (not isinstance(dto.total_articles, int)
@@ -205,8 +205,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if url and url.startswith('https://moskvichmag.ru/gorod/'):
-            return str(url)
+        if url and isinstance(url, str) \
+                and url.startswith('https://moskvichmag.ru/gorod/'):
+            return url
         return ''
 
     def find_articles(self) -> None:
@@ -215,14 +216,12 @@ class Crawler:
         """
         for url in self.get_search_urls():
             response = make_request(url, self.config)
-            main_bs = BeautifulSoup(response.content, "lxml")
+            main_bs = BeautifulSoup(response.text, "lxml")
             for link in main_bs.find_all('a'):
-                if self._extract_url(link):
-                    cor_url = str(self._extract_url(link))
-                    if cor_url not in self.urls:
-                        self.urls.append(cor_url)
-                    if len(self.urls) >= self.config.get_num_articles():
-                        return
+                if self._extract_url(link) and self._extract_url(link) not in self.urls:
+                    self.urls.append(self._extract_url(link))
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
@@ -261,10 +260,9 @@ class HTMLParser:
         self.article.title = title_info.text
 
         author_info = article_soup.find('span', itemprop="name")
-        if author_info.text:
-            self.article.author.append(author_info.text)
-        else:
+        if not author_info.text:
             self.article.author.append('NOT FOUND')
+        self.article.author.append(author_info.text)
 
         date_info = article_soup.find('time', {
             'class': "entry-date published ArticlesItem-datetime"})
