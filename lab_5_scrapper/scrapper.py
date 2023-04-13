@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw, to_meta
 from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH, TIMEOUT_LOWER_LIMIT,\
     TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT
 
@@ -253,6 +254,22 @@ class HTMLParser:
         """
         Finds meta information of article
         """
+        title_info = article_soup.find('h1', class_='article__title')
+        title = title_info.get_text(strip=True)
+        self.article.title = title
+
+        all_authors_info = article_soup.find_all('a', class_='article__author')
+        if not all_authors_info:
+            self.article.author = "NOT FOUND"
+        self.article.author = [author.text for author in all_authors_info]
+
+        topics_info = article_soup.find_all('a', class_='article__tags')
+        if topics_info:
+            self.article.topics = [tag.text for tag in topics_info]
+
+        date_info = article_soup.find('div', class_='article__date')
+        date = date_info.text
+        self.article.date = date
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
@@ -269,6 +286,7 @@ class HTMLParser:
         if page.status_code == 200:
             article_bs = BeautifulSoup(page.content, 'lxml')
             self._fill_article_with_text(article_bs)
+            self._fill_article_with_meta_information(article_bs)
             return self.article
         return False
 
@@ -293,6 +311,9 @@ def main() -> None:
     for index, url in enumerate(crawler.urls, 1):
         parser = HTMLParser(url, index, configuration)
         article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
