@@ -269,7 +269,7 @@ class HTMLParser:
             self.article.topics = [tag.text for tag in topics_info]
 
         date_info = article_soup.find('div', class_='article__date')
-        date = date_info.text
+        date = date_info.find_all('#text')
         self.article.date = date
 
 
