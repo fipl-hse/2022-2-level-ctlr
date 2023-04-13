@@ -198,7 +198,7 @@ class Crawler:
         Initializes an instance of the Crawler class
         """
         self.config = config
-        self._seed_urls = self.config.get_seed_urls()
+        self._seed_urls = config.get_seed_urls()
         self.urls = []
 
     @staticmethod
