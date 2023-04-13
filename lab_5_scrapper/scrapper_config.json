@@ -15,7 +15,6 @@
         "sec-ch-ua-mobile":"?0",
         "sec-ch-ua-platform":"Windows",
         "accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-        "path":"/tracker?js=13;id=3157102;u=https%3A//irkutskmedia.ru/news/%3Fpage%3D1;r=https%3A//irkutskmedia.ru/;st=1681379274929;title=%D0%9B%D0%B5%D0%BD%D1%82%D0%B0%20%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B5%D0%B9%20-%20IrkutskMedia;s=1536*864;vp=810*722;touch=0;hds=1.25;frame=0;flash=;sid=157c37f43cfbca18;ver=60.3.0;tz=-180%2FEurope%2FMoscow;ni=5.55//4g/50/0/;detect=1;lvid=1678726932649%3A1681379290777%3A692%3A7816c28c3aa5cf88723fb6872627390b;opts=dl%2Cjst-gtag-ga-ym-vk;visible=true;_=0.9936268273068507;e=PVT/15",
         "authority":"top-fwz1.mail.ru"
     },
     "total_articles_to_find_and_parse": 20,

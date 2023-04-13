@@ -174,7 +174,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    sleep_time = randint(TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+    sleep_time = randint(1, 3)
     sleep(sleep_time)
     request = requests.get(
         url,
