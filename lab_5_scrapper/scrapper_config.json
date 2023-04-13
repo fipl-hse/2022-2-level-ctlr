@@ -1,11 +1,5 @@
 {
-    "seed_urls": ["https://irkutskmedia.ru/news/?page=1",
-                  "https://irkutskmedia.ru/news/?page=2",
-                  "https://irkutskmedia.ru/news/?page=3",
-                  "https://irkutskmedia.ru/news/?page=4",
-                  "https://irkutskmedia.ru/news/?page=5",
-                  "https://irkutskmedia.ru/news/?page=6",
-                  "https://irkutskmedia.ru/news/?page=7"],
+    "seed_urls": ["https://irkutskmedia.ru/"],
     "headers": {
         "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
         "cookie":"p=HasBAE+Z//EA; s=rt=1|dpr=1.25; searchuid=464132831662445514; ph=pp_l=1|pp_t=1681074858585; b=AEwDAKBx54QCAQAACGVYHwxbUrALJaFZWqIcs+Mt+Ku1D4bT6vbBAAAA; c=yiozZAIAoHsTAAAUAAgAM9MZwAQAAKAHQNhPE5oMYGY6AwgA; i=AQBQwTdkCQATAAiRMFwAAnEAARwBAR8BAUQBAW4BAYUBARsCAfACAogEAcIEAeEEAV4FAVkGARgHAh4HATcHAWIHAY0HAdAHAdEHAdIHAVoIAe8IAf8IATwJAbEJAfEJAfYJAYQKASQLAUQLAXALAXMLAcgLAdALAZsMAZ4MAZ8MAQYcAZUcAXseAtYgAfUgAfYgAfEiAfIiAfMiAbsBCAQBAgABkwIIkTBuAAEAAgEBAgECAgEDAgEIAgEKAgEMAgEPAgEQAgERAgESAgEYAgGHAgGKAgGQAgGRAgGbAgGcAgGfAgFbBQFcBQFdBQFhBQFoBQF0BQF2BQGgBQGhBQGkBQGmBQGpBQF6BgHFCwHICwHJCwHLCwHMCwHOCwF0DQF3DQGMDwGYDwGkDwGqDwGuDwFPEAHNYwHcBAgEAQEAAeEECQEB4gQKBA0I0wc6BQgEAUYIAdYGCAQBAQABvQcIBAGtFQE=; VID=3l7R6Q0-A6oG00000g1KL4IG:::0-0-9522329-83135a9:CAASEIbz7ZhIPX-LK89SWfewG3YacA_BaQHYT7Asx08ADsodOcUNtGigdR6HgMzhsGDczgTiveWOIZfeNHeLuD95Bzuw3CJmyBZtJ-dMjtFO6EAdwLS89E1nmfBokllHo1p3QiTLwphU6wNKhTwtyt1s2FoBsY17ZKizUyDroNUtq_RlOAA",
