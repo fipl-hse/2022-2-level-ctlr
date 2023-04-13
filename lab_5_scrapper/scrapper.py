@@ -1,23 +1,24 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
+import datetime
 import json
-from pathlib import Path
-
-from core_utils.config_dto import ConfigDTO
+import random
 import re
+import shutil
+import time
+from pathlib import Path
+from typing import Pattern, Union
+
+import requests
+from bs4 import BeautifulSoup
+
+from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
-import requests
-import shutil
-import random
-import time
-from bs4 import BeautifulSoup
-from core_utils.article.io import to_raw, to_meta
-from core_utils.article.article import Article
-import datetime
 
 
 class IncorrectSeedURLError(TypeError):
@@ -205,7 +206,6 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        pass
 
     def find_articles(self) -> None:
         """
@@ -262,13 +262,15 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        author = article_soup.find('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
+        author = article_soup.find\
+            ('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
         self.article.author = author.text[1:] if author else["NOT FOUND"]
 
         title = article_soup.find('h1')
         self.article.title = title.text
 
-        topics = article_soup.find_all('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
+        topics = article_soup.find_all\
+            ('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
         if topics[1:]:
             for topic in topics[1:]:
                 self.article.topics.append(topic.text[1:])
