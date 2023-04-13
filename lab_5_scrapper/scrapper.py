@@ -207,9 +207,12 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get("href")
+
+        if href is None:
+            return ""
+
         if href.startswith("https://irkutskmedia.ru/news/"):
             return href  # get links with matching attribute
-        return ""
 
     def find_articles(self) -> None:
         """
