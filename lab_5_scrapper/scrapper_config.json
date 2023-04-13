@@ -10,6 +10,13 @@
                 "accept-language": "ru-RU,ru;q=0.9,fr-FR;q=0.8,fr;q=0.7,en-US;q=0.6,en;q=0.5,sq;q=0.4",
                 "cookie": "_csrf-frontend=a7c3ddf3f0f8a5d06a6708ebd6abe4f1fb329b87740a8d0a6c9f46adff77a4c6a%3A2%3A%7Bi%3A0%3Bs%3A14%3A%22_csrf-frontend%22%3Bi%3A1%3Bs%3A32%3A%22Lc-G_e-kNykxoDqcBI6J6sYVWAgSm3ns%22%3B%7D; _ym_uid=1681311449625519444; _ym_d=1681311449; _ym_isad=2; cookie-popup=1",
                 "referer": "https://www.google.com/",
+                "sec-ch-ua": "'Google Chrome';v='111', 'Not(A:Brand';v='8', 'Chromium';v='111'",
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": "'Windows'",
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "none",
+                "sec-fetch-user": "?1",
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
                 },
     "total_articles_to_find_and_parse": 10,
