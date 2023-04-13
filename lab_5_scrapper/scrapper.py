@@ -248,7 +248,7 @@ class HTMLParser:
         """
         title = article_soup.find('h1', class_='block-title-inside')
         if not title:
-            self.article.title = 'WITHOUT TITLE'
+            self.article.title = ['WITHOUT TITLE']
         self.article.title = title.text
 
         authors = article_soup.find('li', class_='author')
