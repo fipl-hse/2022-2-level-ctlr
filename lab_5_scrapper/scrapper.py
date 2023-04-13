@@ -223,7 +223,7 @@ class Crawler:
             response = make_request(url=url, config=self.config)
 
             if response.status_code != 200 or response.status_code == 404:
-                continue
+                break
 
             # gets html page
             page = BeautifulSoup(response.text, "lxml")
