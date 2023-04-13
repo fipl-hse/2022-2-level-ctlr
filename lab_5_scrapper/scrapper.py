@@ -300,11 +300,31 @@ class HTMLParser:
             self.article.title = title_bs.text
 
         date_bs = article_soup.find('li', {'itemprop': 'datePublished'})
-
-        # if date_bs:
+        date_dict = {
+            'января': '01',
+            'февраля': '02',
+            'марта': '03',
+            'апреля': '04',
+            'мая': '05',
+            'июня': '06',
+            'июля': '07',
+            'августа': '08',
+            'сентября': '09',
+            'октября': '10',
+            'ноября': '11',
+            'декабря': '12',
+        }
         date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
+
         if date_txt:
             self.article.date = self.unify_date_format(date_txt[0])
+        else:
+            date_txt = re.search(r'\d+\s\w+,\s\d+', date_bs.text)
+            if date_txt:
+                repl = re.search(r'[^0-9, \s]+', date_txt[0])[0]
+                date_res = re.sub(r'\w+,', date_dict[repl], date_txt[0])
+                date_res = date_res.replace(' ', '/')
+                self.article.date = self.unify_date_format(date_res)
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
@@ -344,11 +364,68 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-
     if base_path.exists():
         shutil.rmtree(base_path)
 
     base_path.mkdir(parents=True)
+
+
+class CrawlerRecursive(Crawler):
+    """
+    An implementation of a recursive crawler
+    """
+    def __init__(self, config: Config) -> None:
+        super().__init__(config)
+        self.num_articles = config.get_num_articles()
+        self.start_url = config.get_seed_urls()[0]
+        self.article_urls = []
+        self.path_to_data = Path(__file__).parent/'crawler_data.json'
+        self.extract_crawler_file()
+
+    def find_articles(self) -> None:
+        """
+        Searching for articles recursively
+        """
+
+        response = make_request(self.start_url, self.config)
+        main_bs = BeautifulSoup(response.text, 'lxml')
+        paragraphs = main_bs.find_all('div', {'class': "elementor-widget-container"})
+
+        for el in paragraphs:
+            res = el.find_all('a')
+            for one in res:
+                res = self._extract_url(one)
+                if res and res not in self.article_urls:
+                    self.article_urls.append(res)
+
+        if len(self.article_urls) >= self.num_articles:
+            self.save_crawler_data()
+            return
+        for element in self.urls:
+            self.start_url = element
+            self.save_crawler_data()
+            self.find_articles()
+
+    def extract_crawler_file(self) -> None:
+        """
+        Checking if the file already exists
+        """
+        if self.path_to_data.exists():
+            with open(self.path_to_data, 'w', encoding='utf-8') as f:
+                content = json.load(f)
+                self.article_urls = content['article_urls']
+                self.start_url = content['start_url']
+
+    def save_crawler_data(self) -> None:
+        """
+        Saving the data after each step
+        """
+        crawler_data = {
+            'article_urls': self.article_urls[:self.num_articles],
+            'start_url': self.start_url
+        }
+        with open(self.path_to_data, 'w', encoding='utf-8') as json_file:
+            json.dump(crawler_data, json_file, ensure_ascii=True, indent=4, separators=(', ', ': '))
 
 
 def main() -> None:
@@ -367,5 +444,23 @@ def main() -> None:
             to_meta(article)
 
 
+def main_recursion() -> None:
+    """
+    Demonstrates the work or recursive crawler
+    """
+    prepare_environment(ASSETS_PATH)
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+
+    crawler_rec = CrawlerRecursive(config=configuration)
+    crawler_rec.find_articles()
+
+    for i, full_url in enumerate(crawler_rec.article_urls, start=1):
+        parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
+
 if __name__ == "__main__":
     main()
+    main_recursion()
