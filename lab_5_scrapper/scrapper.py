@@ -214,9 +214,9 @@ class Crawler:
             link = link_bs.get('href')
             if link is None:
                 continue
-            elif link[0:5] == '/news' and link.count('/') == 2:
-                self.urls.append('https://tvspb.ru' + link)
-        return ''
+            elif link[16:26] == '/news/2023':
+                self.urls.append(link)
+        return self.urls[0]
 
     def find_articles(self) -> None:
         """
@@ -254,8 +254,9 @@ class HTMLParser:
         Finds text of article
         """
         body_bs = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
-        all_paragraphs = body_bs.find_all('p')
-        self.article.text = all_paragraphs
+        all_paragraphs = str(body_bs.find_all('p'))
+        for paragraph in all_paragraphs:
+            self.article.text = paragraph
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
