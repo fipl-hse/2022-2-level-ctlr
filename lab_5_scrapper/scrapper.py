@@ -264,13 +264,13 @@ class HTMLParser:
             self.article.author = "NOT FOUND"
         self.article.author = [author.text for author in all_authors_info]
 
-        topics_info = article_soup.find_all('a', class_='article__tags')
-        if topics_info:
-            self.article.topics = [tag.text for tag in topics_info]
+        #topics_info = article_soup.find_all('a', class_='article__tags')
+        #if topics_info:
+            #self.article.topics = [tag.text for tag in topics_info]
 
-        date_info = article_soup.find('div', class_='article__date')
-        date = date_info.get_text()
-        self.article.date = date
+        #date_info = article_soup.find('div', class_='article__date')
+        #date = date_info.get_text()
+        #self.article.date = date
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
