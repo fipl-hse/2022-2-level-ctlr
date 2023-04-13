@@ -229,7 +229,7 @@ class Crawler:
                     response.raise_for_status()
                 except requests.exceptions.HTTPError:
                     continue
-            article_items.append(article_url)
+                article_items.append(article_url)
             number += 1
         self.urls.extend(article_items[:self.config.get_num_articles()])
 
