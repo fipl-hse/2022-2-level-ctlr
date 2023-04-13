@@ -215,17 +215,21 @@ class Crawler:
         count_of_page = 1
         while len(self.urls) < self._config.get_num_articles():
             page = make_request(url, config=self._config)
-            soup = BeautifulSoup(page.text, features="html.parser")
-            for elem in soup.find_all('a', class_='news-list__title'):
-                href = self._extract_url(elem)
-                if not href:
-                    continue
-                current_url = start_url + href
-                self.urls.append(current_url)
-                if len(self.urls) >= self._config.get_num_articles():
-                    return
-            count_of_page += 1
-            url = f"{start_url}/?PAGEN_1={count_of_page}"
+            if page.status_code == 200:
+                soup = BeautifulSoup(page.text, features="html.parser")
+                for elem in soup.find_all('a', class_='news-list__title'):
+                    href = self._extract_url(elem)
+                    if not href:
+                        continue
+                    current_url = start_url + href
+                    if current_url not in self.urls:
+                        self.urls.append(current_url)
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
+                count_of_page += 1
+                url = f"{start_url}/?PAGEN_1={count_of_page}"
+            else:
+                return
 
     def get_search_urls(self) -> list:
         """
@@ -314,6 +318,51 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     os.makedirs(base_path)
 
 
+class CrawlerRecursive(Crawler):
+    def __init__(self, config: Config) -> None:
+        super().__init__(config)
+        self.count_of_page = 1
+        self._config = config
+        self.url = config.get_seed_urls()[0]
+        self.load_info_from_file()
+
+    def load_info_from_file(self) -> None:
+        current_path = Path(__file__)
+        crawler_data_path = current_path.parent / 'crawler_recursive_data.json'
+        if crawler_data_path.exists():
+            with open('crawler_recursive_data.json', 'r', encoding='utf-8') as infile:
+                data = json.load(infile)
+                self.count_of_page = data['count_of_page']
+                self.urls = data['urls']
+
+    def save_data_in_file(self) -> None:
+        data = {
+            'count_of_page': self.count_of_page,
+            'urls': self.urls
+        }
+        with open('crawler_recursive_data.json', 'w', encoding='utf-8') as outfile:
+            json.dump(data, outfile, ensure_ascii=True, indent=2)
+
+    def find_articles(self) -> None:
+        url = f"{self.url}?PAGEN_1={self.count_of_page}"
+        page = make_request(url, self._config)
+        soup = BeautifulSoup(page.text, "html.parser")
+        for elem in soup.find_all('a', class_='news-list__title'):
+            href = self._extract_url(elem)
+            if not href:
+                continue
+            current_url = self.url + href
+            if current_url in self.urls:
+                continue
+            self.urls.append(current_url)
+            self.save_data_in_file()
+            if len(self.urls) >= self._config.get_num_articles():
+                return
+
+        self.count_of_page += 1
+        self.find_articles()
+
+
 def main() -> None:
     """
     Entrypoint for scrapper module
@@ -330,5 +379,20 @@ def main() -> None:
             to_meta(article)
 
 
+def main_recursive() -> None:
+    config = Config(const.CRAWLER_CONFIG_PATH)
+    prepare_environment(const.ASSETS_PATH)
+    crawler_recursive = CrawlerRecursive(config)
+    crawler_recursive.find_articles()
+    for id_, url in enumerate(crawler_recursive.urls, 1):
+        print(url)
+        parser = HTMLParser(full_url=url, article_id=id_, config=config)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
+
+
+main_recursive()
 if __name__ == "__main__":
     main()
