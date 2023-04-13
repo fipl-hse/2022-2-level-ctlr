@@ -268,9 +268,12 @@ class HTMLParser:
         self.article.title = title.get_text(strip=True)\
             if title else "NOT FOUND"
 
-        authors = article_soup.find('span', {'itemprop': 'author'})
-        self.article.author = authors.get_text(strip=True)\
-            if authors else "NOT FOUND"
+        authors_from_article = article_soup.find('span', {'itemprop': 'author'})
+        authors = authors_from_article.get_text(strip=True)
+        if authors:
+            self.article.author = [authors]
+        else:
+            self.article.author = ['NOT FOUND']
 
         date = article_soup.find('time', {"itemprop": "datePublished"})
         if date:
