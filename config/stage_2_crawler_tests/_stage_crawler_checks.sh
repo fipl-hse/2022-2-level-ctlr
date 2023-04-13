@@ -17,6 +17,14 @@ if [ "$ret" = 5 ]; then
   exit 0
 fi
 
+apt install curl
+curl --version
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET https://livennov.ru/news/ -v
+
+echo "!!!!now with python"
+python lab_5_scrapper/sample.py
+
+
 echo "Pytest results (should be 0): $ret"
 
 exit "$ret"
