@@ -320,26 +320,29 @@ class CrawlerRecursive(Crawler):
         self.start_url = config.get_seed_urls()[0]
         self.counter = 0
         self.visited_urls = []
-        self.path = Path(__file__).parent / 'r_crawler_data.json'
+        self.urls = []
+        self.path = Path(__file__).parent /'r_crawler_data.json'
+        self.load_data()
+
 
     def load_data(self) -> None:
         """
         Loads collected data from a file
         """
         if self.path.exists():
-            with open("r_crawler_data.json", encoding=self.config.get_encoding()) as f:
+            with open("r_crawler_data.json", 'r', encoding=self.config.get_encoding()) as f:
                 data = json.load(f)
                 self.urls = data['urls']
-
-
-
+                self.counter = data['counter']
+                self.visited_urls = data['visited_urls']
 
     def save_data(self) -> None:
         """
         Saves collected data to a file
         """
-        data = {'start_url': self.start_url,
-                'urls': self.urls}
+        data = {'urls': self.urls,
+                'counter': self.counter,
+                'visited_urls': self.visited_urls}
         with open(self.path, 'w', encoding=self.config.get_encoding()) as f:
             json.dump(data, f, indent=4)
 
@@ -362,6 +365,7 @@ class CrawlerRecursive(Crawler):
             if not article_url or article_url is None or article_url == ' ' or art_url in self.urls:
                 continue
             self.urls.append(art_url)
+        self.save_data()
         self.counter += 1
         self.find_articles()
 
@@ -389,6 +393,7 @@ def main_recursive() -> None:
     prepare_environment(ASSETS_PATH)
     r_crawler = CrawlerRecursive(configuration)
     r_crawler.find_articles()
+    print(len(r_crawler.urls))
     for i, full_url in enumerate(r_crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=configuration)
         article = parser.parse()
@@ -399,4 +404,4 @@ def main_recursive() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_recursive()
