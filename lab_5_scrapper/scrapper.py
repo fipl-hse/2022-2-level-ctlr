@@ -8,7 +8,6 @@ import shutil
 from pathlib import Path
 from typing import Pattern, Union
 from urllib.parse import urljoin, urlparse
-import pickle
 
 
 import requests
@@ -400,7 +399,8 @@ class CrawlerRecursive(Crawler):
         """
         response = make_request(self.start_url, self.config)
         soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find_all('a', class_=lambda value: value and ('mininews' in value or 'midinews' in value))
+        links = soup.find_all('a', class_=lambda value: value and ('mininews'
+                in value or 'midinews' in value))
         for link in links:
             href = link.get('href')
             if href:
