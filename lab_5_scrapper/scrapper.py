@@ -172,7 +172,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(1, 4))
+    time.sleep(random.randint(1, 6))
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
@@ -240,14 +240,14 @@ class HTMLParser:
         self._full_url = full_url
         self._article_id = article_id
         self._config = config
-        self._article = Article(self._full_url, self._article_id)
+        self.article = Article(self._full_url, self._article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
         for text in article_soup.find_all('div', class_="js-mediator-article"):
-            self._article.text += text.text + "\n"
+            self.article.text += text.text + "\n"
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -269,8 +269,9 @@ class HTMLParser:
         if page.status_code == 200:
             article_bs = BeautifulSoup(page.content, 'lxml')
             self._fill_article_with_text(article_bs)
-            return self._article
+            return self.article
         return False
+
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
@@ -289,10 +290,9 @@ def main() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(configuration)
     crawler.find_articles()
-    #for index, url in enumerate(crawler.urls, 1):
-        #parser = HTMLParser(url, index, configuration)
-        #article = parser.parse()
-
+    for index, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, index, configuration)
+        article = parser.parse()
 
 
 if __name__ == "__main__":
