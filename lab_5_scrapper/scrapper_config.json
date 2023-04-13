@@ -1,7 +1,7 @@
 {
     "seed_urls": ["https://kubnews.ru/all/"],
     "headers": {"cookie": "__ddg1_=1iFvyoDsz5StYmlyCXpr; session-cookie=1754acf2976f490a944734b9beb261f557183c89dbb689d48b0b41c10a3910e2cbd58fae771f41a44a516af889984e0d; BITRIX_SM_GUEST_ID=4183618; BITRIX_SM_LAST_VISIT=10.04.2023%2023%3A32%3A00; BITRIX_SM_LAST_ADV=5_Y; PHPSESSID=2OhO6XI4ayI6pOAG32qVm0wG6KnfEDVd; BITRIX_CONVERSION_CONTEXT_s1=%7B%22ID%22%3A97%2C%22EXPIRE%22%3A1681160340%2C%22UNIQUE%22%3A%5B%22conversion_visit_day%22%5D%7D; _ym_uid=1681158721987256964; _ym_d=1681158721; tmr_lvid=41c86776bf4404c877b14f50e8fd3951; tmr_lvidTS=1681158720673; _ym_isad=2; BX_USER_ID=01d63cf58a0a122390c0ff6d2474a0e0; _ym_visorc=w; tmr_detect=0%7C1681158723137"},
-    "total_articles_to_find_and_parse": 10,
+    "total_articles_to_find_and_parse": 15,
     "encoding": "utf-8",
     "timeout": 2,
     "should_verify_certificate": true,
