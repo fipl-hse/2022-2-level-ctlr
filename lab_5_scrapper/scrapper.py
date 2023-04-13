@@ -195,6 +195,7 @@ class Crawler:
         """
         if isinstance(href := article_bs.get('href'), str):
             return 'https://ptzgovorit.ru' + href
+        return 'mypy shut up'
 
     def find_articles(self) -> None:
         """
