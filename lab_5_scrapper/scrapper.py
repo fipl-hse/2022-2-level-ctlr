@@ -242,11 +242,15 @@ class HTMLParser:
             text += paragraph.get_text().strip() + '\n'
         self.article.text += text
 
-
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
+        title = article_soup.find('h1', class_='block-title-inside')
+        self.article.title = title.text
+
+        author = article_soup.find_all('li', class_='author')
+        self.article.author = author.text
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
