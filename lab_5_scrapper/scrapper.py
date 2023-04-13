@@ -400,7 +400,6 @@ def main_recursive() -> None:
     crawler_recursive = CrawlerRecursive(config)
     crawler_recursive.find_articles()
     for id_, url in enumerate(crawler_recursive.urls, 1):
-        print(url)
         parser = HTMLParser(full_url=url, article_id=id_, config=config)
         article = parser.parse()
         if isinstance(article, Article):
