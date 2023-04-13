@@ -320,7 +320,7 @@ class HTMLParser:
             self.article.date = self.unify_date_format(date_txt[0])
         else:
             date_txt = re.search(r'\d+\s\w+,\s\d+', date_bs.text)
-            if date_txt:
+            if date_txt and isinstance(date_txt[0], str):
                 repl = re.search(r'[^0-9, \s]+', date_txt[0])[0]
                 date_res = re.sub(r'\w+,', date_dict[repl], date_txt[0])
                 date_res = date_res.replace(' ', '/')
@@ -391,8 +391,8 @@ class CrawlerRecursive(Crawler):
         main_bs = BeautifulSoup(response.text, 'lxml')
         paragraphs = main_bs.find_all('div', {'class': "elementor-widget-container"})
 
-        for el in paragraphs:
-            res = el.find_all('a')
+        for one_par in paragraphs:
+            res = one_par.find_all('a')
             for one in res:
                 res = self._extract_url(one)
                 if res and res not in self.article_urls:
