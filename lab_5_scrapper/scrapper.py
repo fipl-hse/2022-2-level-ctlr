@@ -6,8 +6,8 @@ import json
 import random
 import re
 import shutil
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Pattern, Union
 
 import requests
