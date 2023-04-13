@@ -247,9 +247,11 @@ class HTMLParser:
         Finds meta information of article
         """
         title = article_soup.find('h1', class_='block-title-inside')
-        self.article.title = title.text
+        self.article.title = title.text.strip()
 
         author = article_soup.find('li', class_='author')
+        if not author:
+            return ['NOT FOUND']
         self.article.author = author.text
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
