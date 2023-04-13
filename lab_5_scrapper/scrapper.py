@@ -269,9 +269,10 @@ class HTMLParser:
             self.article.topics = [tag.text for tag in topics_info]
 
         date_info = article_soup.find('div', class_='article__date')
-        date = date_info.get('#text')
-        self.article.date = date
-
+        for date in date_info:
+            icon = date.find_all('svg', class_='article__date-icon')
+            final_date = date.replace(icon, '')
+            self.article.date = final_date
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
