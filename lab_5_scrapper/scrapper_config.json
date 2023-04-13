@@ -11,11 +11,16 @@
         "cookie":"p=HasBAE+Z//EA; s=rt=1|dpr=1.25; searchuid=464132831662445514; ph=pp_l=1|pp_t=1681074858585; b=AEwDAKBx54QCAQAACGVYHwxbUrALJaFZWqIcs+Mt+Ku1D4bT6vbBAAAA; c=yiozZAIAoHsTAAAUAAgAM9MZwAQAAKAHQNhPE5oMYGY6AwgA; i=AQBQwTdkCQATAAiRMFwAAnEAARwBAR8BAUQBAW4BAYUBARsCAfACAogEAcIEAeEEAV4FAVkGARgHAh4HATcHAWIHAY0HAdAHAdEHAdIHAVoIAe8IAf8IATwJAbEJAfEJAfYJAYQKASQLAUQLAXALAXMLAcgLAdALAZsMAZ4MAZ8MAQYcAZUcAXseAtYgAfUgAfYgAfEiAfIiAfMiAbsBCAQBAgABkwIIkTBuAAEAAgEBAgECAgEDAgEIAgEKAgEMAgEPAgEQAgERAgESAgEYAgGHAgGKAgGQAgGRAgGbAgGcAgGfAgFbBQFcBQFdBQFhBQFoBQF0BQF2BQGgBQGhBQGkBQGmBQGpBQF6BgHFCwHICwHJCwHLCwHMCwHOCwF0DQF3DQGMDwGYDwGkDwGqDwGuDwFPEAHNYwHcBAgEAQEAAeEECQEB4gQKBA0I0wc6BQgEAUYIAdYGCAQBAQABvQcIBAGtFQE=; VID=3l7R6Q0-A6oG00000g1KL4IG:::0-0-9522329-83135a9:CAASEIbz7ZhIPX-LK89SWfewG3YacA_BaQHYT7Asx08ADsodOcUNtGigdR6HgMzhsGDczgTiveWOIZfeNHeLuD95Bzuw3CJmyBZtJ-dMjtFO6EAdwLS89E1nmfBokllHo1p3QiTLwphU6wNKhTwtyt1s2FoBsY17ZKizUyDroNUtq_RlOAA",
         "accept-encoding":"gzip, deflate, br",
         "referer":"https://irkutskmedia.ru/",
-        "accept-language":"ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+        "accept-language":"ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        "sec-ch-ua-mobile":"?0",
+        "sec-ch-ua-platform":"Windows",
+        "accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "path":"/tracker?js=13;id=3157102;u=https%3A//irkutskmedia.ru/news/%3Fpage%3D1;r=https%3A//irkutskmedia.ru/;st=1681379274929;title=%D0%9B%D0%B5%D0%BD%D1%82%D0%B0%20%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B5%D0%B9%20-%20IrkutskMedia;s=1536*864;vp=810*722;touch=0;hds=1.25;frame=0;flash=;sid=157c37f43cfbca18;ver=60.3.0;tz=-180%2FEurope%2FMoscow;ni=5.55//4g/50/0/;detect=1;lvid=1678726932649%3A1681379290777%3A692%3A7816c28c3aa5cf88723fb6872627390b;opts=dl%2Cjst-gtag-ga-ym-vk;visible=true;_=0.9936268273068507;e=PVT/15",
+        "authority":"top-fwz1.mail.ru"
     },
     "total_articles_to_find_and_parse": 20,
     "encoding": "utf-8",
-    "timeout": 5,
+    "timeout": 2,
     "should_verify_certificate": true,
     "headless_mode": false
 }
