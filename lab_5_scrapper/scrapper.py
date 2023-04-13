@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Pattern, Union
 from urllib.parse import urljoin, urlparse
 
-
 import requests
 from bs4 import BeautifulSoup
 
