@@ -209,7 +209,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 5:
+        if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 4:
             return url
 
     def find_articles(self) -> None:
@@ -316,6 +316,7 @@ class HTMLParser:
         response = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
         return self.article
 
 
