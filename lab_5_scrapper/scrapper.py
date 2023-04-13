@@ -204,8 +204,7 @@ class Crawler:
         url = article_bs.get('href')
         if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 4:
             return url
-        else:
-            return ''
+        return ''
 
     def find_articles(self) -> None:
         """
