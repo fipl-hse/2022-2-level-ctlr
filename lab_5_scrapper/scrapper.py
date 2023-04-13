@@ -43,10 +43,6 @@ class IncorrectTimeoutError(Exception):
     pass
 
 
-class RequestError(Exception):
-    pass
-
-
 class IncorrectVerifyError(Exception):
     pass
 
@@ -90,11 +86,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for urls in config_dto.seed_urls:
-            if not isinstance(urls, str):
-                raise IncorrectSeedURLError
-
-        for urls in config_dto.seed_urls:
-            if not re.match(r'^https?://.*', urls):
+            if not re.match(r'^https?://.*', urls) or not isinstance(urls, str):
                 raise IncorrectSeedURLError
 
         total_articles_to_find_and_parse = config_dto.total_articles
@@ -167,12 +159,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
-    if response.status_code != 200:
-        raise RequestError(Exception)
     return response
 
 
@@ -194,9 +183,9 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        url = article_bs.get('href')
-        if url and url.count('/') >= 3 and url.startswith('/news/'):
-            return 'https://sovainfo.ru' + str(url)
+        url = article_bs['href']
+        if isinstance(url, str):
+            return url
         return ''
 
     def find_articles(self) -> None:
@@ -205,13 +194,19 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
-            if response.status_code == 200:
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                for url in main_bs.find_all('a'):
-                    final_url = self._extract_url(url)
-                    self.urls.append(final_url)
-                    if len(self.urls) >= self._config.get_num_articles():
-                        return
+            if response.status_code != 200:
+                continue
+            main_bs = BeautifulSoup(response.text, 'lxml')
+            all_links = main_bs.find_all('a')
+            for url in all_links:
+                href = self._extract_url(url)
+                if href is None:
+                    continue
+                if href.startswith('/news/'):
+                    if href.count('/') == 3:
+                        final_url = "https://sovainfo.ru" + href
+                        if (final_url not in self.urls) and (len(self.urls) < self._config.get_num_articles()):
+                            self.urls.append(final_url)
 
     def get_search_urls(self) -> list:
         """
