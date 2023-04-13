@@ -8,10 +8,12 @@ import re
 import datetime
 import requests
 from bs4 import BeautifulSoup
+
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT)
+                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT, ASSETS_PATH)
 import shutil
 
 
@@ -199,9 +201,9 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if link and link.count('/') == 5 and 'https://smolnarod.ru/news/' in link:
+        if link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
             return link
-        return ''
+        return link
 
     def find_articles(self) -> None:
         """
@@ -233,7 +235,10 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(url=self.full_url, article_id=self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -245,7 +250,10 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
+        all_paragraphs = article_body.find_all('p')
+        paragraph_texts = [par.text.strip() for par in all_paragraphs]
+        paragraph_texts = '\n'.join(paragraph_texts)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -273,7 +281,16 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
+
+    for idx, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=idx, config=configuration)
+        text = parser.parse()
+        if isinstance(text, Article):
+            to_raw(text)
 
 
 if __name__ == "__main__":
