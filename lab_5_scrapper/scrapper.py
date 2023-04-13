@@ -321,10 +321,11 @@ class HTMLParser:
         else:
             date_txt = re.search(r'\d+\s\w+,\s\d+', date_bs.text)
             if date_txt and isinstance(date_txt[0], str):
-                repl = re.search(r'[^0-9, \s]+', date_txt[0])[0]
-                date_res = re.sub(r'\w+,', date_dict[repl], date_txt[0])
-                date_res = date_res.replace(' ', '/')
-                self.article.date = self.unify_date_format(date_res)
+                repl = re.search(r'[^0-9, \s]+', date_txt[0])
+                if repl and isinstance(repl[0], str):
+                    date_res = re.sub(r'\w+,', date_dict[repl[0]], date_txt[0])
+                    date_res = date_res.replace(' ', '/')
+                    self.article.date = self.unify_date_format(date_res)
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
