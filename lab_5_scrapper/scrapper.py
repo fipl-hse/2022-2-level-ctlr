@@ -3,7 +3,6 @@ Crawler implementation
 """
 import datetime
 import json
-# import os
 import random
 import re
 import shutil
@@ -206,7 +205,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if url and url.startswith('/news/'):
+        if url and url.startswith('https://moskvichmag.ru/gorod/'):
             return str(url)
         return ''
 
@@ -218,9 +217,8 @@ class Crawler:
             response = make_request(url, self.config)
             main_bs = BeautifulSoup(response.content, "lxml")
             for link in main_bs.find_all('a'):
-                if self._extract_url(link) and \
-                        '?PAGEN' not in self._extract_url(link):
-                    cor_url = 'https://livennov.ru' + str(self._extract_url(link))
+                if self._extract_url(link):
+                    cor_url = str(self._extract_url(link))
                     if cor_url not in self.urls:
                         self.urls.append(cor_url)
                     if len(self.urls) >= self.config.get_num_articles():
@@ -253,46 +251,41 @@ class HTMLParser:
         """
         main_text = article_soup.find('div', {
             'itemprop': 'articleBody'})
-        if main_text:
-            self.article.text = main_text.text.replace('\n\n', ' ').replace('  ', '').strip()
-        else:
-            self.article.text = 'NOT FOUND'
+        self.article.text = main_text.get_text(strip=True)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title_info = article_soup.find('div', {'class', 'b-news-detail-top'})
-        self.article.title = title_info.find('h1').get_text(strip=True) \
-            if title_info else 'NOT FOUND'
+        title_info = article_soup.find('h1', itemprop="headline")
+        self.article.title = title_info.text
 
-        author_info = article_soup.find('div', itemprop="author")
-        if author_info.get_text(strip=True):
-            self.article.author.append(author_info.get_text(strip=True))
+        author_info = article_soup.find('span', itemprop="name")
+        if author_info.text:
+            self.article.author.append(author_info.text)
         else:
             self.article.author.append('NOT FOUND')
 
-        date_info = article_soup.find('time', {'class': "b-meta-item"})
+        date_info = article_soup.find('time', {
+            'class': "entry-date published ArticlesItem-datetime"})
         if date_info:
-            self.article.date = self.unify_date_format(date_info.get_text(strip=True))
+            self.article.date = self.unify_date_format(date_info.text)
 
-        topics_info = [topic.get_text(strip=True)
-                       for topic in article_soup.find_all('div', {'class': "lid-detail"})
-                       if topic.get_text(strip=True)]
-        self.article.topics = topics_info
+        for topic in article_soup.find_all('a', {"class": "Article-category"}):
+            if topic.text and topic.text not in self.article.topics:
+                self.article.topics.append(topic.text)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%d.%m.%Y %H:%M')
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
         response = make_request(self.full_url, self.config)
-        # if response.status_code == 200:
         main_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(main_bs)
         self._fill_article_with_meta_information(main_bs)
