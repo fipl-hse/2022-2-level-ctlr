@@ -182,7 +182,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randrange(3, 7))
+    time.sleep(random.randrange(3, 10))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
     print(f'Made request to: {url}')
     print(f'Headers: {config.get_headers()}')
