@@ -15,7 +15,7 @@ import shutil
 import random
 import time
 from bs4 import BeautifulSoup
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 from core_utils.article.article import Article
 import datetime
 
@@ -262,13 +262,43 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        author = article_soup.find('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
+        self.article.author = author.text[1:] if author else["NOT FOUND"]
+
+        title = article_soup.find('h1')
+        self.article.title = title.text
+
+        topics = article_soup.find_all('a', {'class': 'inline-block text-[11px] mr-1 mb-1 text-[#276FFF]'})
+        if topics[1:]:
+            for topic in topics[1:]:
+                self.article.topics.append(topic.text[1:])
+        else:
+            self.article.topics = "NOT FOUND"
+
+        date = article_soup.find('div', {'class': 'MatterTop_date__NIUrJ'})
+        date_str = date.text if date else "NOT FOUND"
+        self.article.date = self.unify_date_format(date_str)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        months_dict = {
+            "января": "01",
+            "февраля": "02",
+            "марта": "03",
+            "апреля": "04",
+            "мая": "05",
+            "июня": "06",
+            "июля": "07",
+            "августа": "08",
+            "сентября": "09",
+            "октября": "10",
+            "ноября": "11",
+            "декабря": "12"
+        }
+        date_str = date_str.replace(date_str.split()[1], months_dict[date_str.split()[1]])
+        return datetime.datetime.strptime(date_str, '%d %m %Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -277,6 +307,7 @@ class HTMLParser:
         response = make_request(self.full_url, self.config)
         article = BeautifulSoup(response.text, 'lxml')
         self._fill_article_with_text(article)
+        self._fill_article_with_meta_information(article)
         return self.article
 
 
@@ -302,6 +333,7 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
