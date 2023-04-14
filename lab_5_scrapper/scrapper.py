@@ -252,11 +252,13 @@ class HTMLParser:
         Finds text of article
         """
         first = article_soup.find("div",
-                                  class_='text-[16px] leading-relaxed font-semibold mb-8 lg:font-sans '
+                                  class_='text-[16px] leading-relaxed '
+                                         'font-semibold mb-8 lg:font-sans '
                                          'lg:text-[28px] lg:leading-[1.35] lg:mb-[16px]')
 
         elements = (article_soup.find_all("div",
-                                          class_=['mb-[24px] lg:mb-[28px]', 'Common_common__MfItd']))
+                                          class_=['mb-[24px] lg:mb-[28px]',
+                                                  'Common_common__MfItd']))
 
         self.article.text += first.text
         for elem in elements:
