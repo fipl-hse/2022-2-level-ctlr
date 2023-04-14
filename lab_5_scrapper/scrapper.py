@@ -369,7 +369,7 @@ def main() -> None:
             to_meta(article)
 
 
-def main2():
+def main2() -> None:
     """
     Entrypoint for recursive scrapper module
     """
