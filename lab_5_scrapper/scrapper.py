@@ -346,8 +346,9 @@ class CrawlerRecursive(Crawler):
                     self._extract_url(link) not in self.urls:
                 self.urls.append(self._extract_url(link))
 
-                self.start_url = article_bs.find('a',
-                                                 class_="Loader-btn").get('href')
+                new_start = article_bs.find('a',
+                                            class_="Loader-btn").get('href')
+                self.start_url = str(new_start)
                 self.save_data()
                 self.find_articles()
 
