@@ -398,7 +398,7 @@ class CrawlerRecursive(Crawler):
             self.urls = crawler_data['urls']
             num_urls = crawler_data.get('num_urls')
             if num_urls is not None:
-                self.config.set_num_articles(num_urls)
+                self.config.get_num_articles()
 
     def find_articles(self) -> None:
         """
@@ -443,9 +443,10 @@ def main_recursive() -> None:
         parser = HTMLParser(url, ind, config)
         article = parser.parse()
 
-        if isinstance(article, Article):
+        if article is not None and isinstance(article, Article):
             to_raw(article)
             to_meta(article)
+
 
 
 def main() -> None:
@@ -462,7 +463,7 @@ def main() -> None:
         parser = HTMLParser(full_url=url, article_id=i, config=config)
         article = parser.parse()
 
-        if isinstance(article, Article):
+        if article is not None and isinstance(article, Article):
             to_raw(article)
             to_meta(article)
 
