@@ -228,9 +228,8 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_block = article_soup.find("div", class_="main_text_ip")
-        paragraphs = text_block.find_all("p")
-        self.article.text = " ".join(paragraph.text.strip() for paragraph in paragraphs)
+        text_block = article_soup.find("div", class_="main_text_ip").find("div")
+        self.article.text = text_block.get_text().strip()
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
