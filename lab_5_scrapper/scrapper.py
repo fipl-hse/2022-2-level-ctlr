@@ -102,7 +102,7 @@ class Config:
             raise IncorrectSeedURLError('seed URL is not a list')
 
         for url in config.seed_urls:
-            if not re.match(re.compile(r"https?://w?."), url):
+            if not re.match(r'^https?://.*', url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(config.total_articles, int)
@@ -252,12 +252,10 @@ class HTMLParser:
         Finds text of article
         """
         elements = article_soup.find_all("div", class_='mb-[24px] lg:mb-[28px]')
-        paragraphs = ""
         for elem in elements:
             par = elem.find_all('p')
-            paragraphs += " ".join([text.get_text(strip=True) for text in par])
-            paragraphs += " "
-        self.article.text = paragraphs
+            self.article.text += " ".join(text.get_text(strip=True) for text in par)
+            self.article.text += " "
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
