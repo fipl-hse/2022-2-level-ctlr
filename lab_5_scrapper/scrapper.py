@@ -197,7 +197,8 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
+        self._config = config
+        self._seed_urls = self._config.get_seed_urls()
         self.urls = []
 
     @staticmethod
@@ -206,35 +207,33 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         href = article_bs.get("href")
-        if href and href.startswith("https://irkutskmedia.ru/news/") and "hashtag" not in href:
-            return href
-        return ''
+
+        if href is None:
+            return ""
+
+        if href.startswith("https://irkutskmedia.ru/news/"):
+            return href  # get links with matching attribute
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self.get_search_urls():
-            # makes a get-response to a server
-            response = make_request(url=url, config=self.config)
-
-            page = BeautifulSoup(response.text, "lxml")
-            page_links = page.find_all("a")
-
-            for page_link in page_links:
-                link = self._extract_url(page_link)
-
-                if link or link not in self.urls:
-                    self.urls.append(link)
-
-                if len(self.urls) == self.config.get_num_articles():
+        for seed_url in self._seed_urls:
+            res = make_request(seed_url, self._config)
+            soup = BeautifulSoup(res.content, "lxml")
+            for paragraph in soup.find_all('a'):
+                if len(self.urls) >= self._config.get_num_articles():
                     return
+                url = self._extract_url(paragraph)
+                if not url or url in self.urls:
+                    continue
+                self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -260,7 +259,7 @@ class HTMLParser:
         for div in texts_tag:
             for text in div.find_all("p"):
                 final_text.append(text.get_text(strip=True))
-        self.article.text = " ".join(final_text)
+        self.article.text = "".join(final_text)
         # self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -311,7 +310,9 @@ def main() -> None:
 
     for identification, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(
-            full_url=url, article_id=identification, config=configuration
+            full_url=url,
+            article_id=identification,
+            config=configuration
         )
         article = parser.parse()
         to_raw(article)
