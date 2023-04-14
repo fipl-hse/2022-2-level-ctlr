@@ -195,7 +195,7 @@ class Crawler:
         """
         if isinstance(href := article_bs.get('href'), str):
             return 'https://ptzgovorit.ru' + href
-        return 'mypy shut up'
+        return 'placeholder string'
 
     def find_articles(self) -> None:
         """
@@ -239,9 +239,9 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text_div = article_soup.find('div', {'class': 'field-type-text-with-summary'})
-        self.article.text = '\n'.join(text for paragraph in text_div.find_all('p')
-                                      if (text := paragraph.text.strip()))
+        text_divs = article_soup.find_all('div', {'class': ['field-type-text-with-summary',
+                                                            'field-name-field-annotation']})
+        self.article.text = '\n'.join(block.text.replace('\n\n', '\n') for block in text_divs)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
