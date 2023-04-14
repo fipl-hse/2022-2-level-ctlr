@@ -251,11 +251,19 @@ class HTMLParser:
         """
         Finds text of article
         """
-        elements = article_soup.find_all("div", class_='mb-[24px] lg:mb-[28px]')
+        first = article_soup.find("div",
+                                  class_='text-[16px] leading-relaxed font-semibold mb-8 lg:font-sans '
+                                         'lg:text-[28px] lg:leading-[1.35] lg:mb-[16px]')
+
+        elements = (article_soup.find_all("div",
+                                          class_=['mb-[24px] lg:mb-[28px]', 'Common_common__MfItd']))
+
+        self.article.text += first.text
         for elem in elements:
-            par = elem.find_all('p')
+            par = elem.find_all(['p', 'blockquote'])
             self.article.text += " ".join(text.get_text(strip=True) for text in par)
             self.article.text += " "
+
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
