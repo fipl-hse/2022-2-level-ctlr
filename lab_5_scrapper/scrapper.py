@@ -259,13 +259,14 @@ class HTMLParser:
         elements = (article_soup.find_all("div",
                                           class_=['mb-[24px] lg:mb-[28px]',
                                                   'Common_common__MfItd']))
-
+        paraghaph = []
         self.article.text += first.text
         for elem in elements:
             par = elem.find_all(['p', 'blockquote'])
-            self.article.text += " ".join(text.get_text(strip=True) for text in par)
-            self.article.text += " "
+            for elem in par:
+                paraghaph.append(elem.text)
 
+        self.article.text += " ".join(paraghaph)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
