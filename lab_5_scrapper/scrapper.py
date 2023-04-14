@@ -345,12 +345,13 @@ class CrawlerRecursive(Crawler):
             if self._extract_url(link) and \
                     self._extract_url(link) not in self.urls:
                 self.urls.append(self._extract_url(link))
-
-                new_start = article_bs.find('a',
-                                            class_="Loader-btn").get('href')
-                self.start_url = str(new_start)
                 self.save_data()
-                self.find_articles()
+
+        new_start = article_bs.find('a',
+                                    class_="Loader-btn").get('href')
+        self.start_url = str(new_start)
+        self.save_data()
+        self.find_articles()
 
 
 def main() -> None:
@@ -386,4 +387,4 @@ def main2() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main2()
