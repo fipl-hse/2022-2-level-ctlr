@@ -218,8 +218,8 @@ class Crawler:
             response = make_request(url, self.config)
             main_bs = BeautifulSoup(response.text, "lxml")
             for link in main_bs.find_all('a'):
-                if self._extract_url(link) and self._extract_url(link) not in self.urls:
-                    self.urls.append(self._extract_url(link))
+                if (url := self._extract_url(link)) and url not in self.urls:
+                    self.urls.append(url)
                 if len(self.urls) >= self.config.get_num_articles():
                     return
 
