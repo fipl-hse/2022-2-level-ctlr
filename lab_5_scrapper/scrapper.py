@@ -383,7 +383,8 @@ class CrawlerRecursive(Crawler):
         from crawler into a json file
         """
         with open(self.crawler_data_path, 'w', encoding='utf-8') as f:
-            json.dump({'start_url': self.start_url, 'num_urls': len(self.urls), 'urls': self.urls}, f)
+            json.dump({'start_url': self.start_url,
+                       'num_urls': len(self.urls), 'urls': self.urls}, f)
 
     def load_crawler_data(self) -> None:
         """
