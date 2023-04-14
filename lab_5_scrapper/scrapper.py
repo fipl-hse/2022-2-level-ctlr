@@ -367,23 +367,27 @@ class CrawlerRecursive(Crawler):
     """
     Recursive crawler implementation
     """
+
     def __init__(self, config: Config):
         super().__init__(config)
-        self.crawler_data_path =  Path('crawler_state.json')
-        self.start_url = config.get_seed_urls()[0]
-        self.load_crawler_data()
+        self.crawler_data_path = Path('crawler_state.json')
+        if self.crawler_data_path.exists():
+            self.load_crawler_data()
+        else:
+            self.start_url = config.get_seed_urls()[0]
+            self.urls = []
 
     def save_crawler_data(self) -> None:
         """
-        Saves start_url and collected urls
+        Saves start_url, number of collected urls and collected urls
         from crawler into a json file
         """
         with open(self.crawler_data_path, 'w', encoding='utf-8') as f:
-            json.dump({'start_url': self.start_url, 'urls': self.urls}, f)
+            json.dump({'start_url': self.start_url, 'num_urls': len(self.urls), 'urls': self.urls}, f)
 
     def load_crawler_data(self) -> None:
         """
-        Loads start_url and collected urls
+        Loads start_url, number of collected urls and collected urls
         from a json file into crawler
         """
         if self.crawler_data_path.exists():
@@ -391,15 +395,21 @@ class CrawlerRecursive(Crawler):
                 crawler_data = json.load(f)
             self.start_url = crawler_data['start_url']
             self.urls = crawler_data['urls']
+            num_urls = crawler_data.get('num_urls')
+            if num_urls is not None:
+                self.config.set_num_articles(num_urls)
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
+        if self.urls and self.crawler_data_path.exists():
+            # if there are collected urls and a saved state, start from the last collected url
+            self.start_url = self.urls[-1]
         response = make_request(self.start_url, self.config)
         soup = BeautifulSoup(response.content, 'html.parser')
-        links = soup.find_all('a', class_=lambda value: value and ('mininews'
-                in value or 'midinews' in value))
+        links = soup.find_all('a', class_=lambda value:
+            value and ('mininews' in value or 'midinews' in value))
         for link in links:
             href = link.get('href')
             if href:
