@@ -373,7 +373,7 @@ def main() -> None:
             config=configuration
         )
         article = parser.parse()
-        
+
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
