@@ -174,6 +174,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    # chooses the amount of time for waiting to make a request
     sleep_time = randint(1, 3)
     sleep(sleep_time)
     request = requests.get(
@@ -208,25 +209,34 @@ class Crawler:
         """
         href = article_bs.get("href")
 
-        if href is None:
+        if not href:
             return ""
 
-        if href.startswith("https://irkutskmedia.ru/news/"):
-            return href  # get links with matching attribute
+        if href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
+            return href  # get proper link
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
+        # iterates over a list of seed
         for seed_url in self._seed_urls:
             res = make_request(seed_url, self._config)
             soup = BeautifulSoup(res.content, "lxml")
+
+            # finds a tag with a link
             for paragraph in soup.find_all('a'):
+
+                # programs stops finding links if it is larger than in the config
                 if len(self.urls) >= self._config.get_num_articles():
                     return
+
+                # gets a valid url from a page
                 url = self._extract_url(paragraph)
+
                 if not url or url in self.urls:
                     continue
+
                 self.urls.append(url)
 
     def get_search_urls(self) -> list:
@@ -254,30 +264,79 @@ class HTMLParser:
         """
         Finds text of article
         """
-        texts_tag = article_soup.find_all("div")
-        final_text = []
-        for div in texts_tag:
-            for text in div.find_all("p"):
-                final_text.append(text.get_text(strip=True))
-        self.article.text = "".join(final_text)
-        # self.article.text = ' '.join(passage.text.strip() for passage in passages if passage is not None)
+        # finds article's text in the unique attribute
+        texts_tag = article_soup.find_all("p")
+        # stores retrieved text in a list
+        final_text = [text.get_text(strip=True) for text in texts_tag]
+        self.article.text = "\n".join(final_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        title = article_soup.find("h1").get_text()
+        title = article_soup.find("h1")
 
+        # checks that found meta-information exists on the site
         if title:
-            self.article.title = title
+            self.article.title = title.text.strip()
 
+        topic = article_soup.find('a', class_='fn-rubric-a')
+
+        if topic:
+            self.article.topics = topic.text.strip()
+
+        date = article_soup.find('div', class_='fn-rubric-link')
+
+        if date:
+            self.article.date = self.unify_date_format(date.text.strip())
+
+        # the name of authors is not defined on the pages
         self.article.author = ["NOT FOUND"]
 
-    def unify_date_format(self, date_str: str) -> datetime.datetime:
+    @staticmethod
+    def unify_date_format(date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        months = {
+            'января': 'January',
+            'февраля': 'February',
+            'марта': 'March',
+            'апреля': 'April',
+            'мая': 'May',
+            'июня': 'June',
+            'июля': 'July',
+            'августа': 'August',
+            'сентября': 'September',
+            'ноября': 'November',
+            'осктября': 'October',
+            'декабря': 'December'
+        }
+        # current year, month and date
+        this_year = datetime.datetime.today().year
+        this_month = datetime.datetime.today().month
+        this_date = datetime.datetime.today().day
+
+        # 11:30
+        # the pattern is aimed to find date information like in the example above(only time)
+        if re.match(r'\d{2}:\d{2}', date_str):
+            date = datetime.datetime.strptime(date_str, '%H:%M')
+            return date.replace(year=this_year, month=this_month, day=this_date)
+
+        # finds the name of the month in a string
+        month_in_date = re.findall(r'[а-я]+', date_str)[0]
+        # translates month's name to English
+        eng_date = re.sub(month_in_date, months[month_in_date], date_str)
+
+        # 25 декабря, 11:30
+        # the pattern is aimed to find date information like in the example above(without year)
+        if re.match(r'(\d{2}) \w+, \1:\1', date_str):
+            date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
+            return date_d.replace(year=this_year)
+
+        # 25 декабря 2023, 11:30
+        # matches when a parsed value has date, month, year and time
+        return datetime.datetime.strptime(eng_date, '%d %B %Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
