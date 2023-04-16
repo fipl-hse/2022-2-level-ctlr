@@ -210,7 +210,7 @@ class Crawler:
         href = article_bs.get("href")
 
         if href and href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
-            return href  # get proper link
+            return str(href)  # get proper link
 
         return ""
 
@@ -373,8 +373,10 @@ def main() -> None:
             config=configuration
         )
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
