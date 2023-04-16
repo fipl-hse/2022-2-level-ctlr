@@ -329,7 +329,7 @@ class HTMLParser:
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
-        if re.match(r'(\d{2}) \w+, \1:\1', date_str):
+        if re.match(r'\d{2} (?i)[a-z]+, \d{2}:\d{2}', eng_date):
             date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
             return date_d.replace(year=this_year)
 
