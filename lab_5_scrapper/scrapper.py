@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
@@ -209,11 +209,10 @@ class Crawler:
         """
         href = article_bs.get("href")
 
-        if not href:
-            return ""
-
-        if href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
+        if href and href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
             return href  # get proper link
+
+        return ""
 
     def find_articles(self) -> None:
         """
@@ -283,7 +282,7 @@ class HTMLParser:
         topic = article_soup.find('a', class_='fn-rubric-a')
 
         if topic:
-            self.article.topics = topic.text.strip()
+            self.article.topics.append(topic.text.strip())
 
         date = article_soup.find('div', class_='fn-rubric-link')
 
