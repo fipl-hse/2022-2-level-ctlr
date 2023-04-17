@@ -18,6 +18,9 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self._path_to_raw_txt_data = Path(path_to_raw_txt_data)
+        self._storage = {}
+        self._validate_dataset()
 
     def _validate_dataset(self) -> None:
         """
