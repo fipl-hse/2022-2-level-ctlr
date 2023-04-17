@@ -1,12 +1,14 @@
 """
 Pipeline for CONLL-U formatting
 """
+from pathlib import Path
 from typing import List
 
 from core_utils.article.article import SentenceProtocol
-from core_utils.article.ud import TagConverter
+from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 
+# pylint: disable=too-few-public-methods
 class CorpusManager:
     """
     Works with articles and stores them
@@ -106,12 +108,12 @@ class MystemTagConverter(TagConverter):
     Mystem Tag Converter
     """
 
-    def convert_morphological_tags(self, tags: str) -> str:
+    def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
         """
         Converts the Mystem tags into the UD format
         """
 
-    def convert_pos(self, tags: str) -> str:
+    def convert_pos(self, tags: str) -> str:  # type: ignore
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
@@ -122,12 +124,12 @@ class OpenCorporaTagConverter(TagConverter):
     OpenCorpora Tag Converter
     """
 
-    def convert_pos(self, tags: OpencorporaTagProtocol) -> str:
+    def convert_pos(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
 
-    def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:
+    def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
         Converts the OpenCorpora tags into the UD format
         """

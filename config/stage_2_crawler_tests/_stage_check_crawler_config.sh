@@ -12,7 +12,7 @@ python config/config_param_changer.py --config_path="lab_5_scrapper/scrapper_con
 
 echo "Changed config params"
 
-python -m pytest -m "mark10 and stage_2_1_crawler_config_check" --capture=no
+python -m pytest -m "mark10 and stage_2_1_crawler_config_check" --capture=no --ignore=lab_6_pipeline
 
 ret=$?
 if [ "$ret" = 5 ]; then
