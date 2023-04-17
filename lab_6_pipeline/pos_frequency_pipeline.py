@@ -15,10 +15,11 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
     Parses the raw text in the CONLLU format into the CONLL-U token abstraction
 
     Example:
-        '2	произошло	происходить	VERB	_	Gender=Neut|Number=Sing|Tense=Past	0	root	_	_'
+    '2	произошло	происходить	VERB	_	Gender=Neut|Number=Sing|Tense=Past	0	root	_	_'
     """
 
 
+# pylint: disable=too-few-public-methods
 class POSFrequencyPipeline:
     """
     Counts frequencies of each POS in articles,
