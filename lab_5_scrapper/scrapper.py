@@ -47,7 +47,6 @@ class IncorrectEncodingError(Exception):
     """
     Raises when encoding does not specified as a string
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
@@ -243,7 +242,7 @@ class HTMLParser:
         """
         article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
         all_paragraphs = article_body.find_all('p')
-        strong_par = None
+        strong_par = ''
         if article_body.find('strong'):
             strong_par = all_paragraphs.find('strong').text
         elif article_body.find('b'):
@@ -261,15 +260,15 @@ class HTMLParser:
         self.article.title = article_soup.find('h1', {'class': "entry-title"}).text
         author = article_soup.find('span', {'itemprop': "author"})
         if author:
-            self.author = [auth.text.strip() for auth in author]
+            self.article.author = [auth.text.strip() for auth in author]
         else:
-            self.author.append('NOT FOUND')
+            self.article.author.append('NOT FOUND')
         date = article_soup.find('meta', {'itemprop': "dateModified"}).get('content').text
         time = article_soup.find('meta', {'property': "article:published_time"}).get('content')
         if time:
-            t = str(time)[-14:-6]
-            if date and t:
-                self.article.date = self.unify_date_format(' '.join((str(date), str(t))))
+            new_time = str(time)[-14:-6]
+            if date and new_time:
+                self.article.date = self.unify_date_format(' '.join((str(date), str(new_time))))
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
