@@ -216,16 +216,12 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        links = article_bs.find_all('a', class_=lambda value: value
-                    and ('mininews' in value or 'midinews' in value))
-
-        for link in links:
-            href = link.get('href')
-            if href:
-                full_url = urljoin('https://dzer.ru/', str(href))
-                if not urlparse(full_url).scheme:
-                    full_url = "http://" + full_url
-                return full_url
+        href = article_bs.get('href')
+        if href:
+            full_url = urljoin('https://dzer.ru/', str(href))
+            if not urlparse(full_url).scheme:
+                full_url = "http://" + full_url
+            return full_url
         return ''
 
 
@@ -238,11 +234,14 @@ class Crawler:
             for seed_url in self.seed_urls:
                 response = make_request(seed_url, self.config)
                 main_bs = BeautifulSoup(response.text, 'html.parser')
-                urls = self._extract_url(main_bs)
-                if urls:
-                    self.urls.append(urls)
-                if len(self.urls) >= self.config.get_num_articles():
-                    break
+                for elem in main_bs.find_all('a', class_=lambda value: value
+                    and ('mininews' in value or 'midinews' in value)):
+                    if len(self.urls) >= self.config.get_num_articles():
+                        return
+                    article_url = self._extract_url(elem)
+                    if not article_url or article_url in self.urls:
+                        continue
+                    self.urls.append(article_url)
 
 
     def get_search_urls(self) -> list:
@@ -312,8 +311,6 @@ class HTMLParser:
         date = self.unify_date_format(date_str)
         self.article.date = date
 
-
-
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
@@ -337,25 +334,13 @@ class HTMLParser:
         if 'сегодня' in date_str:
             today = datetime.datetime.now()
             date_str = date_str.replace('сегодня', today.strftime('%d %B %Y'))
-            try:
-                return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
-            except ValueError:
-                pass
         elif 'вчера' in date_str:
             yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
             date_str = date_str.replace('вчера', yesterday.strftime('%d %B %Y'))
-            try:
-                return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
-            except ValueError:
-                pass
-        try:
-            return datetime.datetime.strptime(date_str, '%d %B %Y, %I:%M %p')
-        except ValueError:
-            pass
-        try:
+        regular = re.match(r"\d{1,2} [A-Za-z]+ \d{4}, \d{1,2}:\d{2}", date_str)
+        if regular:
             return datetime.datetime.strptime(date_str, '%d %B %Y, %H:%M')
-        except ValueError:
-            pass
+        return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
 
 
 
@@ -384,17 +369,13 @@ class CrawlerRecursive(Crawler):
     """
     Recursive Crawler implementation
     """
-
-    def __init__(self, config: Config) -> None:
-        """
-        Initializes an instance of the Recursive Crawler class
-        """
+    def __init__(self, config: Config):
         super().__init__(config)
-        self.start_url = self.get_search_urls()[0]
-        self.urls = []
-        self.crawler_data_path = Path('crawler_sta.json')
-        if self.crawler_data_path.exists():
-            self.load_crawler_data()
+        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        self.start_url = config.get_seed_urls()[0]
+        self.num_visited_urls = 0
+        self.last_file_idx = 0
+
 
     def save_crawler_data(self) -> None:
         """
@@ -405,16 +386,20 @@ class CrawlerRecursive(Crawler):
         with self.crawler_data_path.open('w', encoding='utf-8') as json_file:
             json.dump(info_dict, json_file, ensure_ascii=False, indent=4)
 
+
     def load_crawler_data(self) -> None:
         """
-        Loads start_url and urls values, saved before interruption,
-        from json file
+        Loads start_url and collected urls
+        from a json file into crawler
         """
-        if self.crawler_data_path.exists() and self.crawler_data_path.stat().st_size != 0:
-            with self.crawler_data_path.open('r', encoding='utf-8') as json_file:
-                info_dict = json.load(json_file)
-            self.start_url = info_dict['start_url']
-            self.urls = info_dict['urls']
+        if self.crawler_data_path.exists():
+            with open(self.crawler_data_path, 'r', encoding='utf-8') as f:
+                crawler_data = json.load(f)
+            self.last_file_idx = crawler_data['last_file_idx']
+            self.num_visited_urls = crawler_data['num_visited_urls']
+            self.start_url = crawler_data['start_url']
+            self.urls = crawler_data['urls']
+
 
     def find_articles(self) -> None:
         """
@@ -425,14 +410,19 @@ class CrawlerRecursive(Crawler):
 
         response = make_request(self.start_url, self.config)
         article_bs = BeautifulSoup(response.text, 'html.parser')
-        article_url = self._extract_url(article_bs)
-        if not article_url or article_url in self.urls:
-            return
+        urls = article_bs.select('a')
 
-        self.urls.append(article_url)
-        self.start_url = article_url
-        self.save_crawler_data()
-        self.find_articles()
+        for url in urls:
+            article_url = self._extract_url(url)
+            if not article_url or article_url in self.urls:
+                continue
+
+            self.urls.append(article_url)
+            self.start_url = article_url
+            self.save_crawler_data()
+            self.find_articles()
+            if len(self.urls) >= self.config.get_num_articles():
+                return
 
 
 
