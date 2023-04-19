@@ -369,13 +369,17 @@ class CrawlerRecursive(Crawler):
     """
     Recursive Crawler implementation
     """
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
-        self.start_url = config.get_seed_urls()[0]
-        self.num_visited_urls = 0
-        self.last_file_idx = 0
 
+    def __init__(self, config: Config) -> None:
+        """
+        Initializes an instance of the Recursive Crawler class
+        """
+        super().__init__(config)
+        self.start_url = self.get_search_urls()[0]
+        self.urls = []
+        self.crawler_data_path = Path('crawler_sta.json')
+        if self.crawler_data_path.exists():
+            self.load_crawler_data()
 
     def save_crawler_data(self) -> None:
         """
@@ -386,20 +390,16 @@ class CrawlerRecursive(Crawler):
         with self.crawler_data_path.open('w', encoding='utf-8') as json_file:
             json.dump(info_dict, json_file, ensure_ascii=False, indent=4)
 
-
     def load_crawler_data(self) -> None:
         """
-        Loads start_url and collected urls
-        from a json file into crawler
+        Loads start_url and urls values, saved before interruption,
+        from json file
         """
-        if self.crawler_data_path.exists():
-            with open(self.crawler_data_path, 'r', encoding='utf-8') as f:
-                crawler_data = json.load(f)
-            self.last_file_idx = crawler_data['last_file_idx']
-            self.num_visited_urls = crawler_data['num_visited_urls']
-            self.start_url = crawler_data['start_url']
-            self.urls = crawler_data['urls']
-
+        if self.crawler_data_path.exists() and self.crawler_data_path.stat().st_size != 0:
+            with self.crawler_data_path.open('r', encoding='utf-8') as json_file:
+                info_dict = json.load(json_file)
+            self.start_url = info_dict['start_url']
+            self.urls = info_dict['urls']
 
     def find_articles(self) -> None:
         """
@@ -410,7 +410,7 @@ class CrawlerRecursive(Crawler):
 
         response = make_request(self.start_url, self.config)
         article_bs = BeautifulSoup(response.text, 'html.parser')
-        urls = article_bs.select('a')
+        urls = article_bs.select('div.mininews') + article_bs.select('div.midinews')
 
         for url in urls:
             article_url = self._extract_url(url)
@@ -421,9 +421,6 @@ class CrawlerRecursive(Crawler):
             self.start_url = article_url
             self.save_crawler_data()
             self.find_articles()
-            if len(self.urls) >= self.config.get_num_articles():
-                return
-
 
 
 def main_recursive() -> None:
