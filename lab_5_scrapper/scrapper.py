@@ -1,48 +1,46 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
-from pathlib import Path
+import datetime
 import json
 import re
-import datetime
+import shutil
+from pathlib import Path
+from typing import Pattern, Union
+
 import requests
 from bs4 import BeautifulSoup
-from core_utils.article.io import to_raw, to_meta
-from core_utils.config_dto import ConfigDTO
+
 from core_utils.article.article import Article
-from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT,
-                                  ASSETS_PATH, CRAWLER_CONFIG_PATH)
-import shutil
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
     """
     Raises when seed URL does not match standard pattern "https?://w?w?w?.
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Raises when total number of articles is out of range from 1 to 150
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Raises when total number of articles to parse is not integer
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Raises when total number of articles to parse is not integer
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
@@ -56,14 +54,12 @@ class IncorrectTimeoutError(Exception):
     """
     Raises when timeout value is not a positive integer less than 60
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
     Raises when verify certificate value does not match bool value either True or False
     """
-    pass
 
 
 class Config:
@@ -201,7 +197,8 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         link = article_bs.get('href')
-        if isinstance(link, str) and link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
+        if isinstance(link, str) and link and link.count('/') == 5 \
+                and link.startswith('https://smolnarod.ru/news/'):
             return link
         return ''
 
@@ -254,23 +251,25 @@ class HTMLParser:
         elif article_body.find('h5'):
             strong_par = all_paragraphs.find('h5').text
         paragraph_texts = [par.text.strip() for par in all_paragraphs[1:]]
-        paragraph_texts = ''.join(paragraph_texts)
-        self.paragraph_texts = '\n'.join((strong_par, paragraph_texts))
+        paragraph_text = ''.join(paragraph_texts)
+        self.article.text = '\n'.join((strong_par, paragraph_text))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        self.title = article_soup.find('h1', {'class': "entry-title"}).text
+        self.article.title = article_soup.find('h1', {'class': "entry-title"}).text
         author = article_soup.find('span', {'itemprop': "author"})
         if author:
             self.author = [auth.text.strip() for auth in author]
         else:
             self.author.append('NOT FOUND')
         date = article_soup.find('meta', {'itemprop': "dateModified"}).get('content').text
-        time = article_soup.find('meta', {'property': "article:published_time"}).get('content')[-14:-6]
-        if date and time:
-            self.date_time = self.unify_date_format(' '.join((str(date), str(time))))
+        time = article_soup.find('meta', {'property': "article:published_time"}).get('content')
+        if time:
+            t = str(time)[-14:-6]
+            if date and t:
+                self.article.date = self.unify_date_format(' '.join((str(date), str(t))))
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
