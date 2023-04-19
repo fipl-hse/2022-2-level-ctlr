@@ -428,8 +428,8 @@ class CrawlerRecursive(Crawler):
         article_bs = BeautifulSoup(response.text, 'html.parser')
         urls = article_bs.select('div.mininews') + article_bs.select('div.midinews')
 
-        for elem in urls:
-            article_url = self._extract_url(elem)
+        for url in urls:
+            article_url = self._extract_url(url)
             if not article_url or article_url in self.urls:
                 continue
 
