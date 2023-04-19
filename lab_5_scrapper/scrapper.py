@@ -354,6 +354,8 @@ class HTMLParser:
             pass
         try:
             return datetime.datetime.strptime(date_str, '%d %B %Y, %H:%M')
+        except ValueError:
+            pass
 
 
 
