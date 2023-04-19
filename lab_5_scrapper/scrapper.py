@@ -237,8 +237,7 @@ class Crawler:
         while len(self.urls) < self.config.get_num_articles():
             for seed_url in self.seed_urls:
                 response = make_request(seed_url, self.config)
-                html = response.text
-                main_bs = BeautifulSoup(html, 'html.parser')
+                main_bs = BeautifulSoup(response.text, 'html.parser')
                 urls = self._extract_url(main_bs)
                 if urls:
                     self.urls.append(urls)
@@ -392,10 +391,11 @@ class CrawlerRecursive(Crawler):
         Initializes an instance of the Recursive Crawler class
         """
         super().__init__(config)
+        self.start_url = self.get_search_urls()[0]
         self.urls = []
-        self.crawler_data_path = Path('crawler_state.json')
+        self.crawler_data_path = Path('crawler_sta.json')
         if self.crawler_data_path.exists():
-            self.load_state()
+            self.load_crawler_data()
 
     def save_crawler_data(self) -> None:
         """
