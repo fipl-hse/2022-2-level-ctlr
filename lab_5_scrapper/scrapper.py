@@ -356,7 +356,6 @@ class HTMLParser:
             return datetime.datetime.strptime(date_str, '%d %B %Y, %H:%M')
         except ValueError:
             pass
-        return None
 
 
 
@@ -426,17 +425,15 @@ class CrawlerRecursive(Crawler):
 
         response = make_request(self.start_url, self.config)
         article_bs = BeautifulSoup(response.text, 'html.parser')
-        urls = article_bs.select('div.mininews') + article_bs.select('div.midinews')
+        article_url = self._extract_url(article_bs)
+        if not article_url or article_url in self.urls:
+            return
 
-        for url in urls:
-            article_url = self._extract_url(url)
-            if not article_url or article_url in self.urls:
-                continue
+        self.urls.append(article_url)
+        self.start_url = article_url
+        self.save_crawler_data()
+        self.find_articles()
 
-            self.urls.append(article_url)
-            self.start_url = article_url
-            self.save_crawler_data()
-            self.find_articles()
 
 
 def main_recursive() -> None:
@@ -480,4 +477,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_recursive()
