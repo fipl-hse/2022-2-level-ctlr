@@ -12,7 +12,8 @@ from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT, ASSETS_PATH, CRAWLER_CONFIG_PATH)
+                                  TIMEOUT_UPPER_LIMIT, NUM_ARTICLES_UPPER_LIMIT,
+                                  ASSETS_PATH, CRAWLER_CONFIG_PATH)
 import shutil
 
 
@@ -99,7 +100,7 @@ class Config:
         """
         config_dto = self._extract_config_content()
         if not isinstance(config_dto.seed_urls, list) or not config_dto.seed_urls\
-                or not not all(isinstance(url, str) for url in config_dto.seed_urls)\
+                or not all(isinstance(url, str) for url in config_dto.seed_urls)\
                 and not all(re.match('https?://.*/', url) for url in config_dto.seed_urls):
             raise IncorrectSeedURLError
 
@@ -252,7 +253,7 @@ class HTMLParser:
             strong_par = all_paragraphs.find('b').text
         elif article_body.find('h5'):
             strong_par = all_paragraphs.find('h5').text
-        paragraph_texts = [par.text.strip() for par in all_paragraphs]
+        paragraph_texts = [par.text.strip() for par in all_paragraphs[1:]]
         paragraph_texts = ''.join(paragraph_texts)
         self.paragraph_texts = '\n'.join((strong_par, paragraph_texts))
 
