@@ -8,7 +8,7 @@ import re
 import datetime
 import requests
 from bs4 import BeautifulSoup
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 from core_utils.config_dto import ConfigDTO
 from core_utils.article.article import Article
 from core_utils.constants import (TIMEOUT_LOWER_LIMIT,
@@ -199,14 +199,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        # link = article_bs.get('href')
-        # if link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
-        #     return link
-        # return ''
-        url = article_bs['href']
-        if isinstance(url, str) and url and url.count('/') == 5 and url.startswith('https://smolnarod.ru/news/'):
-            return url
-        return url[0]
+        link = article_bs.get('href')
+        if isinstance(link, str) and link and link.count('/') == 5 and link.startswith('https://smolnarod.ru/news/'):
+            return link
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -249,26 +245,47 @@ class HTMLParser:
         """
         article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
         all_paragraphs = article_body.find_all('p')
+        strong_par = None
+        if article_body.find('strong'):
+            strong_par = all_paragraphs.find('strong').text
+        elif article_body.find('b'):
+            strong_par = all_paragraphs.find('b').text
+        elif article_body.find('h5'):
+            strong_par = all_paragraphs.find('h5').text
         paragraph_texts = [par.text.strip() for par in all_paragraphs]
-        paragraph_texts = '\n'.join(paragraph_texts)
+        paragraph_texts = ''.join(paragraph_texts)
+        self.paragraph_texts = '\n'.join((strong_par, paragraph_texts))
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        self.title = article_soup.find('h1', {'class': "entry-title"}).text
+        author = article_soup.find('span', {'itemprop': "author"})
+        if author:
+            self.author = [auth.text.strip() for auth in author]
+        else:
+            self.author.append('NOT FOUND')
+        date = article_soup.find('meta', {'itemprop': "dateModified"}).get('content').text
+        time = article_soup.find('meta', {'property': "article:published_time"}).get('content')[-14:-6]
+        if date and time:
+            self.date_time = self.unify_date_format(' '.join((str(date), str(time))))
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d %I:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
-        pass
+        response = make_request(self.full_url, self.config)
+        main_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(main_bs)
+        self._fill_article_with_meta_information(main_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -294,6 +311,7 @@ def main() -> None:
         text = parser.parse()
         if isinstance(text, Article):
             to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
