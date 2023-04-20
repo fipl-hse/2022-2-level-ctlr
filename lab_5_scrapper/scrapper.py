@@ -3,8 +3,10 @@ Crawler implementation
 """
 import datetime
 import json
+import random
 import re
 import shutil
+import time
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -201,6 +203,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
+    time.sleep(random.randint(1, 5))
     return response
 
 
@@ -300,32 +303,7 @@ class HTMLParser:
             self.article.title = title_bs.text
 
         date_bs = article_soup.find('li', {'itemprop': 'datePublished'})
-        date_dict = {
-            'января': '01',
-            'февраля': '02',
-            'марта': '03',
-            'апреля': '04',
-            'мая': '05',
-            'июня': '06',
-            'июля': '07',
-            'августа': '08',
-            'сентября': '09',
-            'октября': '10',
-            'ноября': '11',
-            'декабря': '12',
-        }
-        date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_bs.text)
-
-        if date_txt:
-            self.article.date = self.unify_date_format(date_txt[0])
-        else:
-            date_txt = re.search(r'\d+\s\w+,\s\d+', date_bs.text)
-            if date_txt and isinstance(date_txt[0], str):
-                repl = re.search(r'[^0-9, \s]+', date_txt[0])
-                if repl and isinstance(repl[0], str):
-                    date_res = re.sub(r'\w+,', date_dict[repl[0]], date_txt[0])
-                    date_res = date_res.replace(' ', '/')
-                    self.article.date = self.unify_date_format(date_res)
+        self.article.date = self.unify_date_format(date_bs.text)
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
@@ -348,7 +326,35 @@ class HTMLParser:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%d/%m/%Y')
+        date_dict = {
+            'января': '01',
+            'февраля': '02',
+            'марта': '03',
+            'апреля': '04',
+            'мая': '05',
+            'июня': '06',
+            'июля': '07',
+            'августа': '08',
+            'сентября': '09',
+            'октября': '10',
+            'ноября': '11',
+            'декабря': '12',
+        }
+
+        date_txt = re.search(r'\d{2}/\d{2}/\d{4}', date_str)
+
+        if date_txt:
+            return datetime.datetime.strptime(date_txt[0], '%d/%m/%Y')
+
+        else:
+            date_txt = re.search(r'\d+\s\w+,\s\d+', date_str)
+            if date_txt and isinstance(date_txt[0], str):
+                repl = re.search(r'[^0-9, \s]+', date_txt[0])
+                if repl and isinstance(repl[0], str):
+                    date_res = re.sub(r'\w+,', date_dict[repl[0]], date_txt[0])
+                    date_res = date_res.replace(' ', '/')
+
+        return datetime.datetime.strptime(date_res, '%d/%m/%Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -381,6 +387,7 @@ class CrawlerRecursive(Crawler):
         self.start_url = config.get_seed_urls()[0]
         self.article_urls = []
         self.path_to_data = Path(__file__).parent/'crawler_data.json'
+        self.article_number = 0
         self.extract_crawler_file()
 
     def find_articles(self) -> None:
@@ -389,33 +396,38 @@ class CrawlerRecursive(Crawler):
         """
 
         response = make_request(self.start_url, self.config)
+
         main_bs = BeautifulSoup(response.text, 'lxml')
         paragraphs = main_bs.find_all('div', {'class': "elementor-widget-container"})
 
         for one_par in paragraphs:
             res = one_par.find_all('a')
             for one in res:
-                res = self._extract_url(one)
-                if res and res not in self.article_urls:
-                    self.article_urls.append(res)
+                link = self._extract_url(one)
+                if link and link not in self.article_urls:
+                    self.article_urls.append(link)
+
+        self.save_crawler_data()
 
         if len(self.article_urls) >= self.num_articles:
-            self.save_crawler_data()
             return
-        for element in self.urls:
-            self.start_url = element
-            self.save_crawler_data()
-            self.find_articles()
+
+        if self.start_url in self.article_urls:
+            self.article_number += 1
+
+        self.start_url = self.article_urls[self.article_number]
+        self.find_articles()
 
     def extract_crawler_file(self) -> None:
         """
         Checking if the file already exists
         """
         if self.path_to_data.exists():
-            with open(self.path_to_data, 'w', encoding='utf-8') as f:
+            with open(self.path_to_data, 'r', encoding='utf-8') as f:
                 content = json.load(f)
                 self.article_urls = content['article_urls']
                 self.start_url = content['start_url']
+                self.article_number = self.article_urls.index(self.start_url)
 
     def save_crawler_data(self) -> None:
         """
