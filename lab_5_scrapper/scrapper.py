@@ -302,10 +302,10 @@ class HTMLParser:
             'ноября': 'November',
             'декабря': 'December',
         }
+        month_old = re.search(r'[А-Яа-я]+', date_str).group()
+        month_new = months[month_old]
+        date_str = date_str.replace(month_old, month_new)
         date_list = date_str.split()
-        date_month_old = date_list[2]
-        date_month_new = months.get(date_month_old)
-        date_list[2] = date_month_new
         if len(date_list) == 3:
             date_list.append('2023')
         new_date = ' '.join(date_list)
