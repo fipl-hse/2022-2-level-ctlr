@@ -262,7 +262,8 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        self.article.title = article_soup.find('h1', {'class': "entry-title"}).text
+        article_title = article_soup.find('h1', {'class': "entry-title"}).text
+        self.article.title = article_title[:(len(article_title)//2)+1]
         author = article_soup.find('span', {'itemprop': "author"})
         if author:
             self.article.author = [auth.text.strip() for auth in author]
@@ -298,7 +299,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     if base_path.exists():
         shutil.rmtree(base_path)
-    base_path.mkdir(parents=True, exist_ok=False)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
@@ -310,8 +311,8 @@ def main() -> None:
     crawler = Crawler(config=configuration)
     crawler.find_articles()
 
-    for idx, url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(full_url=url, article_id=idx, config=configuration)
+    for idx, url in enumerate(crawler.urls):
+        parser = HTMLParser(full_url=url, article_id=idx + 1, config=configuration)
         text = parser.parse()
         if isinstance(text, Article):
             to_raw(text)
