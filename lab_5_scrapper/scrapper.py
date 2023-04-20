@@ -3,8 +3,10 @@ Crawler implementation
 """
 import datetime
 import json
+import random
 import re
 import shutil
+import time
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -177,6 +179,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
+    time.sleep(random.randint(1, 5))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
     response.encoding = config.get_encoding()
     return response
