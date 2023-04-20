@@ -303,13 +303,13 @@ class HTMLParser:
             'декабря': 'December',
         }
         date_list = date_str.split()
-        if len(date_list) > 3:
-            date_list[2] = months.get(date_list[2])
-            if len(date_list) == 3:
-                date_list.append('2023')
-            new_date = ' '.join(date_list)
-            return datetime.datetime.strptime(new_date, '%H:%M %d %B %Y')
-        return datetime.datetime.now()
+        date_month_old = date_list[2]
+        date_month_new = months.get(date_month_old)
+        date_list[2] = date_month_new
+        if len(date_list) == 3:
+            date_list.append('2023')
+        new_date = ' '.join(date_list)
+        return datetime.datetime.strptime(new_date, '%H:%M %d %B %Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
