@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_raw, to_meta
 import shutil
 
 
@@ -261,7 +261,14 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        self.article.title = article_soup.find('h1').get_text()
+
+        author_name = article_soup.find('div', {'class': 'author'})
+        if author_name:
+            author = author_name.find('a', {'style': 'color: black;text-decoration: none;'})
+            self.article.author = [author.text]
+        else:
+            self.article.author = ["NOT FOUND"]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -276,6 +283,7 @@ class HTMLParser:
         page = make_request(self.full_url, self.config)
         main_bs = BeautifulSoup(page.text, 'lxml')
         self._fill_article_with_text(main_bs)
+        self._fill_article_with_meta_information(main_bs)
         return self.article
 
 
@@ -301,6 +309,7 @@ def main() -> None:
         parser = HTMLParser(url, index, config)
         article = parser.parse()
         to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":
