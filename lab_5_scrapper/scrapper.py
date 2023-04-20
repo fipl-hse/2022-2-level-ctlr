@@ -108,7 +108,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for seed_url in seed_urls:
-            if not re.match(r'https?://w?w?w?.', seed_url):
+            if not re.match(r'https?://.*', seed_url):
                 raise IncorrectSeedURLError
 
         if not isinstance(total_articles_to_find_and_parse, int) or isinstance(
