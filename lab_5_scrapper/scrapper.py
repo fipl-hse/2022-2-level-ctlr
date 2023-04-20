@@ -185,7 +185,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    #time.sleep(random.randint(2,5))
+    time.sleep(random.randint(2,5))
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     return response
