@@ -33,9 +33,10 @@ def remove_implementation_from_function(original_declaration: ast.stmt,
         raise NoDocStringForAMethodError(f'You have to provide docstring for a method '
                                          f'{parent.name + "." if parent is not None else ""}'
                                          f'{original_declaration.name}')
-    original_declaration.body[1:] = [ast.Pass()]
+    original_declaration.body[1:] = []
 
 
+# pylint: disable=too-many-branches
 def cleanup_code(source_code_path: Path) -> str:
     """
     Removing implementation based on AST parsing of code
@@ -67,6 +68,15 @@ def cleanup_code(source_code_path: Path) -> str:
                                                names=[alias(name=name.name)
                                                       for name in names_to_import]))
                 continue
+
+        if isinstance(decl, ast.ClassDef):
+            if 'Note: remove' in ast.get_docstring(decl):  # type: ignore
+                decl = []  # type: ignore
+            else:
+                for ind, class_decl in enumerate(decl.body):
+                    if isinstance(class_decl, ast.FunctionDef) \
+                            and 'Note: remove' in ast.get_docstring(class_decl):  # type: ignore
+                        decl.body[ind] = []  # type: ignore
 
         if isinstance(decl, ast.ClassDef) and decl.bases:
             name = decl.bases[0]
