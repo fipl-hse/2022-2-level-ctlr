@@ -2,8 +2,9 @@
     "seed_urls": [
         "https://glasnaya.media/"
     ],
-    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"},
-    "total_articles_to_find_and_parse": 5,
+    "headers": {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    "cookie": "pll_language=ru; _ym_uid=1678960854336031984; _ym_d=1678960854; _gid=GA1.2.1164926720.1682018328; _ga_3J77TZJPGT=GS1.1.1682018327.24.0.1682018327.0.0.0; _ga=GA1.1.1714664894.1678960853; _ym_visorc=w; _ym_isad=2\n"},
+    "total_articles_to_find_and_parse": 10,
     "encoding": "utf-8",
     "timeout": 5,
     "should_verify_certificate": true,
