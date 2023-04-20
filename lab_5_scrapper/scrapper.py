@@ -180,7 +180,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     with given configuration
     """
     time.sleep(random.randint(1, 5))
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout())
+    response = requests.get(url,
+                            headers=config.get_headers(),
+                            timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     return response
 
@@ -205,8 +208,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str) and url.startswith('https://kazanfirst.ru/news/') \
-                and url.count('/') == 4:
+        if isinstance(url, str) and url.startswith('https://kazanfirst.ru/news/'):
             return url
         return ''
 
@@ -214,18 +216,21 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self._seed_urls:
+        seed_urls = self.get_search_urls()
+        for seed_url in seed_urls:
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
                 continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            pages = article_bs.find_all(
-                'a', {'class': 'post-block-item  post-item column-list__item js-column-item'})
+            pages_bs = article_bs.find('div', {'id': 'posts-data'})
+            pages = pages_bs.find_all(
+                'a')
             for page in pages:
-                url = self._extract_url(page)
-                self.urls.append(url)
                 if len(self.urls) >= self._config.get_num_articles():
                     return
+                url = self._extract_url(page)
+                if url and url not in self.urls:
+                    self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
@@ -336,10 +341,10 @@ def main() -> None:
     Entrypoint for scrapper module
     """
     prepare_environment(ASSETS_PATH)
-    config = Config(CRAWLER_CONFIG_PATH)
-    crawler = Crawler(config)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    crawler = Crawler(config=config)
     crawler.find_articles()
-    for i, full_url in enumerate(crawler.urls, 1):
+    for i, full_url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=config)
         article = parser.parse()
         if isinstance(article, Article):
