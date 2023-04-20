@@ -2,6 +2,57 @@
 Crawler implementation
 """
 from typing import Pattern, Union
+from pathlib import Path
+import json
+import requests
+import re
+from bs4 import BeautifulSoup
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT)
+
+
+class IncorrectSeedURLError(Exception):
+    """
+    Raised when the seed URL does not match the
+    standard pattern or does not correspond to the target website
+    """
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    """
+    Raised when the total number of articles is out of range from 1 to 150
+    """
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    """
+    Raised when the total number of articles to parse is not an integer
+    """
+
+
+class IncorrectHeadersError(Exception):
+    """
+    Raised when headers are not in the form of a dictionary
+    """
+
+
+class IncorrectEncodingError(Exception):
+    """
+    Raised when the encoding is not specified as a string
+    """
+
+
+class IncorrectTimeoutError(Exception):
+    """
+    Raised when the timeout value is not a positive integer less than 60
+    """
+
+
+class IncorrectVerifyError(Exception):
+    """
+    Raised when the verify certificate value is not either True or False
+    """
 
 
 class Config:
@@ -13,63 +64,101 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        changes= "change"
-        pass
+        self.path_to_config = path_to_config
+        self._validate_config_content()
+        self.config_data = self._extract_config_content()
+        self._seed_urls = self.config_data.seed_urls
+        self._headers = self.config_data.headers
+        self._total_num_articles = self.config_data.total_articles_to_find_and_parse
+        self._encoding = self.config_data.encoding
+        self._timeout = self.config_data.timeout
+        self._should_verify_certificate = self.config_data.should_verify_certificate
+        self._headless_mode = self.config_data.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        # IncorrectSeedURLError: seed URL does not match standard pattern "https?://w?w?w?."
+        if not isinstance(self._seed_urls, list):
+            raise IncorrectSeedURLError
+        for seed_url in self._seed_urls:
+            if not re.match(r'^https?://.*', seed_url):
+                raise IncorrectSeedURLError
+
+        # NumberOfArticlesOutOfRangeError: total number of articles is out of range from 1 to 150
+        # IncorrectNumberOfArticlesError: total number of articles to parse is not integer
+        if not isinstance(self._total_num_articles, int):
+            raise IncorrectNumberOfArticlesError
+        if not self._total_num_articles in range[1:NUM_ARTICLES_UPPER_LIMIT]:
+            raise NumberOfArticlesOutOfRangeError
+
+        #IncorrectHeadersError: headers are not in a form of dictionary
+        if not isinstance(self._headers, dict):
+            raise IncorrectHeadersError
+
+        #IncorrectEncodingError: encoding must be specified as a string
+        if not isinstance(self._encoding, str):
+            raise IncorrectEncodingError
+
+        #IncorrectTimeoutError: timeout value must be a positive integer less than 60
+        if not isinstance(self._timeout, int) or not 0 <= self._timeout <= 60:
+            raise IncorrectTimeoutError
+
+        #IncorrectVerifyError: verify certificate value must either be True or False
+        if not (self._should_verify_certificate == True or self._should_verify_certificate == False):
+            raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
         """
-        pass
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self._total_num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -159,7 +248,7 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    pass
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
 
 
 if __name__ == "__main__":
