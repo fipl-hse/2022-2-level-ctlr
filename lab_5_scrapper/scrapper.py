@@ -65,6 +65,7 @@ class Config:
     """
     Unpacks and validates configurations
     """
+
     def __init__(self, path_to_config: Path) -> None:
         """
         Initializes an instance of the Config class
@@ -77,7 +78,7 @@ class Config:
         self._headers = config_dto.headers
         self._encoding = config_dto.encoding
         self._timeout = config_dto.timeout
-        self._verify_certificate = config_dto.should_verify_certificate
+        self._should_verify_certificate = config_dto.should_verify_certificate
         self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
@@ -94,9 +95,11 @@ class Config:
         are not corrupt
         """
         config_dto = self._extract_config_content()
-        if not isinstance(config_dto.seed_urls, list) or not config_dto.seed_urls\
-                or not all(isinstance(url, str) for url in config_dto.seed_urls)\
-                and not all(re.match('https?://.*/', url) for url in config_dto.seed_urls):
+        if not isinstance(config_dto.seed_urls, list) or not config_dto.seed_urls:
+            raise IncorrectSeedURLError
+
+        if not all(re.match('https://?', url) \
+                   and isinstance(url, str) for url in config_dto.seed_urls):
             raise IncorrectSeedURLError
 
         if not isinstance(config_dto.headers, dict):
@@ -105,11 +108,12 @@ class Config:
         if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(config_dto.total_articles, int):
+        if not isinstance(config_dto.total_articles, int) or \
+                isinstance(config_dto.total_articles, bool) or \
+                config_dto.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_dto.total_articles < 1 \
-                or config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(config_dto.timeout, int) or config_dto.timeout \
@@ -156,7 +160,7 @@ class Config:
         """
         Retrieve whether to verify certificate
         """
-        return self._verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
@@ -212,7 +216,7 @@ class Crawler:
                 all_links_bs = main_bs.find_all('a')
                 for link in all_links_bs:
                     url = self._extract_url(link)
-                    if url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
+                    if url and url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
                         self.urls.append(url)
 
     def get_search_urls(self) -> list:
@@ -240,15 +244,15 @@ class HTMLParser:
         """
         Finds text of article
         """
-        article_body = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
+        article_body = article_soup.find('div', {'itemprop': 'articleBody'})
         all_paragraphs = article_body.find_all('p')
         strong_par = ''
         if article_body.find('strong'):
-            strong_par = all_paragraphs.find('strong').text
+            strong_par = article_body.find('strong').text
         elif article_body.find('b'):
-            strong_par = all_paragraphs.find('b').text
+            strong_par = article_body.find('b').text
         elif article_body.find('h5'):
-            strong_par = all_paragraphs.find('h5').text
+            strong_par = article_body.find('h5').text
         paragraph_texts = [par.text.strip() for par in all_paragraphs[1:]]
         paragraph_text = ''.join(paragraph_texts)
         self.article.text = '\n'.join((strong_par, paragraph_text))
@@ -263,7 +267,7 @@ class HTMLParser:
             self.article.author = [auth.text.strip() for auth in author]
         else:
             self.article.author.append('NOT FOUND')
-        date = article_soup.find('meta', {'itemprop': "dateModified"}).get('content').text
+        date = article_soup.find('meta', {'itemprop': "dateModified"}).get('content')
         time = article_soup.find('meta', {'property': "article:published_time"}).get('content')
         if time:
             new_time = str(time)[-14:-6]
@@ -274,7 +278,7 @@ class HTMLParser:
         """
         Unifies date format
         """
-        return datetime.datetime.strptime(date_str, '%Y-%m-%d %I:%M:%S')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
