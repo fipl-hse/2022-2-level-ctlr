@@ -346,13 +346,12 @@ class HTMLParser:
         if date_txt:
             return datetime.datetime.strptime(date_txt[0], '%d/%m/%Y')
 
-        else:
-            date_txt = re.search(r'\d+\s\w+,\s\d+', date_str)
-            if date_txt and isinstance(date_txt[0], str):
-                repl = re.search(r'[^0-9, \s]+', date_txt[0])
-                if repl and isinstance(repl[0], str):
-                    date_res = re.sub(r'\w+,', date_dict[repl[0]], date_txt[0])
-                    date_res = date_res.replace(' ', '/')
+        date_txt = re.search(r'\d+\s\w+,\s\d+', date_str)
+        if date_txt and isinstance(date_txt[0], str):
+            repl = re.search(r'[^0-9, \s]+', date_txt[0])
+            if repl and isinstance(repl[0], str):
+                date_res = re.sub(r'\w+,', date_dict[repl[0]], date_txt[0])
+                date_res = date_res.replace(' ', '/')
 
         return datetime.datetime.strptime(date_res, '%d/%m/%Y')
 
