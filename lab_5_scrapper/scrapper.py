@@ -3,9 +3,7 @@ Crawler implementation
 """
 import json
 import re
-import random
 from typing import Pattern, Union
-import time
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import CRAWLER_CONFIG_PATH, ASSETS_PATH
 from pathlib import Path
@@ -208,24 +206,24 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        all_links_bs = article_bs.find_all('a')
-        for link_bs in all_links_bs:
-            link = link_bs.get('href')
-            if link is None:
-                continue
-            elif link[16:26] == '/news/2023':
-                self.urls.append(link)
-        return self.urls[0]
+        url = article_bs.get('href')
+        if isinstance(url, str):
+            return url
+        return str(url)
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for url in self.get_search_urls():
+        for url in self.config.get_seed_urls():
             response = make_request(url, self.config)
-            if response.status_code == 200:
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                self._extract_url(main_bs)
+            main_bs = BeautifulSoup(response.text, 'lxml')
+            all_links_bs = main_bs.find_all("a", class_="img-top__news-item")
+            for link in all_links_bs:
+                url = self._extract_url(link)
+                self.urls.append(url)
+                if len(self.urls) >= self.config.get_num_articles():
+                    return
 
     def get_search_urls(self) -> list:
         """
@@ -252,10 +250,12 @@ class HTMLParser:
         """
         Finds text of article
         """
-        body_bs = article_soup.find_all('div', {'itemprop': 'articleBody'})[0]
-        all_paragraphs = str(body_bs.find_all('p'))
+        body_bs = article_soup.find('div', {'itemprop': 'articleBody'})
+        all_paragraphs = body_bs.find_all('p')
+        articles = []
         for paragraph in all_paragraphs:
-            self.article.text = paragraph
+            articles.append(paragraph.text.strip())
+        self.article.text = '\n'.join(articles)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
