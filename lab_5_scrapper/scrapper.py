@@ -307,8 +307,10 @@ class HTMLParser:
 
         auth_bs = article_soup.find('li', {'itemprop': 'author'})
         auth_txt = re.search(r'\w+\s\w+', auth_bs.text)
+
         if auth_txt and isinstance(auth_txt[0], str):
             self.article.author = [auth_txt[0]]
+
         else:
             self.article.author = ['NOT FOUND']
 
