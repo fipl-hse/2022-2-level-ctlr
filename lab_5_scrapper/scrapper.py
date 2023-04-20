@@ -203,7 +203,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
                             verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
-    time.sleep(random.randint(1, 5))
+    time.sleep(random.randint(1, 2))
     return response
 
 
@@ -477,4 +477,4 @@ def main_recursion() -> None:
 
 if __name__ == "__main__":
     main()
-    main_recursion()
+    # main_recursion()
