@@ -205,7 +205,8 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if url and url.startswith('https://kazanfirst.ru/news/') and url.count('/') == 4:
+        if isinstance(url, str) and url.startswith('https://kazanfirst.ru/news/') \
+                and url.count('/') == 4:
             return url
         return ''
 
@@ -263,9 +264,9 @@ class HTMLParser:
         title = article_soup.find_all('h1')[0]
         if title:
             self.article.title = title.text
-        time = article_soup.find_all('span', {'class': 'post-info__time'})[0].text
+        time_h_m = article_soup.find_all('span', {'class': 'post-info__time'})[0].text
         date = article_soup.find('span', {'class': 'post-info__date'}).text
-        time_and_date = time + ' ' + date
+        time_and_date = time_h_m + ' ' + date
         if time_and_date:
             try:
                 self.article.date = self.unify_date_format(time_and_date)
@@ -339,8 +340,9 @@ def main() -> None:
     for i, full_url in enumerate(crawler.urls, 1):
         parser = HTMLParser(full_url=full_url, article_id=i, config=config)
         article = parser.parse()
-        to_raw(article)
-        to_meta(article)
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
