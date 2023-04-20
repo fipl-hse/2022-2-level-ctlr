@@ -216,7 +216,8 @@ class Crawler:
                 all_links_bs = main_bs.find_all('a')
                 for link in all_links_bs:
                     url = self._extract_url(link)
-                    if url and url not in self.urls and (len(self.urls) < self.config.get_num_articles()):
+                    if url and url not in self.urls \
+                            and (len(self.urls) < self.config.get_num_articles()):
                         self.urls.append(url)
 
     def get_search_urls(self) -> list:
