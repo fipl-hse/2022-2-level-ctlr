@@ -303,6 +303,8 @@ class HTMLParser:
             'декабря': 'December',
         }
         date_list = date_str.split()
+        if len(date_list) < 3:
+            return datetime.datetime.now()
         date_list[2] = months.get(date_list[2])
         if len(date_list) == 3:
             date_list.append('2023')
