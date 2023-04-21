@@ -25,49 +25,42 @@ class IncorrectSeedURLError(Exception):
     """
     Inappropriate value for seed url
     """
-    pass
 
 
 class NumberOfArticlesOutOfRangeError(Exception):
     """
     Number of articles either to large or small
     """
-    pass
 
 
 class IncorrectNumberOfArticlesError(Exception):
     """
     Inappropriate value for number of articles
     """
-    pass
 
 
 class IncorrectHeadersError(Exception):
     """
     Inappropriate value for headers
     """
-    pass
 
 
 class IncorrectEncodingError(Exception):
     """
     Inappropriate value for encoding
     """
-    pass
 
 
 class IncorrectTimeoutError(Exception):
     """
     Inappropriate value for timeout
     """
-    pass
 
 
 class IncorrectVerifyError(Exception):
     """
      Inappropriate value for certificate
      """
-    pass
 
 
 class Config:
@@ -295,11 +288,13 @@ class HTMLParser:
         """
         Unifies date format
         """
-        # date1 = re.search(r'\d{1,2} [А-Яа-я]+ \d{4}, \d+:\d{1,2}', date_str).group(0)
+        # date1 = re.search(r'\d{1,2} [А-Яа-я]+ \d{4}, \d+:\d{1,2}'
+        # , date_str).group(0)
         # print(date1)
         if not re.search(r'\d{4}', date_str):
             curr_year = datetime.date.today().year
-            date_str = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', f' {curr_year}', date_str)
+            date_str = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})',
+                              f' {curr_year}', date_str)
 
         ru_eng_months = {
             "января": "jan",
