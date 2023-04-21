@@ -2,6 +2,8 @@
 Crawler implementation
 """
 from typing import Pattern, Union
+import datetime
+from core_utils.article.article import Article
 from pathlib import Path
 import json
 import requests
@@ -69,7 +71,7 @@ class Config:
         self.config_data = self._extract_config_content()
         self._seed_urls = self.config_data.seed_urls
         self._headers = self.config_data.headers
-        self._total_num_articles = self.config_data.total_articles_to_find_and_parse
+        self._total_num_articles = self.config_data.total_articles
         self._encoding = self.config_data.encoding
         self._timeout = self.config_data.timeout
         self._should_verify_certificate = self.config_data.should_verify_certificate
@@ -99,22 +101,22 @@ class Config:
         # IncorrectNumberOfArticlesError: total number of articles to parse is not integer
         if not isinstance(self._total_num_articles, int):
             raise IncorrectNumberOfArticlesError
-        if not self._total_num_articles in range[1:NUM_ARTICLES_UPPER_LIMIT]:
+        if not 1 <= self._total_num_articles <= NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        #IncorrectHeadersError: headers are not in a form of dictionary
+        # IncorrectHeadersError: headers are not in a form of dictionary
         if not isinstance(self._headers, dict):
             raise IncorrectHeadersError
 
-        #IncorrectEncodingError: encoding must be specified as a string
+        # IncorrectEncodingError: encoding must be specified as a string
         if not isinstance(self._encoding, str):
             raise IncorrectEncodingError
 
-        #IncorrectTimeoutError: timeout value must be a positive integer less than 60
+        # IncorrectTimeoutError: timeout value must be a positive integer less than 60
         if not isinstance(self._timeout, int) or not 0 <= self._timeout <= 60:
             raise IncorrectTimeoutError
 
-        #IncorrectVerifyError: verify certificate value must either be True or False
+        # IncorrectVerifyError: verify certificate value must either be True or False
         if not (self._should_verify_certificate == True or self._should_verify_certificate == False):
             raise IncorrectVerifyError
 
