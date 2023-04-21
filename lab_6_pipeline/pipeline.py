@@ -6,6 +6,15 @@ from typing import List
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class InconsistentDatasetError:
+    pass
+
+
+class EmptyDirectoryError:
+    pass
 
 
 # pylint: disable=too-few-public-methods
@@ -21,11 +30,18 @@ class CorpusManager:
         self._path_to_raw_txt_data = Path(path_to_raw_txt_data)
         self._storage = {}
         self._validate_dataset()
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self._path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self._path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
 
     def _scan_dataset(self) -> None:
         """
@@ -184,6 +200,7 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
 
 
 if __name__ == "__main__":
