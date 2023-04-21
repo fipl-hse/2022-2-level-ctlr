@@ -74,14 +74,6 @@ class Config:
     """
     Unpacks and validates configurations
     """
-    # це чё удалить потом?
-    seed_urls: list[str]
-    total_articles_to_find_and_parse: int
-    headers: dict[str, str]
-    encoding: str
-    timeout: int
-    verify_certificate: bool
-    headless_mode: bool
 
     def __init__(self, path_to_config: Path) -> None:
         """
@@ -240,13 +232,13 @@ class Crawler:
         for seed_url in self._seed_urls:
             res = make_request(seed_url, self._config)
             html = BeautifulSoup(res.content, 'lxml')
-            #print(html.find_all('a', class_="news-list-card"))
+            # print(html.find_all('a', class_="news-list-card"))
             for paragraph in html.find_all('a', {'class': "news-list-card"}):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
-                #print("bbb", paragraph)
+                # print("bbb", paragraph)
                 url = self._extract_url(paragraph)
-                #print("aaa", self.urls)
+                # print("aaa", self.urls)
                 if not url or url in self.urls:
                     continue
                 self.urls.append(url)
@@ -303,8 +295,8 @@ class HTMLParser:
         """
         Unifies date format
         """
-        #date1 = re.search(r'\d{1,2} [А-Яа-я]+ \d{4}, \d+:\d{1,2}', date_str).group(0)
-        #print(date1)
+        # date1 = re.search(r'\d{1,2} [А-Яа-я]+ \d{4}, \d+:\d{1,2}', date_str).group(0)
+        # print(date1)
         if not re.search(r'\d{4}', date_str):
             curr_year = datetime.date.today().year
             date_str = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})', f' {curr_year}', date_str)
