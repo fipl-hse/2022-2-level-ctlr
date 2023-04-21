@@ -202,8 +202,7 @@ class Crawler:
         self._seed_urls = self._config.get_seed_urls()
         self.urls = []
 
-    @staticmethod
-    def _extract_url(article_bs: BeautifulSoup) -> str:
+    def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
@@ -292,8 +291,7 @@ class HTMLParser:
         # the name of authors is not defined on the pages
         self.article.author = ["NOT FOUND"]
 
-    @staticmethod
-    def unify_date_format(date_str: str) -> datetime.datetime:
+    def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
@@ -329,7 +327,7 @@ class HTMLParser:
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
-        if re.match(r'\d{2} (?i)[a-z]+, \d{2}:\d{2}', eng_date):
+        if re.match(r'\d{2} [a-z]+, \d{2}:\d{2}', eng_date, flags=re.IGNORECASE):
             date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
             return date_d.replace(year=this_year)
 
