@@ -23,6 +23,7 @@
 | `CONJ`       | `CONJ`   | `CCONJ`  | POS      |
 | `PART`       | `PRCL`   | `PART`   | POS      |
 | `INTJ`       | `INTJ`   | `INTJ`   | POS      |
+|              | `UNKN`   | `X`      | POS      |
 | <!-- -->     | <!-- --> | <!-- --> | <!-- --> |
 | `им`         | `nomn`   | `Nom`    | Case     |
 | `род`        | `gent`   | `Gen`    | Case     |
@@ -33,7 +34,7 @@
 | `зват`       | `voct`   | `Voc`    | Case     |
 | `род`        | `gen1`   | `Gen`    | Case     |
 | `парт`       | `gen2`   | `Par`    | Case     |
-| `пр`         | `loc1`   | `Del`    | Case     |
+| `пр`         | `loc1`   | `Loc`    | Case     |
 | `местн`      | `loc2`   | `Loc`    | Case     |
 | `им`         | `acc2`   | `Acc`    | Case     |
 | <!-- -->     | <!-- --> | <!-- --> | <!-- --> |
