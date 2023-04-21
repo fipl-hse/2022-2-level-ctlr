@@ -27,7 +27,7 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
-        self._path_to_raw_txt_data = Path(path_to_raw_txt_data)
+        self.path_to_raw_txt_data = Path(path_to_raw_txt_data)
         self._storage = {}
         self._validate_dataset()
         self._scan_dataset()
@@ -36,11 +36,16 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        if not self._path_to_raw_txt_data.exists():
+        if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
-
-        if not self._path_to_raw_txt_data.is_dir():
+        if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
+        if not any(self.path_to_raw_txt_data.iterdir()):
+            raise EmptyDirectoryError
+        meta = list(self.path_to_raw_txt_data.glob("*_meta.txt"))
+        raw = list(self.path_to_raw_txt_data.glob("*_raw.json"))
+        if len(meta) != len(raw):
+            raise InconsistentDatasetError
 
 
     def _scan_dataset(self) -> None:
