@@ -259,7 +259,7 @@ class HTMLParser:
         """
         article_text = article_soup.find('section', {'id': 'redactor-content'})
         all_paragraphs = article_text.find_all('p')
-        paragraphs_text = [paragraph.text for paragraph in all_paragraphs[:-1]]
+        paragraphs_text = [paragraph.text for paragraph in all_paragraphs[:-2]]
         self.article.text = '\n'.join(paragraphs_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -283,11 +283,15 @@ class HTMLParser:
             self.article.author = authors
         else:
             self.article.author = ['NOT FOUND']
-        tag_section = article_soup.find_all('section', {'class': 'content-tags'})[0]
-        topics = [topic.text for topic in tag_section.find_all(
-            'a', {'class': 'content-tags__item tag'})]
-        if topics:
-            self.article.topics = topics
+        tag_sections = article_soup.find_all('section', {'class': 'content-tags'})
+        if len(tag_sections) == 0:
+            self.article.topics = []
+        else:
+            tag_section = tag_sections[0]
+            topics = [topic.text for topic in tag_section.find_all(
+                'a', {'class': 'content-tags__item tag'})]
+            if topics:
+                self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
