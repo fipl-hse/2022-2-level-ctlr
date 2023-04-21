@@ -6,9 +6,18 @@ from typing import List
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.article.article import Article
 
 
 # pylint: disable=too-few-public-methods
+class InconsistentDatasetError:
+    pass
+
+
+class EmptyDirectoryError:
+    pass
+
+
 class CorpusManager:
     """
     Works with articles and stores them
@@ -18,21 +27,46 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._validate_dataset()
+        self._storage = dict()
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        raw = meta = 0
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        for _ in self.path_to_raw_txt_data.glob("*.txt"):
+            raw += 1
+        for _ in self.path_to_raw_txt_data.glob("*.json"):
+            meta += 1
+        if raw != meta:
+            raise InconsistentDatasetError
+
+        if raw == 0 and meta == 0:
+            raise EmptyDirectoryError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        id = 1
+        for path in self.path_to_raw_txt_data.glob("*.txt"):
+            self._storage[id] = Article(url=str(path), article_id=id)
+            id += 1
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
