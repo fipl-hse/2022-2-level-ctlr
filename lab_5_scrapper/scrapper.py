@@ -1,6 +1,8 @@
 """
 Crawler implementation
 """
+import requests
+from bs4 import BeautifulSoup
 from typing import Pattern, Union
 
 
@@ -104,7 +106,24 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        all_links = []
+        delete = []
+        for link_bs in all_links_bs:
+            link = link_bs.get('href')
+            if link is None:
+                print(link_bs)
+                continue
+            elif '/avt/' in link:
+                delete.append(link_bs['href'])
+                continue
+            elif 'http' in link:
+                delete.append(link_bs['href'])
+                continue
+            elif 'www' in link:
+                delete.append(link_bs['href'])
+                continue
+            all_links.append(link_bs['href'])
+        print(all_links)
 
     def find_articles(self) -> None:
         """
@@ -167,7 +186,12 @@ def main() -> None:
     Entrypoint for scrapper module
     """
     # YOUR CODE GOES HERE
-    pass
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler = Crawler(configuration)
+    crawler.find_articles()
+    for idx, url in enumerate(crawler.urls):
+        parser = HTMLParser(full_url=url, article id=idx+1, config=configuration)
 
 
 if __name__ == "__main__":
