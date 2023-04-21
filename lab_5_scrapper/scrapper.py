@@ -67,11 +67,11 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
-        self._validate_config_content()
         self.config_data = self._extract_config_content()
+        self._validate_config_content()
         self._seed_urls = self.config_data.seed_urls
         self._headers = self.config_data.headers
-        self._total_num_articles = self.config_data.total_articles
+        self._num_articles = self.config_data.total_articles
         self._encoding = self.config_data.encoding
         self._timeout = self.config_data.timeout
         self._should_verify_certificate = self.config_data.should_verify_certificate
@@ -91,33 +91,41 @@ class Config:
         are not corrupt
         """
         # IncorrectSeedURLError: seed URL does not match standard pattern "https?://w?w?w?."
-        if not isinstance(self._seed_urls, list):
+        if not isinstance(self.config_data.seed_urls, list):
             raise IncorrectSeedURLError
-        for seed_url in self._seed_urls:
+        for seed_url in self.config_data.seed_urls:
             if not re.match(r'^https?://.*', seed_url):
                 raise IncorrectSeedURLError
 
         # NumberOfArticlesOutOfRangeError: total number of articles is out of range from 1 to 150
         # IncorrectNumberOfArticlesError: total number of articles to parse is not integer
-        if not isinstance(self._total_num_articles, int):
+        if not isinstance(self.config_data.total_articles, int) \
+                or isinstance(self.config_data.total_articles, bool) \
+                or not self.config_data.total_articles >= 0:
             raise IncorrectNumberOfArticlesError
-        if not 1 <= self._total_num_articles <= NUM_ARTICLES_UPPER_LIMIT:
+
+        if self.config_data.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         # IncorrectHeadersError: headers are not in a form of dictionary
-        if not isinstance(self._headers, dict):
+        if not isinstance(self.config_data.headers, dict):
             raise IncorrectHeadersError
 
+        for header in self.config_data.headers:
+            if not header == True or not header == False:
+                raise IncorrectHeadersError
+
         # IncorrectEncodingError: encoding must be specified as a string
-        if not isinstance(self._encoding, str):
+        if not isinstance(self.config_data.encoding, str):
             raise IncorrectEncodingError
 
         # IncorrectTimeoutError: timeout value must be a positive integer less than 60
-        if not isinstance(self._timeout, int) or not 0 <= self._timeout <= 60:
+        if not isinstance(self.config_data.timeout, int) or not 0 <= self.config_data.timeout <= 60:
             raise IncorrectTimeoutError
 
         # IncorrectVerifyError: verify certificate value must either be True or False
-        if not (self._should_verify_certificate == True or self._should_verify_certificate == False):
+        if (not isinstance(self.config_data.should_verify_certificate, bool)
+                or not isinstance(self.config_data.headless_mode, bool)):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -130,7 +138,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_num_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
