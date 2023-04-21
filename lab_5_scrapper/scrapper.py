@@ -263,7 +263,8 @@ class HTMLParser:
         Finds text of article
         """
         # finds article's text in the unique attribute
-        texts_tag = article_soup.find_all("p")
+        main_tag = article_soup.find('div', class_='page-content io-article-body')
+        texts_tag = main_tag.find_all("p")
         # stores retrieved text in a list
         final_text = [text.get_text(strip=True) for text in texts_tag]
         self.article.text = "\n".join(final_text)
