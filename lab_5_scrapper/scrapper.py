@@ -264,6 +264,7 @@ class HTMLParser:
         """
         # finds article's text in the unique attribute
         main_tag = article_soup.find('div', class_='page-content io-article-body')
+        no_need = main_tag.find('div', {'class':['news_links_related', 'noprint']}).extract()
         texts_tag = main_tag.find_all("p")
         # stores retrieved text in a list
         final_text = [text.get_text(strip=True) for text in texts_tag]
