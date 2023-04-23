@@ -56,6 +56,7 @@ Instructors:
 | 14.04.2023 | **First deadline:** crawler assignment.             | N/A                          |
 | 17.04.2023 | **Lecture:** Assignment no. 6: concept and details. | N/A                          |
 | 21.04.2023 | **Seminar:** `CorpusManager` implementation.        | N/A                          |
+| 24.04.2023 | **Lecture:** Automated morphological analysis.      | [Listing][17], [Listing][18] |
 
 You can find a more complete summary from lectures as a 
 [list of topics](./docs/public/lectures_content.md).
@@ -138,3 +139,5 @@ A lab work is accepted for oral presentation if all the criteria below are satis
 [14]: ./seminars/seminar_04_03_2023/try_fs.py
 [15]: ./seminars/seminar_04_07_2023/try_html_parser.py
 [16]: ./seminars/seminar_04_10_2023/try_dates.py
+[17]: ./seminars/seminar_04_24_2023/try_pymystem.py
+[18]: ./seminars/seminar_04_24_2023/try_pymorphy.py
