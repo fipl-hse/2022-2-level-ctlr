@@ -262,11 +262,21 @@ class HTMLParser:
         """
         Finds text of article
         """
-        # finds article's text in the unique attribute
-        texts_tag = article_soup.find_all("p")
+        # finds tag with text
+        main_bs = article_soup.find('div', class_='page-content io-article-body')
+        texts_tag = main_bs.find_all("p")
         # stores retrieved text in a list
-        final_text = [text.get_text(strip=True) for text in texts_tag][:-1]
-        self.article.text = "\n".join(final_text[:-7])
+        final_text = [text.get_text(strip=True) for text in texts_tag]
+
+        # text that should be removed later(text of links beneath article)
+        additional_bs = article_soup.find('div', {'id': 'soc_invites_block'}).find_all('strong')
+        additional_text = [text.get_text(strip=True) for text in additional_bs]
+
+        for text_to_remove in additional_text:
+            if text_to_remove in final_text:
+                final_text.remove(text_to_remove)
+
+        self.article.text = "\n".join(final_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -286,6 +296,9 @@ class HTMLParser:
         date = article_soup.find('div', class_='fn-rubric-link')
 
         if date:
+            self.article.date = self.unify_date_format(date.text.strip())
+        else:
+            date = article_soup.find('p', class_='pldate')
             self.article.date = self.unify_date_format(date.text.strip())
 
         # the name of authors is not defined on the pages
@@ -321,15 +334,26 @@ class HTMLParser:
             return date.replace(year=this_year, month=this_month, day=this_date)
 
         # finds the name of the month in a string
-        month_in_date = re.findall(r'[а-я]+', date_str)[0]
-        # translates month's name to English
-        eng_date = re.sub(month_in_date, months[month_in_date], date_str)
+        month_in_date = re.findall(r'[а-я]+', date_str)
+
+        if month_in_date:
+            month_in_date = month_in_date[0]
+
+            # translates month's name to English
+            eng_date = re.sub(month_in_date, months[month_in_date], date_str)
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
         if re.match(r'(\d{2}) \w+, \1:\1', date_str):
             date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
             return date_d.replace(year=this_year)
+
+        # 21.04.2023
+        # matches when a parsed value has date, month, year in a format above
+        # this format is relevant for articles in the top of the page
+        if re.match(r'\d{2}.\d{2}.\d{4}', date_str):
+            date_d = datetime.datetime.strptime(date_str, '%d.%m.%Y')
+            return date_d
 
         # 25 декабря 2023, 11:30
         # matches when a parsed value has date, month, year and time
