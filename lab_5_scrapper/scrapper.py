@@ -208,10 +208,11 @@ class Crawler:
         """
         href = article_bs.get("href")
 
-        if href and href.startswith("https://irkutskmedia.ru/news/") and 'hashtag' not in href:
-            return str(href)  # get proper link
+        if href is None or 'hashtag' in href:
+            return ""
 
-        return ""
+        if href.startswith("https://irkutskmedia.ru/news/"):
+            return str(href)  # get a proper link
 
     def find_articles(self) -> None:
         """
