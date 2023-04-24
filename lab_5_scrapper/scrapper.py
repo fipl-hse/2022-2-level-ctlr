@@ -263,11 +263,10 @@ class HTMLParser:
         Finds text of article
         """
         # finds article's text in the unique attribute
-        main_bs = article_soup.find('div', class_='page-content io-article-body')
-        texts_tag = main_bs.find_all("p")
+        texts_tag = article_soup.find_all("p")
         # stores retrieved text in a list
-        final_text = [text.get_text(strip=True) for text in texts_tag[:-2]]
-        self.article.text = "\n".join(final_text)
+        final_text = [text.get_text(strip=True) for text in texts_tag][:-1]
+        self.article.text = "\n".join(final_text[:-7])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -328,7 +327,7 @@ class HTMLParser:
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
-        if re.match(r'\d{2} [a-z]+, \d{2}:\d{2}', eng_date, flags=re.IGNORECASE):
+        if re.match(r'(\d{2}) \w+, \1:\1', date_str):
             date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
             return date_d.replace(year=this_year)
 
