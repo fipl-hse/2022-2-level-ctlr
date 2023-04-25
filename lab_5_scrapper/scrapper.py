@@ -334,9 +334,9 @@ class HTMLParser:
             return date.replace(year=this_year, month=this_month, day=this_date)
 
         # finds the name of the month in a string
-        month_in_date = re.findall(r'[а-я]+', date_str)
+        month_in_date_lst = re.findall(r'[а-я]+', date_str)
 
-        if not month_in_date:
+        if not month_in_date_lst:
             # 21.04.2023
             # matches when a parsed value has date, month, year in a format above
             # this format is relevant for articles in the top of the page
@@ -344,7 +344,7 @@ class HTMLParser:
                 date_d = datetime.datetime.strptime(date_str, '%d.%m.%Y')
                 return date_d
 
-        month_in_date = month_in_date[0]
+        month_in_date = month_in_date_lst[0]
         # translates month's name to English
         eng_date = re.sub(month_in_date, months[month_in_date], date_str)
 
