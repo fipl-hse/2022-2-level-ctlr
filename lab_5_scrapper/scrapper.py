@@ -339,8 +339,8 @@ class HTMLParser:
         if month_in_date:
             month_in_date = month_in_date[0]
 
-            # translates month's name to English
-            eng_date = re.sub(month_in_date, months[month_in_date], date_str)
+        # translates month's name to English
+        eng_date = re.sub(month_in_date, months[month_in_date], date_str)
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
