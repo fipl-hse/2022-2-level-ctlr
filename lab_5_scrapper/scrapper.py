@@ -336,24 +336,23 @@ class HTMLParser:
         # finds the name of the month in a string
         month_in_date = re.findall(r'[а-я]+', date_str)
 
-        if month_in_date:
-            month_in_date = month_in_date[0]
+        if not month_in_date:
+            # 21.04.2023
+            # matches when a parsed value has date, month, year in a format above
+            # this format is relevant for articles in the top of the page
+            if re.match(r'\d{2}.\d{2}.\d{4}', date_str):
+                date_d = datetime.datetime.strptime(date_str, '%d.%m.%Y')
+                return date_d
 
+        month_in_date = month_in_date[0]
         # translates month's name to English
         eng_date = re.sub(month_in_date, months[month_in_date], date_str)
 
         # 25 декабря, 11:30
         # the pattern is aimed to find date information like in the example above(without year)
-        if re.match(r'(\d{2}) \w+, \1:\1', date_str):
+        if re.match(r'\d{2} \w+, \d{2}:\d{2}', date_str):
             date_d = datetime.datetime.strptime(eng_date, '%d %B, %H:%M')
             return date_d.replace(year=this_year)
-
-        # 21.04.2023
-        # matches when a parsed value has date, month, year in a format above
-        # this format is relevant for articles in the top of the page
-        if re.match(r'\d{2}.\d{2}.\d{4}', date_str):
-            date_d = datetime.datetime.strptime(date_str, '%d.%m.%Y')
-            return date_d
 
         # 25 декабря 2023, 11:30
         # matches when a parsed value has date, month, year and time
