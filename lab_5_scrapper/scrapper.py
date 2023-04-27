@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
@@ -273,13 +273,50 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find_all('h1')[0]
+        if title:
+            self.article.title = title.text
+        time_and_date = article_soup.find('time').text
+        excessive = re.search(r'\d,\s+[А-Яа-я]+', time_and_date).group()
+        portal_name = excessive[1:]
+        time_new = time_and_date.replace(portal_name, '')
+        if time_new:
+            try:
+                self.article.date = self.unify_date_format(time_new)
+            except ValueError:
+                pass
+        authors = [author.text for author in article_soup.find_all('span', {'class': 'author'})]
+        if authors:
+            self.article.author = authors
+        else:
+            self.article.author = ['NOT FOUND']
+        tag_section = article_soup.find('div', {'class': 'rubdiv'})
+        topics = [topic.text for topic in tag_section.find_all('a')]
+        if topics:
+            self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        months = {
+            'января': 'January',
+            'февраля': 'February',
+            'марта': 'March',
+            'апреля': 'April',
+            'мая': 'May',
+            'июня': 'June',
+            'июля': 'July',
+            'августа': 'August',
+            'сентября': 'September',
+            'октября': 'October',
+            'ноября': 'November',
+            'декабря': 'December',
+        }
+        month_old = re.search(r'[А-Яа-я]+', date_str).group()
+        month_new = months[month_old]
+        date_str = date_str.replace(month_old, month_new)
+        return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -314,6 +351,7 @@ def main() -> None:
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
