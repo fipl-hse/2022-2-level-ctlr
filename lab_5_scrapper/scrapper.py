@@ -16,7 +16,8 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT,
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
@@ -95,39 +96,32 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        seed_urls = self.config_content.seed_urls
-        total_articles = self.config_content.total_articles
-        headers = self.config_content.headers
-        encoding = self.config_content.encoding
-        timeout = self.config_content.timeout
-        should_verify_certificate = self.config_content.should_verify_certificate
-        headless_mode = self.config_content.headless_mode
-
-        if not isinstance(seed_urls, list):
+        if not isinstance(self.config_content.seed_urls, list):
             raise IncorrectSeedURLError
-        for seed_url in seed_urls:
+        for seed_url in self.config_content.seed_urls:
             if not isinstance(seed_url, str) or not re.match(r'https?://.*', seed_url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(total_articles, int) or isinstance(total_articles, bool) or \
-                total_articles < 1:
+        if not isinstance(self.config_content.total_articles, int) \
+                or isinstance(self.config_content.total_articles, bool) \
+                or self.config_content.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if self.config_content.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(headers, dict):
+        if not isinstance(self.config_content.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(encoding, str):
+        if not isinstance(self.config_content.encoding, str):
             raise IncorrectEncodingError
 
-        if not isinstance(timeout, int) \
-                or not TIMEOUT_LOWER_LIMIT < timeout < TIMEOUT_UPPER_LIMIT:
+        if not isinstance(self.config_content.timeout, int) \
+                or not TIMEOUT_LOWER_LIMIT < self.config_content.timeout < TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
-        if not isinstance(should_verify_certificate, bool) \
-                or not isinstance(headless_mode, bool):
+        if not isinstance(self.config_content.should_verify_certificate, bool) \
+                or not isinstance(self.config_content.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -208,8 +202,7 @@ class Crawler:
         """
         url = article_bs.get('href')
         if isinstance(url, str) and url.startswith('/news/'):
-            new_url = 'https://informpskov.ru' + url
-            return new_url
+            return 'https://informpskov.ru' + url
         return ''
 
     def find_articles(self) -> None:
@@ -222,9 +215,7 @@ class Crawler:
             if response.status_code != 200:
                 continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            article_page_bs = article_bs.find('div', {'id': 'yw0'})
-            article_page = article_page_bs.find_all(
-                'a')
+            article_page = article_bs.find('div', {'id': 'yw0'}).find_all('a')
             for article in article_page:
                 print(article)
                 if len(self.urls) >= self._config.get_num_articles():
