@@ -114,7 +114,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        clean_text = self._text.lower().translate(str.maketrans("", "", string.punctuation))
+        clean_text = self._text.lower().translate(str.maketrans("", "", punctuation))
         return clean_text
 
 
