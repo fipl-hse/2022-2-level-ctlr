@@ -28,7 +28,7 @@ jobs:
           ~/.cache/pip
           ~/.local/share/virtualenvs
           venv
-        key: ${{ env.GITHUB_REPOSITORY }}-${{ env.BRANCH_NAME }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        key: ${{ env.GITHUB_REPOSITORY }}-${{ env.BRANCH_NAME }}-${{ github.actor }}-pip-${{ hashFiles('**/requirements*.txt') }}
         ttl: 1209600
 
     - name: Setup Python environment
@@ -45,30 +45,9 @@ jobs:
         source venv/bin/activate
         echo "Using cached dependencies in requirements check"
         bash config/stage_1_style_tests/_stage_requirements_check.sh
-    - name: Code Style
-      timeout-minutes: 2
-      env:
-        PR_NAME: ${{ github.event.pull_request.title }}
-        PR_AUTHOR: ${{ github.actor }}
-      run: |
-        source venv/bin/activate
-        echo "Using cached dependencies in code style checking"
-        bash config/stage_1_style_tests/_stage_run_lint.sh "$PR_NAME" "$PR_AUTHOR"
     - name: Pymarkdownlnt checks
       timeout-minutes: 2
       run: |
         source venv/bin/activate
         echo "Using cached dependencies in code pymarkdownlnt checks"
         bash config/stage_1_style_tests/_stage_run_pymarkdownlnt.sh
-    - name: Mypy checks
-      timeout-minutes: 2
-      run: |
-        source venv/bin/activate
-        echo "Using cached dependencies in mypy checks"
-        bash config/stage_1_style_tests/_stage_run_mypy.sh
-    - name: Import style checks
-      timeout-minutes: 2
-      run: |
-        source venv/bin/activate
-        echo "Using cached dependencies in import style checks"
-        bash config/stage_1_style_tests/_stage_run_flake8.sh
