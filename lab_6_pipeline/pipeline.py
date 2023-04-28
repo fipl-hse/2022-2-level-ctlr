@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import List
 
 from core_utils.article.article import (get_article_id_from_filepath, SentenceProtocol)
+from core_utils.article.io import from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
 
 
 class EmptyDirectoryError:
@@ -54,12 +56,17 @@ class CorpusManager:
         """
         Register each dataset entry
         """
+        raw = self._path_to_raw_txt_data.glob("*_raw.txt")
+        for file in raw:
+            article = from_raw(file)
+            self._storage.update({article.article_id: article})
 
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
@@ -208,6 +215,9 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    morph_analysis_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    morph_analysis_pipeline.run()
 
 
 if __name__ == "__main__":
