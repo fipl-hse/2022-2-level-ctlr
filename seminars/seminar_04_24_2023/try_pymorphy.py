@@ -1,6 +1,8 @@
 """
 Seminar on morphological analysis: pymorphy
 """
+# pylint: disable=pointless-string-statement
+
 import time
 from pathlib import Path
 
@@ -34,7 +36,6 @@ def main() -> None:
     # To get full Parse object for a normal form use another property: `normalized`
     print(parsing_result.normalized)
 
-    # news from https://www.nn.ru/text/education/2022/04/07/71171432/
     plain_text_path = Path(__file__).parent / '1_raw.txt'
 
     with plain_text_path.open(encoding='utf-8') as f:
@@ -66,9 +67,9 @@ def main() -> None:
         f'Single instance is quicker in {many_instances_time / single_instance_time: .2f}x')  # 41x
     """
     Lecturer's machine results:
-        Time spent (seconds) for MorphAnalyzer instance per each word: 216.2129762172699
-        Time spent (seconds) for MorphAnalyzer instance per each word: 1.0891950130462646
-        Single instance is quicker in  198.51x
+        Time spent (seconds) for MorphAnalyzer instance per each word: 223.12
+        Time spent (seconds) for MorphAnalyzer instance per each word: 0.95
+        Single instance is quicker in 234.94x
     """
     # Very interesting to read performance comparison:
     # https://pymorphy2.readthedocs.io/en/stable/internals/dict.html#id13

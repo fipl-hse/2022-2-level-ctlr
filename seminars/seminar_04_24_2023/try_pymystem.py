@@ -1,6 +1,8 @@
 """
 Seminar on morphological analysis: pymystem3
 """
+# pylint: disable=pointless-string-statement
+
 import time
 from pathlib import Path
 
@@ -48,25 +50,39 @@ def main() -> None:
     print(f'Num failed parses: {num_errors}')
 
     start = time.time()
-    raw_tokens = plain_text.split()
-    analysis_result = []
-    for token in raw_tokens:
-        analysis_result.append(mystem.analyze(token))
+    mystem.analyze(plain_text)
+    end = time.time() - start
+    print(f'As a text, shared instance, took {end:.2} seconds')
 
-    # It takes approximately 60 seconds on lector's machine
-    print(
-        'Time for analyzing each token separately '
-        f'with single instance of Mystem: {time.time() - start : .2f} sec')
+    mystem = Mystem()
+    start = time.time()
+    res = []
+    for token in plain_text.split():
+        res.append(mystem.analyze(token))
+    end = time.time() - start
+    print(f'Word by word, shared instance, took {end:.2} seconds')
 
     start = time.time()
-    analysis_result = mystem.analyze(plain_text)
-    # It takes approximately 3 seconds on lector's machine
-    print(f'Time for analyzing big text as a whole: {time.time() - start : .2f} sec')
+    res = []
+    for token in plain_text.split():
+        res.append(Mystem().analyze(token))
+    end = time.time() - start
+    print(f'Word by word, new instance each time, took {end:.2} seconds')
 
-    # Task 1. Cleanup text from any punctuation marks
+    # Output on lector's machine
+    """
+    Lecturer's machine results:
+        As a text, shared instance, took 0.13 seconds
+        Word by word, shared instance, took 1.0 seconds
+        Word by word, new instance each time, took 1800 seconds
+    """
+
+    # Seminar's tasks:
+    # Task 1. Calculate number of nouns
+    # Task 1. Cleanup text from any punctuation marks and lowercase it
+    # ---
     # Task 1. Find all unique punctuation marks
     # Task 1. Calculate unique punctuation marks
-    # Task 1. Calculate number of nouns
     # Task 1. Are there more nouns than adjectives in a given text?
 
 
