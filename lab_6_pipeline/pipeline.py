@@ -1,6 +1,7 @@
 """
 Pipeline for CONLL-U formatting
 """
+import string
 from pathlib import Path
 from typing import List
 
@@ -8,6 +9,8 @@ from core_utils.article.article import (get_article_id_from_filepath, SentencePr
 from core_utils.article.io import from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
+
+from string import punctuation
 
 
 class EmptyDirectoryError:
@@ -89,6 +92,8 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
+
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -109,6 +114,8 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        clean_text = self._text.lower().translate(str.maketrans("", "", string.punctuation))
+        return clean_text
 
 
 class ConlluSentence(SentenceProtocol):
@@ -120,6 +127,9 @@ class ConlluSentence(SentenceProtocol):
         """
         Initializes ConlluSentence
         """
+        self._position = position
+        self._text = text
+        self._tokens = tokens
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
