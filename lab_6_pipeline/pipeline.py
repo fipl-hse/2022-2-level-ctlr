@@ -4,8 +4,19 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
+from pymystem3 import Mystem
+
+from core_utils.article.article import (get_article_id_from_filepath, SentenceProtocol)
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class InconsistentDataError:
+    pass
+
+
+class EmptyDirectoryError:
+    pass
 
 
 # pylint: disable=too-few-public-methods
@@ -18,24 +29,45 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
-        self._path_to_raw_txt_data = Path(path_to_raw_txt_data)
+        self._path_to_raw_txt_data = path_to_raw_txt_data
         self._storage = {}
         self._validate_dataset()
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self._path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self._path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        if not any(self._path_to_raw_txt_data.iterdir()):
+            raise EmptyDirectoryError
+
+        meta = list(self._path_to_raw_txt_data.glob("*_meta.json"))
+        raw = list(self._path_to_raw_txt_data.glob("*_raw.txt"))
+        if len(meta) != len(raw):
+            raise InconsistentDataError
+
+        meta_index = sorted(get_article_id_from_filepath(m) for m in meta)
+        raw_index = sorted(get_article_id_from_filepath(r) for r in raw)
+        if meta_index != list(range(1, len(meta_index)+1)) != raw_index:
+            raise InconsistentDataError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
 
+
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+
 
 
 class MorphologicalTokenDTO:
@@ -184,6 +216,7 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
 
 
 if __name__ == "__main__":
