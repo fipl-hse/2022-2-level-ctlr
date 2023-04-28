@@ -58,7 +58,7 @@ Instructors:
 | 21.04.2023 | **Seminar:** `CorpusManager` implementation.        | N/A                          |
 | 24.04.2023 | **Lecture:** Automated morphological analysis.      | [Listing][17], [Listing][18] |
 
-You can find a more complete summary from lectures as a 
+You can find a more complete summary from lectures as a
 [list of topics](./docs/public/lectures_content.md).
 
 ## Technical solution

@@ -6,7 +6,10 @@ Seminar on morphological analysis: pymorphy
 import time
 from pathlib import Path
 
-import pymorphy2
+try:
+    import pymorphy2
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 
 def main() -> None:
@@ -67,9 +70,9 @@ def main() -> None:
         f'Single instance is quicker in {many_instances_time / single_instance_time: .2f}x')  # 41x
     """
     Lecturer's machine results:
-        Time spent (seconds) for MorphAnalyzer instance per each word: 223.12
-        Time spent (seconds) for MorphAnalyzer instance per each word: 0.95
-        Single instance is quicker in 234.94x
+        Time spent (seconds) for MorphAnalyzer instance per each word: 196.82
+        Time spent (seconds) for MorphAnalyzer instance per each word: 1.11
+        Single instance is quicker in  177.69x
     """
     # Very interesting to read performance comparison:
     # https://pymorphy2.readthedocs.io/en/stable/internals/dict.html#id13

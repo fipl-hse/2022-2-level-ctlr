@@ -6,7 +6,10 @@ Seminar on morphological analysis: pymystem3
 import time
 from pathlib import Path
 
-from pymystem3 import Mystem
+try:
+    from pymystem3 import Mystem
+except ImportError:
+    print('No libraries installed. Failed to import.')
 
 
 def main() -> None:
