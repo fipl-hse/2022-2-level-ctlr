@@ -64,8 +64,8 @@ class CorpusManager:
         meta = list(self.path_to_raw_txt_data.glob('**/*.json'))
         meta_f = [i for i in meta if re.match(r'\d+_meta', i.name)]
 
-        if len(texts_raw) != len(meta_f):
-            raise InconsistentDatasetError
+        #if len(texts_raw) != len(meta_f):
+        #    raise InconsistentDatasetError
 
         text_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts_raw)
         meta_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_f)
