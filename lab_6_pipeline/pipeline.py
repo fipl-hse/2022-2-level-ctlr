@@ -134,7 +134,6 @@ class ConlluToken:
         """
         return "".join([i for i in self._text if i not in punctuation]).lower()
 
-
 class ConlluSentence(SentenceProtocol):
     """
     Representation of a sentence in the CONLL-U format
@@ -157,7 +156,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return " ".join([i.get_cleaned() for i in self._tokens])
+        return " ".join([i.get_cleaned() for i in self._tokens if i.get_cleaned()])
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -214,7 +213,7 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        for id, sent in enumerate(sentences):
+        for id, sent in enumerate(sentences, start=1):
             conllu_list = [ConlluToken(text) for text in sent.split()]
             conllu_sent.append(ConlluSentence(id, sent, conllu_list))
         return conllu_sent
