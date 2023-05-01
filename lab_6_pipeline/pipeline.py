@@ -3,9 +3,33 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
+import re
+import os
 
 from core_utils.article.article import SentenceProtocol
+from core_utils.article.io import from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class EmptyDirectoryError(Exception):
+    """
+    directory is empty
+    """
+
+
+class InconsistentDatasetError(Exception):
+    """
+    IDs contain slips, number of meta and raw files is not equal, files are empty
+    """
+
+
+def empty_file(files):
+    for file in files:
+        with open(file) as f:
+            f.seek(0, os.SEEK_END)
+            if not f.tell():
+                raise InconsistentDatasetError
 
 
 # pylint: disable=too-few-public-methods
@@ -18,21 +42,52 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self._storage = {}
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._validate_dataset()
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+        if not [x for x in self.path_to_raw_txt_data.iterdir()]:
+            raise EmptyDirectoryError
+
+        texts = list(self.path_to_raw_txt_data.glob('**/*.txt'))
+        texts_raw = [i for i in texts if re.match(r'\d+_raw', i.name)]
+        meta = list(self.path_to_raw_txt_data.glob('**/*.json'))
+        meta_f = [i for i in meta if re.match(r'\d+_meta', i.name)]
+
+        if len(texts_raw) != len(meta_f):
+            raise InconsistentDatasetError
+
+        text_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts_raw)
+        meta_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_f)
+
+        if text_order != list(range(1, len(texts_raw) + 1)) or meta_order != list(range(1, len(meta_f) + 1)):
+            raise InconsistentDatasetError
+
+        empty_file(meta)
+        empty_file(texts)
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        for file in (list(self.path_to_raw_txt_data.glob('*.txt'))):
+            if nes_file := re.search(r'(\d+)_raw', str(file)):
+                self._storage[int(nes_file[1])] = from_raw(file)
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
@@ -181,6 +236,7 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    manager = CorpusManager(ASSETS_PATH)
 
 
 if __name__ == "__main__":
