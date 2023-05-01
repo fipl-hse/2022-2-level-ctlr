@@ -132,7 +132,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return "".join([i for i in self._text if i not in punctuation or i != '№']).lower()
+        return "".join([i for i in self._text if i not in punctuation and i != '№']).lower()
 
 
 class ConlluSentence(SentenceProtocol):
