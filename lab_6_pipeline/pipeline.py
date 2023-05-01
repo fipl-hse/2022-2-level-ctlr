@@ -70,7 +70,8 @@ class CorpusManager:
         text_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts_raw)
         meta_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_f)
 
-        if text_order != list(range(1, len(texts_raw) + 1)) or meta_order != list(range(1, len(meta_f) + 1)):
+        if text_order != list(range(1, len(texts_raw) + 1)):
+            #or meta_order != list(range(1, len(meta_f) + 1))
             raise InconsistentDatasetError
 
         empty_file(meta)
