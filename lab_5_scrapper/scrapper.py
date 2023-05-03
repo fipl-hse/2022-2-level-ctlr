@@ -16,10 +16,8 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
-                                  NUM_ARTICLES_UPPER_LIMIT,
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
-
 
 
 class IncorrectSeedURLError(Exception):
@@ -182,7 +180,6 @@ class Crawler:
     """
     Crawler implementation
     """
-
     url_pattern: Union[Pattern, str]
 
     def __init__(self, config: Config) -> None:
@@ -206,23 +203,22 @@ class Crawler:
         Finds articles
         """
         for seed_url in self._seed_urls:
-            response = make_request(seed_url, self._config)
-            if response.status_code == 200:
-                main_bs = BeautifulSoup(response.text, 'lxml')
-                articles = main_bs.find_all('a', {'class': 'col-12 article-detail'})
-                for article_bs in articles:
-                    if len(self.urls) >= self._config.get_num_articles():
-                        return
-                    url = self._extract_url(article_bs)
-                    if not url or url in self.urls:
-                        continue
-                    self.urls.append(url)
+            res = make_request(seed_url, self._config)
+            soup = BeautifulSoup(res.content, "lxml")
+            for paragraph in soup.find_all('a', class_="color-main ff-text-header text-header"):
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
+                url = self._extract_url(paragraph)
+                if not url or url in self.urls:
+                    continue
+                self.urls.append('https://krsk.sibnovosti.ru'+ url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
         return self._seed_urls
+
 
 class HTMLParser:
     """
@@ -238,7 +234,6 @@ class HTMLParser:
         self._config = config
         self.article = Article(self._full_url, self._article_id)
 
-
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
@@ -247,26 +242,49 @@ class HTMLParser:
         paragraphs = article_content.find_all("p")
         self.article.text = ' '.join(paragraph.text.strip() for paragraph in paragraphs)
 
-
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        self.article.title = article_soup.find('h1', class_="ff-text-header h2 mb-0  news news").text
+        self.article.title = article_soup.find('div', class_='col-12 pb-2').text.strip()
         author = article_soup.find('a', {'class': "ff-block-header text-header fs-14"})
         if not author.text:
             self.article.author = ['NOT FOUND']
         else:
             self.article.author = [author.text]
         self.article.topics.append(article_soup.find('a', {'class': "active"}).text)
-        date = article_soup.find('span', {'class': "year"})
-        self.article.date = self.unify_date_format(date.text.strip())
-
+        date = article_soup.find('span', {'class': "year"}).text
+        hour = article_soup.find('span', {'class': 'hour'}).text.replace(',', '')
+        date_str = (hour + ' ' + date)
+        self.article.date = self.unify_date_format(date_str)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
+        list_date = date_str.lower().split()
+
+        months_collection = {"января": "01", "февраля": "02", "марта": "03",
+                             "апреля": "04", "мая": "05", "июня": "06",
+                             "июля": "07", "августа": "08", "сентября": "09",
+                             "октября": "10", "ноября": "11", "декабря": "12"}
+        year = '2023'
+        month = ''
+        day = ''
+        time = ''
+        for element in list_date:
+            if ':' in element:
+                time += element
+            if element in months_collection:
+                month += months_collection[element]
+            digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+            if element.isdigit() and element in digits:
+                day += '0' + element
+            if element.isdigit() and element not in digits:
+                day += element
+        # collecting necessary data
+        correct_date = year + '-' + month + '-' + day[:2] + ' ' + time
+        return datetime.datetime.strptime(correct_date, '%Y-%m-%d %H:%M')
 
 
     def parse(self) -> Union[Article, bool, list]:
@@ -298,9 +316,7 @@ def main() -> None:
     crawler = Crawler(config=configuration)
     crawler.find_articles()
     for id_, url in enumerate(crawler.urls, start=1):
-        parser = HTMLParser(full_url=url,
-                            article_id=id_,
-                            config=configuration)
+        parser = HTMLParser(full_url=url, article_id=id_, config=configuration)
         article = parser.parse()
         if isinstance(article, Article):
             to_raw(article)
