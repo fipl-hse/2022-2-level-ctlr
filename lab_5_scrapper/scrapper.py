@@ -3,12 +3,16 @@ Crawler implementation
 """
 import datetime
 import json
+import random
 import re
 import shutil
-import requests
+import time
 from pathlib import Path
 from typing import Pattern, Union
+
+import requests
 from bs4 import BeautifulSoup
+
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
@@ -95,26 +99,30 @@ class Config:
         config_dto = self._extract_config_content()
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
-        for urls in config_dto.seed_urls:
-            if not re.match(r'^https?://.*', urls) or not isinstance(urls, str):
-                raise IncorrectSeedURLError
+
         for url in config_dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'https?://.*', url):
+            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
                 raise IncorrectSeedURLError
-        if isinstance(config_dto.total_articles, int):
-            if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
-                raise NumberOfArticlesOutOfRangeError
-            if isinstance(config_dto.total_articles, bool) or config_dto.total_articles < 1:
-                raise IncorrectNumberOfArticlesError
-        else:
+
+        if (not isinstance(config_dto.total_articles, int)
+                or isinstance(config_dto.total_articles, bool)
+                or config_dto.total_articles < 1):
             raise IncorrectNumberOfArticlesError
+
+        if config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError
+
         if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError
+
         if not isinstance(config_dto.encoding, str):
             raise IncorrectEncodingError
-        if (not isinstance(config_dto.timeout, int) or config_dto.timeout < TIMEOUT_LOWER_LIMIT
+
+        if (not isinstance(config_dto.timeout, int)
+                or config_dto.timeout < TIMEOUT_LOWER_LIMIT
                 or config_dto.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
+
         if (not isinstance(config_dto.should_verify_certificate, bool)
                 or not isinstance(config_dto.headless_mode, bool)):
             raise IncorrectVerifyError
