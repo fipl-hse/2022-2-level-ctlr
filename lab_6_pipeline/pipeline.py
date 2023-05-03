@@ -4,8 +4,21 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import Article, SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class InconsistentDatasetError(BaseException):
+    """
+    IDs contain slips, number of meta and raw files is not equal, files are empty
+    """
+
+
+class EmptyDirectoryError(BaseException):
+    """
+    directory is empty
+    """
 
 
 # pylint: disable=too-few-public-methods
@@ -18,16 +31,33 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self._scan_dataset()
+        self._validate_dataset()
+        self._storage = {}
+        self.path_to_raw_txt_data = Path(path_to_raw_txt_data)
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        if self.path_to_raw_txt_data.stat().st_size == 0:
+            raise EmptyDirectoryError
+
+        if len(list(self.path_to_raw_txt_data.glob("*.json"))) != len(list(self.path_to_raw_txt_data.glob("*.txt"))):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        for file in self.path_to_raw_txt_data.glob('*'):
+            self._storage[1] = Article(url=None, article_id=1)
 
     def get_articles(self) -> dict:
         """
@@ -181,6 +211,8 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
+    print(corpus_manager._storage)
 
 
 if __name__ == "__main__":
