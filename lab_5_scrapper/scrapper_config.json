@@ -1,9 +1,24 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": [
+        "https://krsk.sibnovosti.ru/news/",
+        "https://krsk.sibnovosti.ru/news/?page=1",
+        "https://krsk.sibnovosti.ru/news/?page=2",
+        "https://krsk.sibnovosti.ru/news/?page=3",
+        "https://krsk.sibnovosti.ru/news/?page=4",
+        "https://krsk.sibnovosti.ru/news/?page=5",
+        "https://krsk.sibnovosti.ru/news/?page=6",
+        "https://krsk.sibnovosti.ru/news/?page=7",
+        "https://krsk.sibnovosti.ru/news/?page=8"
+    ],
+    "headers": {
+        "accept-encoding": "deflate, br",
+        "accept-language": "ru,en;q=0.9",
+        "referer": "https://www.google.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 YaBrowser/23.1.5.708 Yowser/2.5 Safari/537.36"
+    },
+    "total_articles_to_find_and_parse": 100,
+    "encoding": "utf-8",
+    "timeout": 5,
     "should_verify_certificate": true,
-    "headless_mode": true
+    "headless_mode": false
 }
