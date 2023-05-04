@@ -250,7 +250,8 @@ class HTMLParser:
         """
         main_text = article_soup.find('div', {
             'itemprop': 'articleBody'})
-        self.article.text = main_text.get_text(strip=True)
+        self.article.text = main_text.text.replace('\n', ' ')\
+            .replace('  ', ' ').strip()
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -317,11 +318,11 @@ class CrawlerRecursive(Crawler):
         """
         Downloads information
         """
-        if self.rec_crawler_path.exists():
-            with open(self.rec_crawler_path, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-            self.start_url = data['start_url']
-            self.urls = data['urls']
+        # if self.rec_crawler_path.exists():
+        with open(self.rec_crawler_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        self.start_url = data['start_url']
+        self.urls = data['urls']
 
     def save_data(self) -> None:
         """
@@ -342,10 +343,8 @@ class CrawlerRecursive(Crawler):
         for link in article_bs.find_all('a'):
             if len(self.urls) >= self.config.get_num_articles():
                 return
-            if self._extract_url(link) and \
-                    self._extract_url(link) not in self.urls:
-                self.urls.append(self._extract_url(link))
-                self.save_data()
+            if (url := self._extract_url(link)) and url not in self.urls:
+                self.urls.append(url)
 
         new_start = article_bs.find('a',
                                     class_="Loader-btn").get('href')
@@ -387,4 +386,4 @@ def main2() -> None:
 
 
 if __name__ == "__main__":
-    main2()
+    main()
