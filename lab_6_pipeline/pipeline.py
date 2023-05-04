@@ -49,20 +49,49 @@ class CorpusManager:
         if self.path_to_raw_txt_data.stat().st_size == 0:
             raise EmptyDirectoryError
 
-        if len(list(self.path_to_raw_txt_data.glob("*.json"))) != len(list(self.path_to_raw_txt_data.glob("*.txt"))):
+        meta_files = []
+        raw_files = []
+        for file in self.path_to_raw_txt_data.iterdir():
+            if file.suffix == '.json':
+                meta_files.append(file)
+            else:
+                raw_files.append(file)
+
+        # checks if a number of meta and raw files is equal
+        if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError
+
+        for meta, raw in meta_files, raw_files:
+            # checks that files are not empty
+            if meta.stat().st_size == 0 or raw.stat().st_size == 0:
+                raise InconsistentDatasetError
+
+        data_ids = sorted([int(i.name[0]) for i in meta_files], reverse=True)
+        # checks that IDs contain no slips
+        for idx, id_obj in enumerate(data_ids):
+            try:
+                if id_obj - data_ids[idx + 1] > 1:
+                    raise InconsistentDatasetError
+
+            except IndexError:
+                break
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
-        for file in self.path_to_raw_txt_data.glob('*'):
-            self._storage[1] = Article(url=None, article_id=1)
+        for ind, file in enumerate(sorted(self.path_to_raw_txt_data.glob('*.txt'),
+                                          key=lambda path: int(path.stem.rsplit("_", 1)[0])),
+                                   start=1):
+            article = Article(url=None, article_id=ind)
+            article.text = file.read_text(encoding='utf-8')
+            self._storage[ind] = article
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
