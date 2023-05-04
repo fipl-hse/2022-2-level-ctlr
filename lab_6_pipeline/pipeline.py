@@ -48,21 +48,26 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        meta_files = [meta for meta in self.path_to_raw_txt_data.glob('*.json')]
-        raw_files = [raw for raw in self.path_to_raw_txt_data.glob('*_raw.txt')]
+        meta_files = [meta for meta in self.path_to_raw_txt_data.glob(r'*_meta.json')]
+        raw_files = [raw for raw in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
 
-        raw_ids = sorted(int(str(file).split('_')[0][-1])
-                         for file in self.path_to_raw_txt_data.glob('*'))
-        ids_order = [number for number in range(1, raw_ids[-1] + 1)]
-
-        if len(meta_files) != len(raw_files) or ids_order != raw_ids[::2]:
+        if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError
 
-        for file in meta_files, raw_files:
-            if file[0].stat().st_size == 0:
+        raw_ids = sorted(get_article_id_from_filepath(raw) for raw in raw_files)
+        try:
+            ids_order = list(range(1, raw_ids[-1] + 1))
+            if ids_order != raw_ids:
+                raise InconsistentDatasetError
+        except IndexError:
+            pass
+
+        for files in meta_files, raw_files:
+            if not all(file.stat().st_size for file in files):
                 raise InconsistentDatasetError
 
-        if not self.path_to_raw_txt_data.iterdir():
+        if not self.path_to_raw_txt_data.iterdir() or \
+                not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
     def _scan_dataset(self) -> None:
@@ -242,6 +247,8 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     manager = CorpusManager(ASSETS_PATH)
+    morphological_analysis = MorphologicalAnalysisPipeline(manager)
+    morphological_analysis.run()
 
 
 if __name__ == "__main__":
