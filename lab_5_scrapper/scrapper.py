@@ -212,7 +212,7 @@ class Crawler:
                 if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = self._extract_url(paragraph)
-                if not url or url in self.urls:
+                if not url or url in self.urls or url == "url not found":
                     continue
                 self.urls.append('https://krsk.sibnovosti.ru'+ url)
 
@@ -220,7 +220,7 @@ class Crawler:
         """
         Returns seed_urls param
         """
-        return self._seed_urls
+        return self._config.get_seed_urls()
 
 
 class HTMLParser:
