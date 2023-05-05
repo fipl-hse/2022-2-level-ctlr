@@ -12,19 +12,6 @@ from core_utils.article.io import from_raw, from_meta, to_cleaned
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article, split_by_sentence
 
-
-class FileNotFoundError(Exception):
-    """
-    Raised when file does not exist
-    """
-
-
-class NotADirectoryError(Exception):
-    """
-    Raised when path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     Raised when IDs contain slips, number of meta and raw files is not equal, files are empty
@@ -36,6 +23,7 @@ class EmptyDirectoryError(Exception):
     """
 
 # pylint: disable=too-few-public-methods
+
 class CorpusManager:
     """
     Works with articles and stores them
@@ -53,20 +41,19 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        #do not use os, pathlib only
-        #glob can be used
-        texts = list(self.path_to_raw_txt_data.glob('*.txt'))
-        meta_info = list(self.path_to_raw_txt_data.glob('*.json'))
-        right_texts = sorted([int(re.match(r'\d+', i.name).group()) for i in texts])
 
         if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
+
+        texts = list(self.path_to_raw_txt_data.glob('*.txt'))
+        meta_info = list(self.path_to_raw_txt_data.glob('*.json'))
+        right_texts = sorted([int(re.match(r'\d+', i.name).group()) for i in texts])
+
         if len(right_texts) != len(meta_info):
             raise InconsistentDatasetError
-
 
         num_of_article = 0
         for i in right_texts:
@@ -85,11 +72,10 @@ class CorpusManager:
         Register each dataset entry
         """
         for file in (list(self.path_to_raw_txt_data.glob('*.txt'))):
-            with open(file, 'r', encoding='utf-8') as f:
-                num = int(re.match(r'\d+', file.name).group())
-                article = Article(url=None, article_id=num)
-                article.text = f.read()
-                self._storage[num] = Article
+            num = int(re.match(r'\d+', file.name).group())
+            if not num:
+                continue
+            self._storage[num] = from_raw(file)
 
 
     def get_articles(self) -> dict:
@@ -163,9 +149,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        sentence = []
-        for token in self._tokens:
-            sentence.append(token.get_cleaned())
+        sentence = [token.get_cleaned() for token in self._tokens if token]
         return ' '.join(sentence)
 
     def get_tokens(self) -> list[ConlluToken]:
