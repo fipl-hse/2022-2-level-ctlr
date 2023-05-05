@@ -1,13 +1,15 @@
 """
 Crawler implementation
 """
-from typing import Pattern, Union
+import datetime
 import json
 import re
-import datetime
-from pathlib import Path
-import requests
 import shutil
+from pathlib import Path
+from typing import Pattern, Union
+
+import requests
+from bs4 import BeautifulSoup
 
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -15,8 +17,6 @@ from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   TIMEOUT_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT)
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
-
-from bs4 import BeautifulSoup
 
 
 class IncorrectSeedURLError (Exception):
