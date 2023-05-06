@@ -49,10 +49,10 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
-        if not next(self.path_to_raw_txt_data.iterdir(), None):
+        if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        if self.path_to_raw_txt_data.stat().st_size == 0:
+        if not next(self.path_to_raw_txt_data.iterdir(), None):
             raise EmptyDirectoryError
 
         # checks if a number of meta and raw files is equal
