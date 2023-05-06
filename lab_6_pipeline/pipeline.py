@@ -49,22 +49,19 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
-        if not self.path_to_raw_txt_data.is_dir():
+        if not next(self.path_to_raw_txt_data.iterdir(), None):
             raise NotADirectoryError
 
         if self.path_to_raw_txt_data.stat().st_size == 0:
             raise EmptyDirectoryError
 
-        if len(self._meta_files) != len(self._raw_files):
-            raise InconsistentDatasetError
-
         # checks if a number of meta and raw files is equal
         if len(self._meta_files) != len(self._raw_files):
             raise InconsistentDatasetError
 
-        for meta, raw in zip(self._meta_files, self._raw_files):
-            # checks that files are not empty
-            if meta.stat().st_size == 0 or raw.stat().st_size == 0:
+        for raw in self._raw_files:
+            # checks that raw files are not empty
+            if raw.stat().st_size == 0:
                 raise InconsistentDatasetError
 
         data_ids = sorted([get_article_id_from_filepath(i) for i in self._meta_files], reverse=True)
@@ -263,7 +260,7 @@ def main() -> None:
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
     morph_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
     morph_pipeline.run()
-    # print(corpus_manager._storage)
+    print(corpus_manager._storage)
 
 
 if __name__ == "__main__":
