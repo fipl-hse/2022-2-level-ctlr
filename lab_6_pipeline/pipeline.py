@@ -55,7 +55,7 @@ class CorpusManager:
         if not self._meta_files and not self._raw_files:
             raise EmptyDirectoryError('directory is empty')
 
-        for raw, meta in self._raw_files, self._meta_files:
+        for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
             if raw.stat().st_size == 0 or meta.stat().st_size == 0:
                 raise InconsistentDatasetError('files are empty')
