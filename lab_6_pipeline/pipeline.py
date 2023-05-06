@@ -11,13 +11,13 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class InconsistentDatasetError(BaseException):
+class InconsistentDatasetError(Exception):
     """
     IDs contain slips, number of meta and raw files is not equal, files are empty
     """
 
 
-class EmptyDirectoryError(BaseException):
+class EmptyDirectoryError(Exception):
     """
     directory is empty
     """
