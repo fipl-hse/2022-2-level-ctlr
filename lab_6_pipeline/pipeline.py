@@ -1,12 +1,16 @@
 """
 Pipeline for CONLL-U formatting
 """
+import re
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import Article, SentenceProtocol
+from pymystem3 import Mystem
+
+from core_utils.article.article import Article, SentenceProtocol, split_by_sentence, get_article_id_from_filepath
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
+from core_utils.article.io import from_raw, to_cleaned
 
 
 class InconsistentDatasetError(BaseException):
@@ -31,10 +35,12 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._storage = {}
+        self._meta_files = list(self.path_to_raw_txt_data.glob('*_meta.json'))
+        self._raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
         self._scan_dataset()
         self._validate_dataset()
-        self._storage = {}
-        self.path_to_raw_txt_data = Path(path_to_raw_txt_data)
 
     def _validate_dataset(self) -> None:
         """
@@ -49,24 +55,19 @@ class CorpusManager:
         if self.path_to_raw_txt_data.stat().st_size == 0:
             raise EmptyDirectoryError
 
-        meta_files = []
-        raw_files = []
-        for file in self.path_to_raw_txt_data.iterdir():
-            if file.suffix == '.json':
-                meta_files.append(file)
-            else:
-                raw_files.append(file)
-
-        # checks if a number of meta and raw files is equal
-        if len(meta_files) != len(raw_files):
+        if len(self._meta_files) != len(self._raw_files):
             raise InconsistentDatasetError
 
-        for meta, raw in meta_files, raw_files:
+        # checks if a number of meta and raw files is equal
+        if len(self._meta_files) != len(self._raw_files):
+            raise InconsistentDatasetError
+
+        for meta, raw in zip(self._meta_files, self._raw_files):
             # checks that files are not empty
             if meta.stat().st_size == 0 or raw.stat().st_size == 0:
                 raise InconsistentDatasetError
 
-        data_ids = sorted([int(i.name[0]) for i in meta_files], reverse=True)
+        data_ids = sorted([get_article_id_from_filepath(i) for i in self._meta_files], reverse=True)
         # checks that IDs contain no slips
         for idx, id_obj in enumerate(data_ids):
             try:
@@ -80,12 +81,9 @@ class CorpusManager:
         """
         Register each dataset entry
         """
-        for ind, file in enumerate(sorted(self.path_to_raw_txt_data.glob('*.txt'),
-                                          key=lambda path: int(path.stem.rsplit("_", 1)[0])),
-                                   start=1):
-            article = Article(url=None, article_id=ind)
-            article.text = file.read_text(encoding='utf-8')
-            self._storage[ind] = article
+        for file in self._raw_files:
+            ind = get_article_id_from_filepath(file)
+            self._storage[ind] = from_raw(file)
 
     def get_articles(self) -> dict:
         """
@@ -114,6 +112,7 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -134,6 +133,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        return re.sub(r'[^\w\s]', '', self._text).lower()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -145,6 +145,9 @@ class ConlluSentence(SentenceProtocol):
         """
         Initializes ConlluSentence
         """
+        self._position = position
+        self._text = text
+        self._tokens = tokens
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
@@ -155,6 +158,8 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
+        new_sent = [token.get_cleaned() for token in self._tokens]
+        return ' '.join(new_sent)
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -203,16 +208,31 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        splitted_text = split_by_sentence(text)
+        conllu_sent_lst = []
+
+        for pos, text in enumerate(splitted_text):
+            conllu_token_lst = [ConlluToken(token) for token in text.split()]
+            conllu_sent_lst.append(ConlluSentence(pos, text, conllu_token_lst))
+
+        return conllu_sent_lst
 
     def run(self) -> None:
         """
         Performs basic preprocessing and writes processed text to files
         """
+        storage = self._corpus.get_articles()
+
+        for article in storage.values():
+            process = self._process(article.text)
+            article.set_conllu_sentences(process)
+            to_cleaned(article)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -241,7 +261,9 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    print(corpus_manager._storage)
+    morph_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    morph_pipeline.run()
+    # print(corpus_manager._storage)
 
 
 if __name__ == "__main__":
