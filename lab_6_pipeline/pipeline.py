@@ -47,29 +47,29 @@ class CorpusManager:
         Validates folder with assets
         """
         if not self.path_to_raw_txt_data.exists():
-            raise FileNotFoundError
+            raise FileNotFoundError('file does not exist')
 
         if not self.path_to_raw_txt_data.is_dir():
-            raise NotADirectoryError
+            raise NotADirectoryError('path does not lead to directory')
 
-        if not next(self.path_to_raw_txt_data.iterdir(), None):
-            raise EmptyDirectoryError
+        if not self._meta_files and not self._raw_files:
+            raise EmptyDirectoryError('directory is empty')
+
+        for raw, meta in self._raw_files, self._meta_files:
+            # checks that raw files are not empty
+            if raw.stat().st_size == 0 or meta.stat().st_size == 0:
+                raise InconsistentDatasetError('files are empty')
 
         # checks if a number of meta and raw files is equal
         if len(self._meta_files) != len(self._raw_files):
-            raise InconsistentDatasetError
-
-        for raw in self._raw_files:
-            # checks that raw files are not empty
-            if raw.stat().st_size == 0:
-                raise InconsistentDatasetError
+            raise InconsistentDatasetError('number of files is not equal')
 
         data_ids = sorted([get_article_id_from_filepath(i) for i in self._meta_files], reverse=True)
         # checks that IDs contain no slips
         for idx, id_obj in enumerate(data_ids):
             try:
                 if id_obj - data_ids[idx + 1] > 1:
-                    raise InconsistentDatasetError
+                    raise InconsistentDatasetError('files\' IDs contain slips')
 
             except IndexError:
                 break
@@ -156,7 +156,7 @@ class ConlluSentence(SentenceProtocol):
         Returns the lowercase representation of the sentence
         """
         new_sent = [token.get_cleaned() for token in self._tokens]
-        return ' '.join(new_sent)
+        return ''.join(new_sent)
 
     def get_tokens(self) -> list[ConlluToken]:
         """
