@@ -2,6 +2,11 @@
 Implementation of POSFrequencyPipeline for score ten only.
 """
 from typing import Optional
+from lab_6_pipeline.pipeline import *
+
+
+class EmptyFileError:
+    """sfdf"""
 
 
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:

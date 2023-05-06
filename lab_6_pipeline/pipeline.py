@@ -1,16 +1,14 @@
 """
 Pipeline for CONLL-U formatting
 """
-import re
 from pathlib import Path
 from typing import List
+import re
 
-from pymystem3 import Mystem
-
-from core_utils.article.article import Article, SentenceProtocol, split_by_sentence, get_article_id_from_filepath
+from core_utils.article.article import SentenceProtocol, Article, split_by_sentence, get_article_id_from_filepath
+from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
-from core_utils.article.io import from_raw, to_cleaned
 
 
 class InconsistentDatasetError(BaseException):
@@ -36,11 +34,11 @@ class CorpusManager:
         Initializes CorpusManager
         """
         self.path_to_raw_txt_data = path_to_raw_txt_data
-        self._storage = {}
         self._meta_files = list(self.path_to_raw_txt_data.glob('*_meta.json'))
         self._raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
-        self._scan_dataset()
         self._validate_dataset()
+        self._storage = {}
+        self._scan_dataset()
 
     def _validate_dataset(self) -> None:
         """
@@ -55,14 +53,14 @@ class CorpusManager:
         if not self._meta_files and not self._raw_files:
             raise EmptyDirectoryError('directory is empty')
 
+        # checks if a number of meta and raw files is equal
+        if len(self._meta_files) != len(self._raw_files):
+            raise InconsistentDatasetError('number of files is not equal')
+
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
             if raw.stat().st_size == 0 or meta.stat().st_size == 0:
                 raise InconsistentDatasetError('files are empty')
-
-        # checks if a number of meta and raw files is equal
-        if len(self._meta_files) != len(self._raw_files):
-            raise InconsistentDatasetError('number of files is not equal')
 
         data_ids = sorted([get_article_id_from_filepath(i) for i in self._meta_files], reverse=True)
         # checks that IDs contain no slips
@@ -155,8 +153,8 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        new_sent = [token.get_cleaned() for token in self._tokens]
-        return ''.join(new_sent)
+        new_sent = [token.get_cleaned() for token in self._tokens if token.get_cleaned()]
+        return ' '.join(new_sent)
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -260,7 +258,6 @@ def main() -> None:
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
     morph_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
     morph_pipeline.run()
-    print(corpus_manager._storage)
 
 
 if __name__ == "__main__":
