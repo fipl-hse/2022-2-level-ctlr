@@ -4,11 +4,14 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 import string
+import re
+
+from pymystem3 import Mystem
 
 
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
-from core_utils.article.io import from_raw, to_cleaned
+from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -117,6 +120,9 @@ class ConlluToken:
         """
         self._morphological_parameters = parameters
 
+    def set_position(self, position: int) -> None:
+        self.position = position
+
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
@@ -127,14 +133,19 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
+        position = str(self.position)
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
         xpos = '_'
-        feats = '_'
-        head = 0
+        feats = self._morphological_parameters.tags \
+            if include_morphological_tags and self._morphological_parameters.tags else '_'
+        head = '0'
         deprel = 'root'
         deps = '_'
         misc = '_'
-        return '\t'.join((self.position, self._text, self._morphological_parameters.lemma,
-                  self._morphological_parameters.pos, xpos, feats, head, deprel, deps, misc))
+        return '\t'.join([position, text, lemma, pos,
+                          xpos, feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
         """
@@ -189,12 +200,38 @@ class MystemTagConverter(TagConverter):
         """
         Converts the Mystem tags into the UD format
         """
+        pos = self.convert_pos(tags)
+        extracted_tags = re.findall(r'[а-я]+', tags.replace('(', '').replace(')', '').split('|')[0])
+
+        pos_specific_categories = {
+            "NOUN": [self.case, self.number, self.gender, self.animacy],
+            "VERB": [self.tense, self.number, self.gender],
+            "ADJ": [self.case, self.number, self.gender],
+            "ADV": [],
+            "PRON": [self.case, self.number, self.gender, self.animacy],
+            "NUM": [self.case, self.number, self.gender],
+            "PART": [],
+            "INTJ": [],
+            "CCONJ": [],
+            "ADP": [],
+        }
+        ud_tags = {category: self._tag_mapping[category][tag] for category in pos_specific_categories[pos]
+                                                       for tag in extracted_tags
+                                                       if tag in self._tag_mapping[category]}
+
+        feats = '|'.join(f'{category}={value}' for category, value in ud_tags.items())
+
+        return feats
 
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
+        pos_match = re.search(r'[A-Z]+', tags)
+        return self._tag_mapping["POS"][pos_match[0]] if \
+            pos_match and pos_match[0] in self._tag_mapping[
+            "POS"] else ''
 
 
 class OpenCorporaTagConverter(TagConverter):
@@ -206,12 +243,22 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
+        return self._tag_mapping[self.pos][tags.POS or 'UNKN']
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
         Converts the OpenCorpora tags into the UD format
         """
+        parsed_tags = {attr: getattr(tags, attr, None) for
+                       attr in ['animacy', 'case', 'gender', 'number']}
 
+        tags_list = []
+        for category, value in parsed_tags.items():
+            if value and value in self._tag_mapping.get(category, {}):
+                mapped_value = self._tag_mapping[category][value]
+                tags_list.append(f'{category}={mapped_value}')
+
+        return '|'.join(tags_list)
 
 class MorphologicalAnalysisPipeline:
     """
@@ -223,17 +270,42 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
+        self._mystem_analyzer = Mystem()
+        mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+        self._converter = MystemTagConverter(mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
-        sentences = split_by_sentence(text)
-        conllu_sentences = [
-            ConlluSentence(id, sentence, [ConlluToken(token_text) for token_text in sentence.split()])
-            for id, sentence in enumerate(sentences)
-        ]
-        return conllu_sentences
+        sentences = []
+        word_regex = re.compile(r'\w+|[^\w\s]')
+        for sentence_idx, sentence in enumerate(split_by_sentence(text)):
+            conllu_tokens = []
+            for token_idx, token in enumerate(word_regex.findall(sentence), start=1):
+                conllu_token = ConlluToken(token)
+                if token.isalpha():
+                    mystem_analysis = self._mystem_analyzer.analyze(token)[0]
+                    if 'analysis' in mystem_analysis and mystem_analysis['analysis']:
+                        lemma = mystem_analysis['analysis'][0]['lex']
+                        gram_info = mystem_analysis['analysis'][0]['gr']
+                        pos = self._converter.convert_pos(gram_info)
+                        tags = self._converter.convert_morphological_tags(gram_info)
+                    else:
+                        lemma, pos, tags = token, 'X', ''
+                elif token.isdigit():
+                    lemma, pos, tags = token, 'NUM', ''
+                else:
+                    lemma, pos, tags = token, 'PUNCT', ''
+                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
+                conllu_token.set_position(token_idx)
+                conllu_token.set_morphological_parameters(morph_params)
+                conllu_tokens.append(conllu_token)
+
+            sentence_obj = ConlluSentence(sentence_idx, sentence, conllu_tokens)
+            sentences.append(sentence_obj)
+
+        return sentences
 
 
     def run(self) -> None:
@@ -241,9 +313,10 @@ class MorphologicalAnalysisPipeline:
         Performs basic preprocessing and writes processed text to files
         """
         for article in self._corpus.get_articles().values():
-            sentences = self._process(article.text)
-            article.set_conllu_sentences(sentences)
+            article.set_conllu_sentences(self._process(article.text))
             to_cleaned(article)
+            to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
+            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
     """
