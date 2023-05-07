@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import List
 import re
 
+from pymystem3 import Mystem
+
 from core_utils.article.article import SentenceProtocol, Article, split_by_sentence, get_article_id_from_filepath
 from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
@@ -96,6 +98,9 @@ class MorphologicalTokenDTO:
         """
         Initializes MorphologicalTokenDTO
         """
+        self.lemma = lemma
+        self.pos = pos
+        self.tags = tags
 
 
 class ConlluToken:
@@ -108,21 +113,34 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
+        self._morphological_parameters = MorphologicalTokenDTO()
+        self.position = 0
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
         """
+        self._morphological_parameters = parameters
 
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
         """
+        return self._morphological_parameters
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         String representation of the token for conllu files
         """
+        x_pos = "_"
+        feats = '_'
+        head = 0
+        deprel = 'root'
+        deps = '_'
+        misc = '_'
+        return f'position {self.position,}\ttext {self._text}\tlemma {self._morphological_parameters.lemma}' \
+               f'\tpos {self._morphological_parameters.pos}\t x_pos{x_pos}\t feats{feats}\thead {head}' \
+               f'\tdeprel {deprel}\tdep {deps}\tmisc{misc}'
 
     def get_cleaned(self) -> str:
         """
