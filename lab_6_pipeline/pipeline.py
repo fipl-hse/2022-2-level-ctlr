@@ -1,11 +1,31 @@
 """
 Pipeline for CONLL-U formatting
 """
+import os.path
 from pathlib import Path
 from typing import List
+import pymorphy2
+from pymystem3 import Mystem
+import re
 
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import SentenceProtocol, Article, split_by_sentence
+from core_utils.article.io import to_cleaned, from_raw, to_conllu
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class InconsistentDatasetError(Exception):
+    """
+    IDs contain slips or
+    number of meta and raw files is not equal or
+    files are empty
+    """
+
+
+class EmptyDirectoryError(Exception):
+    """
+    Directory is empty
+    """
 
 
 # pylint: disable=too-few-public-methods
@@ -18,21 +38,50 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._storage = {}
+        self._scan_dataset()
+        self._validate_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        if len(list(self.path_to_raw_txt_data.iterdir())) == 0:
+            raise EmptyDirectoryError
+
+        texts = [text for text in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
+        text_sizes = [os.path.getsize(text) for text in texts]
+
+        metas = [meta for meta in self.path_to_raw_txt_data.glob(r'*_meta.json')]
+        meta_sizes = [os.path.getsize(text) for text in metas]
+
+        if len(texts) != len(metas):
+            raise InconsistentDatasetError
+
+        if 0 in text_sizes or 0 in meta_sizes:
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        for text in self.path_to_raw_txt_data.glob('*.txt'):
+            for index in range(999):
+                if f'{index}_raw' in str(text):
+                    self._storage[index] = from_raw(text)
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
@@ -55,6 +104,7 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -75,6 +125,12 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        cleaned = ''
+        for symbol in self._text:
+            if symbol.isalnum():
+                cleaned += symbol
+        cleaned = cleaned.lower()
+        return cleaned
 
 
 class ConlluSentence(SentenceProtocol):
@@ -144,6 +200,7 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
