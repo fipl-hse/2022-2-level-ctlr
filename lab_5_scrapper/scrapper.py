@@ -9,10 +9,11 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from typing import Pattern, Union
+
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import ASSETS_PATH, CRAWLER_CONFIG_PATH
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT, TIMEOUT_UPPER_LIMIT, TIMEOUT_LOWER_LIMIT)
 
 class IncorrectSeedURLError(Exception):
     """
@@ -54,15 +55,15 @@ class Config:
         Initializes an instance of the Config class
         """
         self.path_to_config = path_to_config
+        self._config_dto = self._extract_config_content()
         self._validate_config_content()
-        config_dto = self._extract_config_content()
-        self._seed_urls = config_dto.seed_urls
-        self._num_articles = config_dto.total_articles
-        self._headers = config_dto.headers
-        self._encoding = config_dto.encoding
-        self._timeout = config_dto.timeout
-        self._should_verify_certificate = config_dto.should_verify_certificate
-        self._headless_mode = config_dto.headless_mode
+        self._seed_urls = self._config_dto.seed_urls
+        self._num_articles = self._config_dto.total_articles
+        self._headers = self._config_dto.headers
+        self._encoding = self._config_dto.encoding
+        self._timeout = self._config_dto.timeout
+        self._should_verify_certificate = self._config_dto.should_verify_certificate
+        self._headless_mode = self._config_dto.headless_mode
 
 
     def _extract_config_content(self) -> ConfigDTO:
@@ -84,7 +85,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for url in config_dto.seed_urls:
-            if not isinstance(url, str) or not re.match(r'https?://.*/', url):
+            if not isinstance(url, str) or not re.match("https?://.*/", url):
                 raise IncorrectSeedURLError
 
         if (not isinstance(config_dto.total_articles, int)
@@ -105,7 +106,8 @@ class Config:
             or config_dto.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(config_dto.should_verify_certificate, bool) or not isinstance(config_dto.headless_mode, bool):
+        if not isinstance(config_dto.should_verify_certificate, bool) \
+                or not isinstance(config_dto.headless_mode, bool):
             raise IncorrectVerifyError
 
 
@@ -158,9 +160,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
-                        verify=config.get_verify_certificate())
-    response.encoding = config.get_encoding()
+    headers = config.get_headers()
+    timeout = config.get_timeout()
+    verify = config.get_verify_certificate()
+    response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
     return response
 
 
@@ -183,40 +186,29 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url,str) and url.startswith('https://www.volga-tv.ru/news/'):
+        if isinstance(url, str) and url.startswith('https://www.volga-tv.ru/news/'):
             return url
-        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self.seed_urls:
+        for seed_url in self.config.get_seed_urls():
             response = make_request(seed_url, self.config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             all_links = main_bs.find_all('a')
-            delete = []
             for link in all_links:
                 url = self._extract_url(link)
-                if url is None:
-                    continue
-                elif '/avt/' in url:
-                    delete.append(url)
-                    continue
-                elif 'http' in url:
-                    delete.append(url)
-                    continue
-                elif 'www' in url:
-                    delete.append(url)
-                    continue
-                all_links.append(link)
-                self.urls.append('https://www.volga-tv.ru/' + url)
+                if url.startswith("/news"):
+                    new_url = 'https://www.volga-tv.ru' + url
+                    if new_url not in self.urls and len(self.urls) < self.config.get_num_articles():
+                        self.urls.append(new_url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return
+        return self.config.get_seed_urls()
 
 
 class HTMLParser:
@@ -237,7 +229,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        paragraphs = article_soup.find_all('p')
+        paragraphs = article_soup.find_all('br')
         for paragraph in paragraphs:
             self.article.text += paragraph.text
 
@@ -245,10 +237,8 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find('h1', {})
-        if not title:
-            self.article.title = 'WITHOUT TITLE'
-        author = article_soup.find()
+        self.article.title = article_soup.find('h1').text
+
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
@@ -287,7 +277,7 @@ def main() -> None:
     crawler = Crawler(configuration)
     crawler.find_articles()
     for idx, url in enumerate(crawler.urls):
-        parser = HTMLParser(full_url=url, article_id=idx+1, config=configuration)
+        parser = HTMLParser(url, idx+1, configuration)
         text = parser.parse()
         to_raw(text)
         to_meta(text)
