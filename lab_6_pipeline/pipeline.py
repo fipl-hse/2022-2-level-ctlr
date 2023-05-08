@@ -234,7 +234,6 @@ class MystemTagConverter(TagConverter):
             "POS"] else ''
 
 
-
 class OpenCorporaTagConverter(TagConverter):
     """
     OpenCorpora Tag Converter
