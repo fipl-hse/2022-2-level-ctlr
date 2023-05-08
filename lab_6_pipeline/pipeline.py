@@ -221,7 +221,6 @@ class MystemTagConverter(TagConverter):
                                                        if tag in self._tag_mapping[category]}
 
         feats = '|'.join(f'{category}={value}' for category, value in sorted(ud_tags.items()))
-
         return feats
 
 
@@ -233,6 +232,7 @@ class MystemTagConverter(TagConverter):
         return self._tag_mapping["POS"][pos_match[0]] if \
             pos_match and pos_match[0] in self._tag_mapping[
             "POS"] else ''
+
 
 
 class OpenCorporaTagConverter(TagConverter):
