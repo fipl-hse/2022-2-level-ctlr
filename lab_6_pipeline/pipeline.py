@@ -56,8 +56,8 @@ class CorpusManager:
             raise EmptyDirectoryError('directory is empty')
 
         # checks if a number of meta and raw files is equal
-        # if len(self._meta_files) != len(self._raw_files):
-        #     raise InconsistentDatasetError('number of files is not equal')
+        if len(self._meta_files) != len(self._raw_files):
+            raise InconsistentDatasetError('number of files is not equal')
 
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
@@ -68,7 +68,7 @@ class CorpusManager:
         # checks that IDs contain no slips
         for idx, id_obj in enumerate(data_ids):
             try:
-                if id_obj - data_ids[idx + 1] > 1:
+                if id_obj - data_ids[idx + 1] != 1:
                     raise InconsistentDatasetError('files\' IDs contain slips')
 
             except IndexError:
@@ -76,7 +76,7 @@ class CorpusManager:
 
         for file in self._raw_files:
             # checks that a name of a raw file contains an ID
-            if not re.match(r'\d+_raw.txt', file.name):
+            if not re.match(r'\d+_raw\.txt', file.name):
                 raise InconsistentDatasetError('some file does not contain an ID')
 
     def _scan_dataset(self) -> None:
