@@ -64,7 +64,7 @@ class CorpusManager:
             if raw.stat().st_size == 0 or meta.stat().st_size == 0:
                 raise InconsistentDatasetError('files are empty')
 
-        data_ids = sorted([get_article_id_from_filepath(i) for i in self._meta_files], reverse=True)
+        data_ids = sorted([get_article_id_from_filepath(i) for i in self._raw_files], reverse=True)
         # checks that IDs contain no slips
         for idx, id_obj in enumerate(data_ids):
             try:
@@ -73,6 +73,11 @@ class CorpusManager:
 
             except IndexError:
                 break
+
+        for file in self._raw_files:
+            # checks that a name of a raw file contains an ID
+            if not re.match(r'\d+_raw.txt', file.name):
+                raise InconsistentDatasetError('some file does not contain an ID')
 
     def _scan_dataset(self) -> None:
         """
