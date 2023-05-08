@@ -66,7 +66,7 @@ class CorpusManager:
         if raw_sorted != list(range(1, len(raw_content) + 1)) or meta_sorted != list(range(1, len(meta_files) + 1)):
             raise InconsistentDatasetError
 
-        if not any(self.path_to_raw_txt_data.iterdir()):
+        if not [i for i in self.path_to_raw_txt_data.iterdir()]:
             raise EmptyDirectoryError
 
     def _scan_dataset(self) -> None:
