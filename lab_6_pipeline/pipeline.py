@@ -55,15 +55,16 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        raw_files = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
-        meta_files = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
-        if len(meta_files) != len(raw_files):
+        content = list(self.path_to_raw_txt_data.glob('**/*.txt'))
+        raw_content = [i for i in content if re.match(r'\d+_raw', i.name)]
+        meta = list(self.path_to_raw_txt_data.glob('**/*.json'))
+        meta_files = [i for i in meta if re.match(r'\d+_meta', i.name)]
+
+        raw_sorted = sorted(int(re.match(r'\d+', i.name)[0]) for i in raw_content)
+        meta_sorted = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_files)
+
+        if raw_sorted != list(range(1, len(raw_content) + 1)) or meta_sorted != list(range(1, len(meta_files) + 1)):
             raise InconsistentDatasetError
-        for files in meta_files, raw_files:
-            if sorted(int(re.search(r'\d+', i.stem)[0]) for i in files) != list(range(1, len(files) + 1)):
-                raise InconsistentDatasetError
-            if not all(i.stat().st_size for i in files):
-                raise InconsistentDatasetError
 
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
