@@ -288,11 +288,6 @@ class HTMLParser:
             if topics:
                 self.article.topics = topic_str
 
-        theme = article_soup.find('li', {"itemprop": "itemListElement"})
-        theme_item = theme.find('a', {"itemprop": "item"})
-        theme_link = theme_item.get('href')
-        print(theme_link)
-
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
