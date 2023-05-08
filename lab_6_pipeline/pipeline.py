@@ -56,8 +56,13 @@ class CorpusManager:
             raise EmptyDirectoryError('directory is empty')
 
         # checks if a number of meta and raw files is equal
-        if len(self._meta_files) != len(self._raw_files):
-            raise InconsistentDatasetError('number of files is not equal')
+        # if len(self._meta_files) != len(self._raw_files):
+        #     raise InconsistentDatasetError('number of files is not equal')
+
+        for file in self._raw_files:
+            # checks that a name of a raw file contains an ID
+            if not re.match(r'\d+_raw\.txt', file.name):
+                raise InconsistentDatasetError('some file does not contain an ID')
 
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
@@ -73,11 +78,6 @@ class CorpusManager:
 
             except IndexError:
                 break
-
-        for file in self._raw_files:
-            # checks that a name of a raw file contains an ID
-            if not re.match(r'\d+_raw\.txt', file.name):
-                raise InconsistentDatasetError('some file does not contain an ID')
 
     def _scan_dataset(self) -> None:
         """
@@ -137,15 +137,28 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
+        position = self.position
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
         x_pos = "_"
         feats = '_'
         head = 0
         deprel = 'root'
         deps = '_'
         misc = '_'
-        return f'position {self.position,}\ttext {self._text}\tlemma {self._morphological_parameters.lemma}' \
-               f'\tpos {self._morphological_parameters.pos}\t x_pos{x_pos}\t feats{feats}\thead {head}' \
-               f'\tdeprel {deprel}\tdep {deps}\tmisc{misc}'
+        return '\t'.join([
+              str(position),
+              str(text),
+              str(lemma),
+              str(pos),
+              x_pos,
+              str(feats),
+              str(head),
+              deprel,
+              deps,
+              misc
+        ])
 
     def get_cleaned(self) -> str:
         """
