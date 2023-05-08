@@ -4,9 +4,13 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
-from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.article.article import Article
+import re
+
+from core_utils.article.article import SentenceProtocol, split_by_sentence
+from core_utils.article.io import from_raw, to_cleaned
+from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
 
 
 # pylint: disable=too-few-public-methods
@@ -89,6 +93,7 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -109,6 +114,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        return ''.join(ch.lower() for ch in self._text if ch.isalnum())
 
 
 class ConlluSentence(SentenceProtocol):
@@ -120,6 +126,9 @@ class ConlluSentence(SentenceProtocol):
         """
         Initializes ConlluSentence
         """
+        self._position = position
+        self._text = text
+        self._tokens = tokens
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
@@ -130,6 +139,11 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
+        token_list = []
+        for token in self._tokens:
+            if token.get_cleaned():
+                token_list.append(token.get_cleaned())
+        return ' '.join(token_list)
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -178,6 +192,7 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
@@ -188,6 +203,10 @@ class MorphologicalAnalysisPipeline:
         """
         Performs basic preprocessing and writes processed text to files
         """
+        for article in self._corpus.get_articles().values():
+            sentences = self._process(article.text)
+            article.set_conllu_sentences(sentences)
+            to_cleaned(article)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -215,6 +234,9 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    pipeline.run()
 
 
 if __name__ == "__main__":
