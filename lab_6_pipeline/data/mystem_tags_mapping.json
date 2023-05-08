@@ -1,10 +1,8 @@
 {
     "POS": {
-        "S": "NOUN",
-        "SPRO": "PRON",
         "A": "ADJ",
         "ADV": "ADV",
-        "ADVB": "ADV",
+        "ADVPRO": "ADV",
         "ANUM": "ADJ",
         "APRO": "ADJ",
         "COM": "ADJ",
@@ -13,8 +11,9 @@
         "NUM": "NUM",
         "PART": "PART",
         "PR": "ADP",
+        "S": "NOUN",
+        "SPRO": "PRON",
         "V": "VERB",
-        "ADVPRO": "ADV",
         "PRED": "ADV"
     },
     "Case": {
