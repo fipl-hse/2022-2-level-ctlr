@@ -190,6 +190,9 @@ class MystemTagConverter(TagConverter):
         Converts the Mystem tags into the UD format
         """
 
+
+
+
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
         Extracts and converts the POS from the Mystem tags into the UD format
@@ -229,13 +232,18 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        text_analysis = self._mystem.analyze(text)
+        result = [i for i in self._mystem.analyze(text) if 'analysis' in i]
         for sent_id, sentence in enumerate(sentences, start=1):
             conllu_tokens = []
             for token_id, token in enumerate(sentence):
                 conllu_token = ConlluToken(token)
                 conllu_tokens.append(conllu_token)
-
+                lemma = result[token_id]['analysis'][0]['lex']
+                pos = re.match(r'[A-Z]+', result[token_id]['analysis'][0]['gr']).group()
+                tags = result[token_id]['analysis'][0]['gr']
+                parameters = MorphologicalTokenDTO(lemma, pos, tags)
+                conllu_token.set_morphological_parameters(parameters)
+                conllu_tokens.append(conllu_token)
             conllu_sent.append(ConlluSentence(sent_id, sentence, conllu_tokens))
         return conllu_sent
 
@@ -280,6 +288,9 @@ def main() -> None:
     Entrypoint for pipeline module
     """
 
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    pipeline.run()
 
 if __name__ == "__main__":
     main()
