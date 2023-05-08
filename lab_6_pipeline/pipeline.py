@@ -11,7 +11,7 @@ from typing import List
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article
 from core_utils.article.io import from_raw, from_meta
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 
@@ -142,6 +142,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        return re.sub(r'[^\w\s]', '', self._text.lower())
 
 
 class ConlluSentence(SentenceProtocol):
@@ -222,6 +223,19 @@ class MorphologicalAnalysisPipeline:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        result_list = []
+        sent_list = split_by_sentence(text)
+        for position, element in enumerate(sent_list):
+            conllu_tokens = []
+            words = ConlluToken(element).get_cleaned().split()
+
+            for one_word in words:
+                conllu_tokens.append(ConlluToken(one_word))
+
+            result_list.append(ConlluSentence(position=position,
+                                              text=element,
+                                              tokens=conllu_tokens))
+        return result_list
 
     def run(self) -> None:
         """
@@ -230,9 +244,22 @@ class MorphologicalAnalysisPipeline:
         art_dict = self._corpus.get_articles()
 
         for one_art in art_dict.values():
-            name = one_art.id + '_raw.txt'
+            art_id = one_art.article_id
+            name = art_id + '_raw.txt'
             path_raw = self._corpus.path / name
 
+            article_raw = from_raw(path_raw, one_art)
+            raw_txt = article_raw.get_raw_text()
+
+            conllu_sentences = self._process(raw_txt)
+            article_raw.set_conllu_sentences(conllu_sentences)
+
+            cleaned_name = art_id + '_cleaned.txt'
+            cleaned_path = self._corpus.path / cleaned_name
+
+            with open(cleaned_path, 'w', encoding='utf-8') as f:
+                f.write(article_raw.get_cleaned_text())
+                # f.write(conllu_sentences.get_cleaned_sentence())
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -261,7 +288,9 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    conllu_token = ConlluToken(text='мама')
+    #conllu_token = ConlluToken(text='мама')
+    map = MorphologicalAnalysisPipeline(corpus_manager)
+    map.run()
 
 
 if __name__ == "__main__":
