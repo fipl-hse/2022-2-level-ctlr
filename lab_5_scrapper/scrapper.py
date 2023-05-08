@@ -386,6 +386,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
 
 
 
+
 class CrawlerRecursive(Crawler):
     """
     Recursive crawler implementation
