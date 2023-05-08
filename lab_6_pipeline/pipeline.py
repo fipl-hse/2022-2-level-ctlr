@@ -209,6 +209,11 @@ class MorphologicalAnalysisPipeline:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        con_sentences = []
+        for idx, sentence in enumerate(split_by_sentence(text), 1):
+            con_tokens = [ConlluToken(token) for token in sentence.split()]
+            con_sentences.append(ConlluSentence(idx, sentence, con_tokens))
+        return con_sentences
 
     def run(self) -> None:
         """
