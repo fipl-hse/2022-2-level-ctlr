@@ -14,11 +14,20 @@ from core_utils.constants import ASSETS_PATH
 
 
 # pylint: disable=too-few-public-methods
-class InconsistentDatasetError:
+class InconsistentDatasetError(Exception):
+    """
+    The dataset is inconsistent,
+    such as when the number of raw and meta
+    files is not equal, IDs contain slips,
+    or files are empty
+    """
     pass
 
 
-class EmptyDirectoryError:
+class EmptyDirectoryError(Exception):
+    """
+    The provided directory is empty
+    """
     pass
 
 
