@@ -2,13 +2,13 @@
 Pipeline for CONLL-U formatting
 """
 from pathlib import Path
-from typing import List
-import re
 from pymystem3 import Mystem
+import re
+from typing import List
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
-from core_utils.article.io import from_raw, from_meta, to_cleaned
+from core_utils.article.io import from_raw, from_meta, to_cleaned, to_conllu
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article, split_by_sentence
 
@@ -55,17 +55,12 @@ class CorpusManager:
         if len(right_texts) != len(meta_info):
             raise InconsistentDatasetError
 
-        num_of_article = 0
-        for i in right_texts:
-            if i-num_of_article != 1:
+        for i in texts:
+            if not i.stat().st_size:
+                raise EmptyDirectoryError
+            if sorted([int(re.match(r'\d+', i.name).group()) for i in texts]) \
+                    != list(i for i in range(1, len(texts)+1)):
                 raise InconsistentDatasetError
-            with open(i, 'r', encoding= 'utf-8') as f:
-                content = f.read()
-                if not content:
-                    raise EmptyDirectoryError
-            num_of_article += 1
-
-
 
     def _scan_dataset(self) -> None:
         """
@@ -93,6 +88,9 @@ class MorphologicalTokenDTO:
         """
         Initializes MorphologicalTokenDTO
         """
+        self.lemma = lemma
+        self.pos = pos
+        self.tags = tags
 
 
 class ConlluToken:
@@ -105,21 +103,36 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
+        self.position = 0
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
         """
+        self. _morphological_parameters = parameters
 
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
         """
+        return self._morphological_parameters
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         String representation of the token for conllu files
         """
+        position = self.position
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
+        xpos = '_'
+        feats = '_'
+        head = 0
+        deprel = '_'
+        deps = '_'
+        misc = '_'
+        parameters = [position, text, lemma, pos, xpos, feats, head, deprel, deps, misc]
+        return '\t'.join(parameters)
 
     def get_cleaned(self) -> str:
         """
@@ -144,6 +157,11 @@ class ConlluSentence(SentenceProtocol):
         """
         Creates string representation of the sentence
         """
+        return (
+            f'# sent_id = {self._position}\n'
+            f'# text = {self._text}\n'
+            f'# tokens = {self._format_tokens(include_morphological_tags)}'
+        )
 
     def get_cleaned_sentence(self) -> str:
         """
@@ -156,13 +174,10 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns sentences from ConlluSentence
         """
-        split_sentence = self._text.split(' ')
-        tokenized_sent = []
-        for word in split_sentence:
-            token = ConlluToken(word)
-            tokenized_sent.append(token)
-        return tokenized_sent
+        return self._tokens
 
+    def _format_tokens(self, include_morphological_tags: bool) -> str:
+        return '\n'.join(token.get_conllu_text(include_morphological_tags) for token in self._tokens)
 
 
 class MystemTagConverter(TagConverter):
@@ -207,15 +222,21 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
-
+        self._mystem = Mystem()
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        for id, sentence in enumerate(sentences, start=1):
-            conllu_sent.append(ConlluSentence(id, sentence, []))
+        text_analysis = self._mystem.analyze(text)
+        for sent_id, sentence in enumerate(sentences, start=1):
+            conllu_tokens = []
+            for token_id, token in enumerate(sentence):
+                conllu_token = ConlluToken(token)
+                conllu_tokens.append(conllu_token)
+
+            conllu_sent.append(ConlluSentence(sent_id, sentence, conllu_tokens))
         return conllu_sent
 
 
@@ -229,6 +250,7 @@ class MorphologicalAnalysisPipeline:
             sentences = self._process(article.get_raw_text())
             filled_article.set_conllu_sentences(sentences)
             to_cleaned(filled_article)
+            to_conllu(filled_article)
 
 
 
