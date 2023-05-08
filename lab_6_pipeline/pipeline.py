@@ -55,19 +55,23 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        content = list(self.path_to_raw_txt_data.glob('**/*.txt'))
-        raw_content = [i for i in content if re.match(r'\d+_raw', i.name)]
-        meta = list(self.path_to_raw_txt_data.glob('**/*.json'))
-        meta_files = [i for i in meta if re.match(r'\d+_meta', i.name)]
+        raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
+        raw_files_list = [str(x) for x in raw_files]
+        max_number = len(raw_files_list)
 
-        raw_sorted = sorted(int(re.match(r'\d+', i.name)[0]) for i in raw_content)
-        meta_sorted = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_files)
-
-        if raw_sorted != list(range(1, len(raw_content) + 1)) or meta_sorted != list(range(1, len(meta_files) + 1)):
-            raise InconsistentDatasetError
-
-        if not [i for i in self.path_to_raw_txt_data.iterdir()]:
+        if max_number == 0:
             raise EmptyDirectoryError
+
+        for file in raw_files:
+            if not file.stat().st_size:
+                raise InconsistentDatasetError
+
+        list_of_proper_ids = []
+        for id in range(max_number):
+            list_of_proper_ids.append(id + 1)
+        list_of_ids = [int(file.name[:file.name.index('_')]) for file in raw_files]
+        if sorted(list_of_ids) != sorted(list_of_proper_ids):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
