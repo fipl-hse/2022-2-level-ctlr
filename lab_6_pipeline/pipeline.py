@@ -49,31 +49,33 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        raw = meta = 0
         if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        for _ in self.path_to_raw_txt_data.glob("*.txt"):
-            raw += 1
-        for _ in self.path_to_raw_txt_data.glob("*.json"):
-            meta += 1
-        if raw != meta:
+        raw_files = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
+        meta_files = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
+        if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError
+        for files in meta_files, raw_files:
+            if sorted(int(re.search(r'\d+', i.stem)[0]) for i in files) != list(range(1, len(files) + 1)):
+                raise InconsistentDatasetError
+            if not all(i.stat().st_size for i in files):
+                raise InconsistentDatasetError
 
-        if raw == 0 and meta == 0:
+        if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
-        id = 1
-        for path in self.path_to_raw_txt_data.glob("*.txt"):
-            self._storage[id] = Article(url=str(path), article_id=id)
-            id += 1
+        for path in self.path_to_raw_txt_data.glob('*.txt'):
+            if not (relevant := re.search(r'(\d+)_raw', path.stem)):
+                continue
+            self._storage[int(relevant[1])] = from_raw(path)
 
     def get_articles(self) -> dict:
         """
@@ -123,7 +125,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return ''.join(ch.lower() for ch in self._text if ch.isalnum())
+        return re.sub(r'\W+', '', self._text).lower()
 
 
 class ConlluSentence(SentenceProtocol):
