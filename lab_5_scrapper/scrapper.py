@@ -380,7 +380,6 @@ def prepare_environment(base_path: Union[Path, str], recursion: bool = False) ->
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
     if base_path.exists():
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
@@ -416,9 +415,6 @@ class CrawlerRecursive(Crawler):
                 crawler_data = json.load(f)
             self.start_url = crawler_data['start_url']
             self.urls = crawler_data['urls']
-            num_urls = crawler_data.get('num_urls')
-            if num_urls is not None:
-                self.config.set
 
 
     def find_articles(self) -> None:
