@@ -281,8 +281,11 @@ class HTMLParser:
         Finds meta information of article
         """
         title_tag = article_soup.find('h1', {'class': 'article__title'})
-        title = title_tag.get_text(strip=True)
-        self.article.title = title
+        if title_tag is not None:
+            title = title_tag.get_text(strip=True)
+            self.article.title = title
+        else:
+            self.article.title = "NOT FOUND"
 
         author_tag = article_soup.select('p.article__prepared, b')
         authors = []
@@ -300,16 +303,19 @@ class HTMLParser:
             authors = ["NOT FOUND"]
         self.article.author = authors
 
-
-        topic_tag = article_soup.find('div', {'class': 'article__category'}).find_all('a')[0]
-        topic = topic_tag.get_text(strip=True)
-        self.article.topics = topic
-
+        topic_tag = article_soup.find('div', {'class': 'article__category'})
+        if topic_tag:
+            topic_tag = topic_tag.find_all('a')[0]
+            topic = topic_tag.get_text(strip=True)
+            self.article.topics = topic
+        else:
+            self.article.topics = "NOT FOUND"
 
         date_tag = article_soup.find('div', {'class': 'article__date'})
-        date_str = date_tag.get_text(strip=True)
-        date = self.unify_date_format(date_str)
-        self.article.date = date
+        if date_tag is not None:
+            date_str = date_tag.get_text(strip=True)
+            date = self.unify_date_format(date_str) if date_str else 'NOT FOUND'
+            self.article.date = date
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -337,10 +343,24 @@ class HTMLParser:
         elif 'вчера' in date_str:
             yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
             date_str = date_str.replace('вчера', yesterday.strftime('%d %B %Y'))
+        elif 'назад' in date_str:
+            match = re.match(r"(\d+) (\w+)", date_str)
+            if match:
+                num, unit = match.groups()
+                delta = None
+                if 'минут' in unit:
+                    delta = datetime.timedelta(minutes=int(num))
+                elif 'час' in unit:
+                    delta = datetime.timedelta(hours=int(num))
+                elif 'день' in unit:
+                    delta = datetime.timedelta(days=int(num))
+                if delta is not None:
+                    return datetime.datetime.now() - delta
         regular = re.match(r"\d{1,2} [A-Za-z]+ \d{4}, \d{1,2}:\d{2}", date_str)
         if regular:
             return datetime.datetime.strptime(date_str, '%d %B %Y, %H:%M')
         return datetime.datetime.strptime(date_str, '%H:%M, %d %B %Y')
+
 
 
 
@@ -356,90 +376,21 @@ class HTMLParser:
 
 
 
-def prepare_environment(base_path: Union[Path, str]) -> None:
+
+
+def prepare_environment(base_path: Union[Path, str], recursion: bool = False) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
+    pass
     if base_path.exists():
-        shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+        if not recursion:
+            shutil.rmtree(base_path)
+            base_path.mkdir(parents=True)
+    else:
+        base_path.mkdir(parents=True)
 
 
-class CrawlerRecursive(Crawler):
-    """
-    Recursive Crawler implementation
-    """
-
-    def __init__(self, config: Config) -> None:
-        """
-        Initializes an instance of the Recursive Crawler class
-        """
-        super().__init__(config)
-        self.start_url = self.get_search_urls()[0]
-        self.urls = []
-        self.crawler_data_path = Path('crawler_sta.json')
-        if self.crawler_data_path.exists():
-            self.load_crawler_data()
-
-    def save_crawler_data(self) -> None:
-        """
-        Saves values of start_url and urls attributes
-        in a json file
-        """
-        info_dict = {'start_url': self.start_url, 'urls': self.urls}
-        with self.crawler_data_path.open('w', encoding='utf-8') as json_file:
-            json.dump(info_dict, json_file, ensure_ascii=False, indent=4)
-
-    def load_crawler_data(self) -> None:
-        """
-        Loads start_url and urls values, saved before interruption,
-        from json file
-        """
-        if self.crawler_data_path.exists() and self.crawler_data_path.stat().st_size != 0:
-            with self.crawler_data_path.open('r', encoding='utf-8') as json_file:
-                info_dict = json.load(json_file)
-            self.start_url = info_dict['start_url']
-            self.urls = info_dict['urls']
-
-    def find_articles(self) -> None:
-        """
-        Finds articles recursively starting from the given URL
-        """
-        if len(self.urls) >= self.config.get_num_articles():
-            return
-
-        response = make_request(self.start_url, self.config)
-        article_bs = BeautifulSoup(response.text, 'html.parser')
-        urls = article_bs.select('div.mininews') + article_bs.select('div.midinews')
-
-        for url in urls:
-            article_url = self._extract_url(url)
-            if not article_url or article_url in self.urls:
-                continue
-
-            self.urls.append(article_url)
-            self.start_url = article_url
-            self.save_crawler_data()
-            self.find_articles()
-
-
-def main_recursive() -> None:
-    """
-    Entrypoint for Recursive Crawler
-    """
-    config = Config(CRAWLER_CONFIG_PATH)
-    prepare_environment(ASSETS_PATH)
-
-    recursive_crawler = CrawlerRecursive(config)
-    recursive_crawler.find_articles()
-
-    for ind, url in enumerate(recursive_crawler.urls, 1):
-        parser = HTMLParser(url, ind, config)
-        article = parser.parse()
-
-        if article is not None and isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
 
 
 
@@ -464,4 +415,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main_recursive()
+    main()
