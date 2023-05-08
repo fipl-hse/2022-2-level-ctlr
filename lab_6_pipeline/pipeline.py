@@ -2,10 +2,11 @@
 Pipeline for CONLL-U formatting
 """
 from pathlib import Path
-from typing import List
+from typing import Generator, List
 import string
 import re
 
+from pymorphy2 import MorphAnalyzer
 from pymystem3 import Mystem
 
 
@@ -204,7 +205,7 @@ class MystemTagConverter(TagConverter):
         extracted_tags = re.findall(r'[а-я]+', tags.replace('(', '').replace(')', '').split('|')[0])
 
         pos_specific_categories = {
-            "NOUN": [self.case, self.number, self.gender, self.animacy],
+            "NOUN": [self.case, self.gender, self.number, self.animacy],
             "VERB": [self.tense, self.number, self.gender],
             "ADJ": [self.case, self.number, self.gender],
             "ADV": [],
@@ -219,7 +220,7 @@ class MystemTagConverter(TagConverter):
                                                        for tag in extracted_tags
                                                        if tag in self._tag_mapping[category]}
 
-        feats = '|'.join(f'{category}={value}' for category, value in ud_tags.items())
+        feats = '|'.join(f'{category}={value}' for category, value in sorted(ud_tags.items()))
 
         return feats
 
@@ -250,7 +251,7 @@ class OpenCorporaTagConverter(TagConverter):
         Converts the OpenCorpora tags into the UD format
         """
         parsed_tags = {attr: getattr(tags, attr, None) for
-                       attr in ['animacy', 'case', 'gender', 'number']}
+                       attr in ['case', 'number', 'gender', 'animacy']}
 
         tags_list = []
         for category, value in parsed_tags.items():
@@ -279,27 +280,33 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         sentences = []
-        word_regex = re.compile(r'\w+|[^\w\s]')
+        word_regex = re.compile(r'\w+|[.]')
+        counter = 0
+
         for sentence_idx, sentence in enumerate(split_by_sentence(text)):
             conllu_tokens = []
-            for token_idx, token in enumerate(word_regex.findall(sentence), start=1):
-                conllu_token = ConlluToken(token)
-                if token.isalpha():
-                    mystem_analysis = self._mystem_analyzer.analyze(token)[0]
-                    if 'analysis' in mystem_analysis and mystem_analysis['analysis']:
-                        lemma = mystem_analysis['analysis'][0]['lex']
-                        gram_info = mystem_analysis['analysis'][0]['gr']
+            mystem_analysis = self._mystem_analyzer.analyze(sentence)
+
+            for token in mystem_analysis:
+                if not word_regex.match(token['text']):
+                    continue
+                counter += 1
+
+                if token['text'].isalpha():
+                    if 'analysis' in token and token['analysis']:
+                        lemma, gram_info = token['analysis'][0]['lex'], token['analysis'][0]['gr']
                         pos = self._converter.convert_pos(gram_info)
                         tags = self._converter.convert_morphological_tags(gram_info)
                     else:
-                        lemma, pos, tags = token, 'X', ''
-                elif token.isdigit():
-                    lemma, pos, tags = token, 'NUM', ''
+                        lemma, pos, tags = token['text'], 'X', ''
+                elif token['text'].isdigit():
+                    lemma, pos, tags = token['text'], 'NUM', ''
                 else:
-                    lemma, pos, tags = token, 'PUNCT', ''
-                morph_params = MorphologicalTokenDTO(lemma, pos, tags)
-                conllu_token.set_position(token_idx)
-                conllu_token.set_morphological_parameters(morph_params)
+                    lemma, pos, tags = token['text'], 'PUNCT', ''
+
+                conllu_token = ConlluToken(token['text'])
+                conllu_token.set_position(counter)
+                conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, tags))
                 conllu_tokens.append(conllu_token)
 
             sentence_obj = ConlluSentence(sentence_idx, sentence, conllu_tokens)
@@ -327,6 +334,10 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        super().__init__(corpus_manager)
+        self._backup_analyzer = MorphAnalyzer()
+        mapping_path = Path(__file__).parent / 'data' / 'opencorpora_tags_mapping.json'
+        self._backup_tag_converter = OpenCorporaTagConverter(mapping_path)
 
 
     def _process(self, text: str) -> List[ConlluSentence]:
@@ -344,9 +355,10 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-    corpus_manager = CorpusManager(ASSETS_PATH)
-    morph_pip = MorphologicalAnalysisPipeline(corpus_manager)
-    morph_pip.run()
+    manager = CorpusManager(ASSETS_PATH)
+    morph_pipe = MorphologicalAnalysisPipeline(manager)
+    morph_pipe.run()
+
 
 if __name__ == "__main__":
     main()
