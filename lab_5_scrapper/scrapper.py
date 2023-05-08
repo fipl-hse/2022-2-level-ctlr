@@ -303,19 +303,16 @@ class HTMLParser:
             authors = ["NOT FOUND"]
         self.article.author = authors
 
-        topic_tag = article_soup.find('div', {'class': 'article__category'})
-        if topic_tag:
-            topic_tag = topic_tag.find_all('a')[0]
-            topic = topic_tag.get_text(strip=True)
-            self.article.topics = topic
-        else:
-            self.article.topics = ["NOT FOUND"]
+
+        topic_tag = article_soup.find('div', {'class': 'article__category'}).find_all('a')[0]
+        topic = topic_tag.get_text(strip=True)
+        self.article.topics = topic
+
 
         date_tag = article_soup.find('div', {'class': 'article__date'})
-        if date_tag is not None:
-            date_str = date_tag.get_text(strip=True)
-            date = self.unify_date_format(date_str) if date_str else 'NOT FOUND'
-            self.article.date = date
+        date_str = date_tag.get_text(strip=True)
+        date = self.unify_date_format(date_str)
+        self.article.date = date
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
