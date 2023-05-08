@@ -2,7 +2,7 @@
 Pipeline for CONLL-U formatting
 """
 from pathlib import Path
-from typing import Generator, List
+from typing import List
 import string
 import re
 
@@ -284,12 +284,14 @@ class MorphologicalAnalysisPipeline:
 
         for sentence_idx, sentence in enumerate(split_by_sentence(text)):
             conllu_tokens = []
+            sentence_counter = 0
             mystem_analysis = self._mystem_analyzer.analyze(sentence)
 
             for token in mystem_analysis:
                 if not word_regex.match(token['text']):
                     continue
                 counter += 1
+                sentence_counter += 1
 
                 if token['text'].isalpha():
                     if 'analysis' in token and token['analysis']:
@@ -304,12 +306,13 @@ class MorphologicalAnalysisPipeline:
                     lemma, pos, tags = token['text'], 'PUNCT', ''
 
                 conllu_token = ConlluToken(token['text'])
-                conllu_token.set_position(counter)
+                conllu_token.set_position(sentence_counter)
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, tags))
                 conllu_tokens.append(conllu_token)
 
             sentence_obj = ConlluSentence(sentence_idx, sentence, conllu_tokens)
             sentences.append(sentence_obj)
+            counter = sentence_counter
 
         return sentences
 
