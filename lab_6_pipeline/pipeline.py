@@ -162,10 +162,16 @@ class ConlluSentence(SentenceProtocol):
         self._text = text
         self._tokens = tokens
 
+    def _format_tokens(self, include_morphological_tags: bool) -> str:
+        return ' '.join(token.get_conllu_text(include_morphological_tags) for token in self._tokens)
+
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
+        return f'# sent_id = {self._position}\n' \
+        f'# text = {self._text}\n' \
+        f'# tokens = {self._format_tokens(include_morphological_tags)}\n'
 
     def get_cleaned_sentence(self) -> str:
         """

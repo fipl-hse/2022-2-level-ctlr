@@ -340,7 +340,7 @@ class HTMLParser:
             # 21.04.2023
             # matches when a parsed value has date, month, year in a format above
             # this format is relevant for articles in the top of the page
-            if re.match(r'\d{2}.\d{2}.\d{4}', date_str):
+            if re.match(r'\d+.\d{2}.\d{4}', date_str):
                 date_d = datetime.datetime.strptime(date_str, '%d.%m.%Y')
                 return date_d
 
