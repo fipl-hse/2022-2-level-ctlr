@@ -150,11 +150,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        token_list = []
-        for token in self._tokens:
-            if token.get_cleaned():
-                token_list.append(token.get_cleaned())
-        return ' '.join(token_list)
+        return ' '.join(filter(bool, (token.get_cleaned() for token in self._tokens)))
 
     def get_tokens(self) -> list[ConlluToken]:
         """
