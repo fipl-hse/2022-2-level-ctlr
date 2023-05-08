@@ -256,9 +256,8 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = article_soup.find('div', {"itemprop": "articleBody"})
-        self.article.text = "\n".join([el.get_text(strip=True)
-                                       for el in text]) if text else "NOT FOUND"
+        text = article_soup.find('div', {"itemprop": "articleBody"}).find_all('div')[0]
+        self.article.text = "".join(text.get_text(strip=True)) if text else "NOT FOUND"
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -288,6 +287,11 @@ class HTMLParser:
             topic_str = topic.get_text(strip=True)
             if topics:
                 self.article.topics = topic_str
+
+        theme = article_soup.find('li', {"itemprop": "itemListElement"})
+        theme_item = theme.find('a', {"itemprop": "item"})
+        theme_link = theme_item.get('href')
+        print(theme_link)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
