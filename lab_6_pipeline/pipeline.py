@@ -12,10 +12,12 @@ from core_utils.article.io import from_raw, from_meta, to_cleaned, to_conllu
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article, split_by_sentence
 
+
 class InconsistentDatasetError(Exception):
     """
     Raised when IDs contain slips, number of meta and raw files is not equal, files are empty
     """
+
 
 class EmptyDirectoryError(Exception):
     """
@@ -23,6 +25,7 @@ class EmptyDirectoryError(Exception):
     """
 
 # pylint: disable=too-few-public-methods
+
 
 class CorpusManager:
     """
@@ -48,6 +51,10 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
+        if not self.path_to_raw_txt_data.iterdir():
+            raise EmptyDirectoryError
+
+
         texts = list(self.path_to_raw_txt_data.glob('*.txt'))
         meta_info = list(self.path_to_raw_txt_data.glob('*.json'))
         right_texts = sorted([int(re.match(r'\d+', i.name).group()) for i in texts])
@@ -57,7 +64,7 @@ class CorpusManager:
 
         for i in texts:
             if not i.stat().st_size:
-                raise EmptyDirectoryError
+                raise InconsistentDatasetError
             if sorted([int(re.match(r'\d+', i.name).group()) for i in texts]) \
                     != list(i for i in range(1, len(texts)+1)):
                 raise InconsistentDatasetError
