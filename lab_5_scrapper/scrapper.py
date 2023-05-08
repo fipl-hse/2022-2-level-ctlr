@@ -374,8 +374,6 @@ class HTMLParser:
 
 
 
-
-
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
