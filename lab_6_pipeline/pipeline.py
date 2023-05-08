@@ -56,8 +56,8 @@ class CorpusManager:
             raise EmptyDirectoryError('directory is empty')
 
         # checks if a number of meta and raw files is equal
-        if len(self._meta_files) != len(self._raw_files):
-            raise InconsistentDatasetError('number of files is not equal')
+        # if len(self._meta_files) != len(self._raw_files):
+        #     raise InconsistentDatasetError('number of files is not equal')
 
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
