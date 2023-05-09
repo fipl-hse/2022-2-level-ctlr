@@ -273,8 +273,6 @@ class MorphologicalAnalysisPipeline:
                     ud_pos = MystemTagConverter(self._converter_path).convert_pos(pos)
                     tags = token['analysis'][0]['gr']
                     ud_tags = MystemTagConverter(self._converter_path).convert_morphological_tags(tags)
-                    print(tags, '\n', ud_tags)
-                    print()
                     parameters = MorphologicalTokenDTO(lemma, ud_pos, ud_tags)
                 else:
                     if token['text'].isdigit():
@@ -284,6 +282,7 @@ class MorphologicalAnalysisPipeline:
                     else:
                         pos = 'X'
                     parameters = MorphologicalTokenDTO(token['text'], pos, '_')
+                print(token, ':', token['text'])
                 conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
