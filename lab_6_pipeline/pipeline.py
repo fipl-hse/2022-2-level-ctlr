@@ -293,6 +293,9 @@ class MorphologicalAnalysisPipeline:
                 counter += 1
                 sentence_counter += 1
 
+                if token['text'].endswith('. '):
+                    token['text'] = token['text'].replace('. ', '.')
+
                 if token['text'].isalpha():
                     if 'analysis' in token and token['analysis']:
                         lemma, gram_info = token['analysis'][0]['lex'], token['analysis'][0]['gr']
