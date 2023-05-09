@@ -51,24 +51,25 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        if not len(list(self.path_to_raw_txt_data.iterdir())):
+        if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
         texts = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
-        text_sizes = [os.path.getsize(text) for text in texts]
         texts_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts)
 
         metas = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
-        meta_sizes = [os.path.getsize(text) for text in metas]
         metas_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in metas)
-
-        if 0 in text_sizes or 0 in meta_sizes:
-            raise InconsistentDatasetError
 
         if texts_order != list(range(1, len(texts) + 1)):
             raise InconsistentDatasetError
 
         if metas_order != list(range(1, len(texts) + 1)):
+            raise InconsistentDatasetError
+
+        if not all(file.stat().st_size for file in texts):
+            raise InconsistentDatasetError
+
+        if not all(file.stat().st_size for file in metas):
             raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
