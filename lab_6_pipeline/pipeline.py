@@ -63,7 +63,7 @@ class CorpusManager:
         if texts_order != list(range(1, len(texts) + 1)):
             raise InconsistentDatasetError
 
-        if metas_order != list(range(1, len(texts) + 1)):
+        if metas_order != list(range(1, len(metas) + 1)):
             raise InconsistentDatasetError
 
         if not all(file.stat().st_size for file in texts):
