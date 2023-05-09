@@ -265,10 +265,8 @@ class MorphologicalAnalysisPipeline:
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [i for i in self._mystem.analyze(sentence) if i['text'].strip()
-                                                                    not in punct and i['text'].strip()]
+                      not in punct and i['text'].strip()]
             for token_id, token in enumerate(result, start=1):
-                conllu_token = ConlluToken(token['text'])
-                conllu_token.set_position(token_id)
                 if token.get('analysis'):
                     lemma = token['analysis'][0]['lex']
                     pos = re.match(r'[A-Z]+', token['analysis'][0]['gr']).group()
@@ -286,6 +284,8 @@ class MorphologicalAnalysisPipeline:
                     else:
                         pos = 'X'
                     parameters = MorphologicalTokenDTO(token['text'], pos, '_')
+                conllu_token = ConlluToken(token['text'])
+                conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
                 conllu_tokens.append(conllu_token)
             conllu_sent.append(ConlluSentence(sent_id, sentence, conllu_tokens))
