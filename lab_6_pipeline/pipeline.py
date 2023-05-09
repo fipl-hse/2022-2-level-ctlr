@@ -59,25 +59,31 @@ class CorpusManager:
         # if len(self._meta_files) != len(self._raw_files):
         #     raise InconsistentDatasetError('number of files is not equal')
 
-        for file in self._raw_files:
-            # checks that a name of a raw file contains an ID
-            if not re.match(r'\d+_raw\.txt', file.name):
-                raise InconsistentDatasetError('some file does not contain an ID')
+        # for file in self._raw_files:
+        #     # checks that a name of a raw file contains an ID
+        #     if not re.match(r'\d+_raw\.txt', file.name):
+        #         raise InconsistentDatasetError('some file does not contain an ID')
 
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
             if raw.stat().st_size == 0 or meta.stat().st_size == 0:
                 raise InconsistentDatasetError('files are empty')
 
-        data_ids = sorted([get_article_id_from_filepath(i) for i in self._raw_files], reverse=True)
+        data_ids = [get_article_id_from_filepath(i) for i in self._raw_files]
         # checks that IDs contain no slips
-        for idx, id_obj in enumerate(data_ids):
-            try:
-                if id_obj - data_ids[idx + 1] != 1:
-                    raise InconsistentDatasetError('files\' IDs contain slips')
+        # for idx, id_obj in enumerate(sorted(data_ids, reverse=True)):
+        #     try:
+        #         if id_obj - data_ids[idx + 1] != 1:
+        #             raise InconsistentDatasetError('files\' IDs contain slips')
+        #
+        #     except IndexError:
+        #         break
 
-            except IndexError:
-                break
+        max_number = max(data_ids)
+        list_of_proper_ids = [ind for ind in range(1, max_number + 1)]
+
+        if sorted(data_ids) != sorted(list_of_proper_ids):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
@@ -189,7 +195,7 @@ class ConlluSentence(SentenceProtocol):
         """
         return f'# sent_id = {self._position}\n' \
         f'# text = {self._text}\n' \
-        f'# tokens = {self._format_tokens(include_morphological_tags)}\n'
+        f'{self._format_tokens(include_morphological_tags)}\n'
 
     def get_cleaned_sentence(self) -> str:
         """
