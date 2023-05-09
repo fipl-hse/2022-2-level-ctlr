@@ -69,9 +69,6 @@ class CorpusManager:
         if not all(file.stat().st_size for file in texts):
             raise InconsistentDatasetError
 
-        if not all(file.stat().st_size for file in metas):
-            raise InconsistentDatasetError
-
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
