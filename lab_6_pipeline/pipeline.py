@@ -157,7 +157,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'[^\s\w]+', '', self._text).lower()
+        return re.sub(r'[^\s\w]*', '', self._text).lower()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -214,7 +214,7 @@ class MystemTagConverter(TagConverter):
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
-        return self._tag_mapping['POS'].get(tags)
+        return self._tag_mapping[self.pos].get(tags)
 
 class OpenCorporaTagConverter(TagConverter):
     """
@@ -254,7 +254,8 @@ class MorphologicalAnalysisPipeline:
         punct = '!"#$%&()*+,-/:;<=>?@[\]^_`{|}~'
         for sent_id, sentence in enumerate(sentences, start = 1):
             conllu_tokens = []
-            result = [i for i in self._mystem.analyze(sentence) if (i['text'] not in punct and i['text'].strip())]
+            result = [i for i in self._mystem.analyze(sentence) if (i['text'].strip()
+                                                                    not in punct and i['text'].strip())]
             for token_id, token in enumerate(result):
                 conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_id)
@@ -284,7 +285,7 @@ class MorphologicalAnalysisPipeline:
         """
         articles = self._corpus.get_articles().values()
         for article in articles:
-            sentences = self._process(article.get_raw_text())
+            sentences = self._process(article.text)
             article.set_conllu_sentences(sentences)
             to_cleaned(article)
             to_conllu(article)
