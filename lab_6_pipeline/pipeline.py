@@ -146,18 +146,16 @@ class ConlluToken:
         xpos = '_'
         feats = '_'
         head = '0'
-        deprel = '_'
+        deprel = 'root'
         deps = '_'
         misc = '_'
-        parameters = [str(position), text, lemma, pos, xpos, feats, head, deprel, deps, misc]
-        print(parameters)
-        return '\t'.join(parameters)
+        return '\t'.join([str(position), text, lemma, pos, xpos, feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'[^\s\w]*', '', self._text).lower()
+        return re.sub(r'[^\w\s]*', '', self._text).lower()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -179,15 +177,14 @@ class ConlluSentence(SentenceProtocol):
         return (
             f'# sent_id = {self._position}\n'
             f'# text = {self._text}\n'
-            f'# tokens = {self._format_tokens(include_morphological_tags)}'
+            f'{self._format_tokens(include_morphological_tags)}\n'
         )
 
     def get_cleaned_sentence(self) -> str:
         """
         Returns the lowercase representation of the sentence
         """
-        sentence = [token.get_cleaned() for token in self._tokens if token]
-        return ' '.join(sentence)
+        return ' '.join(token.get_cleaned() for token in self._tokens if token.get_cleaned())
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -252,11 +249,11 @@ class MorphologicalAnalysisPipeline:
         sentences = split_by_sentence(text)
         conllu_sent = []
         punct = '!"#$%&()*+,-/:;<=>?@[\]^_`{|}~'
-        for sent_id, sentence in enumerate(sentences, start = 1):
+        for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [i for i in self._mystem.analyze(sentence) if (i['text'].strip()
                                                                     not in punct and i['text'].strip())]
-            for token_id, token in enumerate(result):
+            for token_id, token in enumerate(result, start=1):
                 conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_id)
                 if token.get('analysis'):
