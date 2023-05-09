@@ -85,6 +85,7 @@ class CorpusManager:
         """
         return self._storage
 
+
 class MorphologicalTokenDTO:
     """
     Stores morphological parameters for each token
@@ -170,6 +171,7 @@ class ConlluSentence(SentenceProtocol):
         self._position = position
         self._text = text
         self._tokens = tokens
+
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
@@ -251,8 +253,8 @@ class MorphologicalAnalysisPipeline:
         punct = '!"#$%&()*+,-/:;<=>?@[\]^_`{|}~'
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
-            result = [i for i in self._mystem.analyze(sentence) if (i['text'].strip()
-                                                                    not in punct and i['text'].strip())]
+            result = [i for i in self._mystem.analyze(sentence) if i['text'].strip()
+                                                                    not in punct and i['text'].strip()]
             for token_id, token in enumerate(result, start=1):
                 conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_id)
