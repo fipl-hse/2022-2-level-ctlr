@@ -74,9 +74,8 @@ class CorpusManager:
         """
         Register each dataset entry
         """
-        for file in (list(self.path_to_raw_txt_data.glob('**/*.txt'))):
+        for file in (list(self.path_to_raw_txt_data.glob('*_raw.txt'))):
             num = int(re.match(r'\d+', file.name).group())
-            print(num)
             self._storage[num] = from_raw(file)
 
 
@@ -110,7 +109,7 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
-        self.position = 0
+        self._position = 0
         self._morphological_parameters = MorphologicalTokenDTO()
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
@@ -124,12 +123,23 @@ class ConlluToken:
         Returns morphological parameters from ConlluToken
         """
         return self._morphological_parameters
+    def set_position(self, position: int) -> None:
+        """
+        Stores the position
+        """
+        self._position = position
+
+    def get_position(self) -> int:
+        """
+        Return the positions of the token
+        """
+        return self._position
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         String representation of the token for conllu files
         """
-        position = self.position
+        position = self._position
         text = self._text
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
@@ -139,7 +149,9 @@ class ConlluToken:
         deprel = '_'
         deps = '_'
         misc = '_'
-        return '\t'.join([str(position), text, lemma, pos, xpos, feats, head, deprel, deps, misc])
+        parameters = [str(position), text, lemma, pos, xpos, feats, head, deprel, deps, misc]
+        print(parameters)
+        return '\t'.join(parameters)
 
     def get_cleaned(self) -> str:
         """
@@ -202,7 +214,7 @@ class MystemTagConverter(TagConverter):
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
-
+        return self._tag_mapping['POS'].get(tags)
 
 class OpenCorporaTagConverter(TagConverter):
     """
@@ -231,6 +243,8 @@ class MorphologicalAnalysisPipeline:
         """
         self._corpus = corpus_manager
         self._mystem = Mystem()
+        self._converter_path = Path(__file__).parent/'data'/'mystem_tags_mapping.json'
+
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
@@ -238,20 +252,28 @@ class MorphologicalAnalysisPipeline:
         sentences = split_by_sentence(text)
         conllu_sent = []
         punct = '!"#$%&()*+,-/:;<=>?@[\]^_`{|}~'
-        for sent_id, sentence in enumerate(sentences):
+        for sent_id, sentence in enumerate(sentences, start = 1):
             conllu_tokens = []
             result = [i for i in self._mystem.analyze(sentence) if (i['text'] not in punct and i['text'].strip())]
             for token_id, token in enumerate(result):
                 conllu_token = ConlluToken(token['text'])
+                conllu_token.set_position(token_id)
                 if token.get('analysis'):
-                    conllu_tokens.append(conllu_token)
-                    print(token)
                     lemma = token['analysis'][0]['lex']
                     pos = re.match(r'[A-Z]+', token['analysis'][0]['gr']).group()
+                    ud_pos = MystemTagConverter(self._converter_path).convert_pos(pos)
                     tags = token['analysis'][0]['gr']
-                    parameters = MorphologicalTokenDTO(lemma, pos, tags)
-                    conllu_token.set_morphological_parameters(parameters)
-                    conllu_tokens.append(conllu_token)
+                    parameters = MorphologicalTokenDTO(lemma, ud_pos, tags)
+                else:
+                    if token['text'].isdigit():
+                        pos = 'NUM'
+                    elif token['text'] == '.':
+                        pos = 'PUNCT'
+                    else:
+                        pos = 'X'
+                    parameters = MorphologicalTokenDTO(token['text'], pos)
+                conllu_token.set_morphological_parameters(parameters)
+                conllu_tokens.append(conllu_token)
             conllu_sent.append(ConlluSentence(sent_id, sentence, conllu_tokens))
         return conllu_sent
 
@@ -301,3 +323,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
