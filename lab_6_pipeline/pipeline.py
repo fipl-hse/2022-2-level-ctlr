@@ -215,11 +215,16 @@ class MystemTagConverter(TagConverter):
         extracted_tags = re.findall(r'[а-я]+', tags.replace('(', '').replace(')', '').split('|')[0])
 
         pos_specific_categories = {
-            "NOUN": [self.case, self.number, self.gender, self.animacy],
+            "NOUN": [self.case, self.gender, self.number, self.animacy],
             "VERB": [self.tense, self.number, self.gender],
             "ADJ": [self.case, self.number, self.gender],
-            "NUM": [self.case, self.number, self.gender],
+            "ADV": [],
             "PRON": [self.case, self.number, self.gender, self.animacy],
+            "NUM": [self.case, self.number, self.gender],
+            "PART": [],
+            "INTJ": [],
+            "CCONJ": [],
+            "ADP": [],
         }
         ud_tags = {category: self._tag_mapping[category][tag] for category in pos_specific_categories[pos]
                                                        for tag in extracted_tags
