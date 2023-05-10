@@ -323,7 +323,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
-        self._backup_analyzer= pymorphy2.MorphAnalyzer()
+        self._backup_analyzer = pymorphy2.MorphAnalyzer()
         self._path = Path(__file__).parent/'data'/'opencorpora_tags_mapping.json'
         self._backup_tag_converter = OpenCorporaTagConverter(self._path)
 
@@ -331,6 +331,12 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Returns the text representation as the list of ConlluSentence
         """
+        sentences = split_by_sentence(text)
+        result = [i for i in self._backup_analyzer.parse(text) if i['text'].strip() and i['text'].strip()]
+        for sent_id, sentence in enumerate(sentences):
+            conllu_tokens = []
+
+
 
     def run(self) -> None:
         """
@@ -342,7 +348,6 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-
     corpus_manager = CorpusManager(ASSETS_PATH)
     pipeline = MorphologicalAnalysisPipeline(corpus_manager)
     pipeline.run()
