@@ -257,8 +257,12 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Converts the OpenCorpora tags into the UD format
         """
-        parsed_tags = {attr: getattr(tags, attr, None) for
-                       attr in ['case', 'number', 'gender', 'animacy']}
+        parsed_tags = {
+            self.case: tags.case,
+            self.number: tags.number,
+            self.gender: tags.gender,
+            self.animacy: tags.animacy,
+        }
 
         tags_list = []
         for category, value in parsed_tags.items():
