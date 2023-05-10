@@ -46,11 +46,14 @@ class CorpusManager:
         if not any(self._path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
-        raw = list(self._path_to_raw_txt_data.glob("*_raw.txt"))
+        raw = [i for i in self._path_to_raw_txt_data.glob('*_raw.txt')]
+        if not all([file.stat().st_size for file in raw]):
+            raise InconsistentDatasetError
 
         raw_index = sorted(get_article_id_from_filepath(r) for r in raw)
         if raw_index != list(range(1, len(raw_index)+1)):
             raise InconsistentDatasetError
+
 
     def _scan_dataset(self) -> None:
         """
