@@ -4,29 +4,18 @@ Pipeline for CONLL-U formatting
 import os.path
 import re
 from pathlib import Path
-from os import path
 import json
 from typing import List
+from pymystem3 import Mystem
 
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article
-from core_utils.article.io import from_raw, from_meta
+from core_utils.article.io import from_raw, from_meta, to_cleaned
 from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 
 # pylint: disable=too-few-public-methods
-class FileNotFoundError(Exception):
-    """
-    File does not exist
-    """
-
-
-class NotADirectoryError(Exception):
-    """
-    Path does not lead to directory
-    """
-
 
 class InconsistentDatasetError(Exception):
     """
@@ -38,7 +27,6 @@ class EmptyDirectoryError(Exception):
     """
     Directory is empty
     """
-
 
 class CorpusManager:
     """
@@ -67,19 +55,22 @@ class CorpusManager:
         if not self.path.glob("*"):
             raise EmptyDirectoryError
 
-        meta_list = [elem.name for elem in self.path.glob("*.json")]
-        raw_list = [elem.name for elem in self.path.glob("*.txt")]
-        number_list = sorted([int(re.search(r'\d+', elem)[0]) for elem in meta_list])
-        right_list = [i for i in range(1, len(number_list)+1)]
+        meta_list = [elem.name for elem in self.path.glob("*_meta.json")]
+        raw_list = [elem.name for elem in self.path.glob("*_raw.txt")]
 
-        for element in self.path.glob("*"):
-            if os.stat(element).st_size == 0:
+        meta_ids = sorted([int(re.search(r'\d+', elem)[0]) for elem in meta_list])
+        raw_ids = sorted([int(re.search(r'\d+', elem)[0]) for elem in raw_list])
+
+        right_list = list(range(1, max(meta_ids[-1], raw_ids[-1])+1))
+
+        for raw, meta in zip(self.path.glob("*_raw.txt"), self.path.glob("*_meta.json")):
+            if os.stat(raw).st_size == 0 or os.stat(meta).st_size == 0:
                 raise InconsistentDatasetError
 
         if len(meta_list) != len(raw_list):
             raise InconsistentDatasetError
 
-        if number_list != right_list:
+        if meta_ids != right_list or raw_ids != right_list:
             raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
@@ -87,12 +78,8 @@ class CorpusManager:
         Register each dataset entry
         """
         for element in self.path.glob("*.txt"):
-            art_id = re.search(r'\d+', element.name)[0]
-            article = Article(url=None, article_id=art_id)
-            with open(element, 'r', encoding='utf-8') as f:
-                article.text = f.read()
-
-            self._storage[art_id] = article
+            article = from_raw(element)
+            self._storage[article.article_id] = article
 
     def get_articles(self) -> dict:
         """
@@ -110,6 +97,9 @@ class MorphologicalTokenDTO:
         """
         Initializes MorphologicalTokenDTO
         """
+        self.lemma = lemma
+        self.pos = pos
+        self.tags = tags
 
 
 class ConlluToken:
@@ -122,21 +112,41 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
+        self.position = 0
+        self._morphological_parameters = MorphologicalTokenDTO()
+
+    def set_position(self, position) -> None:
+        self.position = position
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
         """
+        self._morphological_parameters = parameters
 
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
         """
+        return self._morphological_parameters
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         String representation of the token for conllu files
         """
+        position = str(self.position)
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
+        xpos = '_'
+        feats = '_'
+        head = '0'
+        deprel = 'root'
+        deps = '_'
+        misc = '_'
+
+        return '\t'.join([position, text, lemma, pos, xpos,
+                          feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
         """
@@ -158,17 +168,29 @@ class ConlluSentence(SentenceProtocol):
         self._text = text
         self._tokens = tokens
 
+    def _format_tokens(self, include_morphological_tags: bool) -> str:
+        """
+        Formats tokens per newline
+        """
+        return '\n'.join(token.get_conllu_text(include_morphological_tags)
+                         for token in self._tokens)
+
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
+        sent_id = f'# sent_id = {self._position}\n'
+        text = f'text = {self._text}\n'
+        tokens = f'tokens = {self._format_tokens(include_morphological_tags)}'
+
+        return f'{sent_id}{text}{tokens}'
 
     def get_cleaned_sentence(self) -> str:
         """
         Returns the lowercase representation of the sentence
         """
-        conllu_token = ConlluToken(self._text)
-        return conllu_token.get_cleaned()
+        cleaned_tokens = [conllu_token.get_cleaned() for conllu_token in self._tokens]
+        return ' '.join(cleaned_tokens)
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -224,13 +246,16 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         result_list = []
-        sent_list = split_by_sentence(text)
-        for position, element in enumerate(sent_list):
-            conllu_tokens = []
-            words = ConlluToken(element).get_cleaned().split()
+        sentence_list = split_by_sentence(text)
 
-            for one_word in words:
-                conllu_tokens.append(ConlluToken(one_word))
+        for position, element in enumerate(sentence_list):
+            conllu_tokens = []
+            words_in_sentence = element.split()
+
+            for token_position, one_word in enumerate(words_in_sentence):
+                conllu_token = ConlluToken(one_word)
+                conllu_token.set_position(token_position)
+                conllu_tokens.append(conllu_token)
 
             result_list.append(ConlluSentence(position=position,
                                               text=element,
@@ -241,25 +266,12 @@ class MorphologicalAnalysisPipeline:
         """
         Performs basic preprocessing and writes processed text to files
         """
-        art_dict = self._corpus.get_articles()
+        article_dict = self._corpus.get_articles()
 
-        for one_art in art_dict.values():
-            art_id = one_art.article_id
-            name = art_id + '_raw.txt'
-            path_raw = self._corpus.path / name
-
-            article_raw = from_raw(path_raw, one_art)
-            raw_txt = article_raw.get_raw_text()
-
-            conllu_sentences = self._process(raw_txt)
-            article_raw.set_conllu_sentences(conllu_sentences)
-
-            cleaned_name = art_id + '_cleaned.txt'
-            cleaned_path = self._corpus.path / cleaned_name
-
-            with open(cleaned_path, 'w', encoding='utf-8') as f:
-                f.write(article_raw.get_cleaned_text())
-                # f.write(conllu_sentences.get_cleaned_sentence())
+        for one_article in article_dict.values():
+            conllu_sentences = self._process(one_article.text)
+            one_article.set_conllu_sentences(conllu_sentences)
+            to_cleaned(one_article)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -288,9 +300,8 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    #conllu_token = ConlluToken(text='мама')
-    map = MorphologicalAnalysisPipeline(corpus_manager)
-    map.run()
+    morpho_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    morpho_pipeline.run()
 
 
 if __name__ == "__main__":
