@@ -86,8 +86,8 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
         return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
@@ -191,7 +191,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
+        self._config = config
         self.seed_urls = config.get_seed_urls()
         self.urls = []
 
@@ -208,19 +208,21 @@ class Crawler:
         """
         Finds articles
         """
-        seed_urls = self.get_search_urls()
+        self.seed_urls = self.get_search_urls()
         for seed_url in self.seed_urls:
-            response = make_request(seed_url, self.config)
+            response = make_request(seed_url, self._config)
             if response.status_code != 200:
                 continue
             main_bs = BeautifulSoup(response.text, 'lxml')
             articles = main_bs.find_all('div', {'class': 'news-item'})
             for article_bs in articles:
-                if len(self.urls) >= self.config.get_num_articles():
+                if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = self._extract_url(article_bs.find('a'))
+                if not url:
+                    continue
                 if url not in self.urls:
-                    url_response = make_request(url, self.config)
+                    url_response = make_request(url, self._config)
                     if url_response.status_code != 200:
                         continue
                     self.urls.append(url)
@@ -241,9 +243,9 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        self.full_url = full_url
-        self.article_id = article_id
-        self.config = config
+        self._full_url = full_url
+        self._article_id = article_id
+        self._config = config
         self.article = Article(full_url, article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
@@ -252,9 +254,11 @@ class HTMLParser:
         """
         main_bs = article_soup.find('div', {'class': 'item'})
         content = main_bs.findAll('p')
+        text = ''
         if content:
             for paragraph in content:
-                self.article.text += paragraph.text
+                text += paragraph.get_text()
+        self.article.text += text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
