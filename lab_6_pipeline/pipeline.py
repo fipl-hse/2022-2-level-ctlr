@@ -6,7 +6,7 @@ from typing import List
 import re
 
 from core_utils.article.article import SentenceProtocol, get_article_id_from_filepath, split_by_sentence
-from core_utils.article.io import from_raw, to_cleaned, to_conllu
+from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
