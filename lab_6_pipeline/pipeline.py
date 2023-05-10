@@ -10,7 +10,7 @@ from pymystem3 import Mystem
 
 from core_utils.constants import ASSETS_PATH
 from core_utils.article.article import Article
-from core_utils.article.io import from_raw, from_meta, to_cleaned
+from core_utils.article.io import from_raw, from_meta, to_cleaned, to_conllu
 from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
@@ -198,6 +198,7 @@ class ConlluSentence(SentenceProtocol):
         """
 
 
+
 class MystemTagConverter(TagConverter):
     """
     Mystem Tag Converter
@@ -272,6 +273,8 @@ class MorphologicalAnalysisPipeline:
             conllu_sentences = self._process(one_article.text)
             one_article.set_conllu_sentences(conllu_sentences)
             to_cleaned(one_article)
+            to_conllu(one_article)
+
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
