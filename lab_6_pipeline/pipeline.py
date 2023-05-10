@@ -218,17 +218,16 @@ class MystemTagConverter(TagConverter):
             "NOUN": [self.case, self.gender, self.number, self.animacy],
             "VERB": [self.tense, self.number, self.gender],
             "ADJ": [self.case, self.number, self.gender],
-            "ADV": [],
             "PRON": [self.case, self.number, self.gender, self.animacy],
             "NUM": [self.case, self.number, self.gender],
-            "PART": [],
-            "INTJ": [],
-            "CCONJ": [],
-            "ADP": [],
         }
-        ud_tags = {category: self._tag_mapping[category][tag] for category in pos_specific_categories[pos]
-                                                       for tag in extracted_tags
-                                                       if tag in self._tag_mapping[category]}
+
+        ud_tags = {}
+        if pos in pos_specific_categories:
+            for tag in extracted_tags:
+                for category in pos_specific_categories[pos]:
+                    if tag in self._tag_mapping[category]:
+                        ud_tags[category] = self._tag_mapping[category][tag]
 
         feats = '|'.join(f'{category}={value}' for category, value in sorted(ud_tags.items()))
         return feats
@@ -251,7 +250,6 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
-        return self._tag_mapping[self.pos][tags.POS or 'UNKN']
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
