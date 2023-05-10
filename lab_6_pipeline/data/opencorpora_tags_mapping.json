@@ -38,12 +38,12 @@
     "plur": "Plur"
   },
   "Gender": {
-    "masc":"Masc",
+    "masc" : "Masc",
     "femn": "Fem",
     "neut": "Neut"
   },
   "Animacy":{
-    "anim":"Anim",
+    "anim": "Anim",
     "inan": "Inan"
   }
 }
