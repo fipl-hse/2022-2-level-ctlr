@@ -2,8 +2,6 @@
 Crawler implementation
 """
 import time
-import webbrowser
-
 import requests
 import json
 import datetime
@@ -17,11 +15,10 @@ from pathlib import Path
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.safari.options import Options as SafariOptions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from core_utils.article.article import Article
+from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (CRAWLER_CONFIG_PATH,
                                   ASSETS_PATH)
@@ -257,19 +254,35 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.article = Article(full_url, article_id)
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        unformatted_text = article_soup.find('article').find_all('p', class_='doc__text')
+        self.article.text = ' '.join(paragraph.text for paragraph in unformatted_text[:-1])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        article = article_soup.find('article')
+        title = article.find('header', class_='doc_header').text.strip()
+        self.article.title = title
+
+        author = article.find('p', class_='doc__text document_authors')
+        self.article.author.append(author)
+
+        topics = list(theme.text for theme in
+                      article.find_all('a', class_='doc_footer__item_name'))
+        self.article.topics = topics
+
+        date = article.find('div', class_='doc_header__time').text.strip()
+        self.article.date = self.unify_date_format(date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -281,7 +294,12 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = requests.get(self.full_url)
+        if response.status_code == 200:
+            article_bs = BeautifulSoup(response.text, 'lxml')
+            self._fill_article_with_text(article_bs)
+            self._fill_article_with_meta_information(article_bs)
+            return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -302,6 +320,12 @@ def main() -> None:
 
     crawler = Crawler(config=configuration)
     crawler.find_articles()
+
+    for i, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(url, i, configuration)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
 
 
 if __name__ == "__main__":
