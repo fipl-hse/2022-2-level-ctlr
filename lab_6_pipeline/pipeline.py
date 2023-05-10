@@ -11,12 +11,6 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class NotADirectoryError(Exception):
-    """
-    path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     IDs contain slips, number of meta and raw files is not equal, files are empty
