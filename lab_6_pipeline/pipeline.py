@@ -276,14 +276,14 @@ class MorphologicalAnalysisPipeline:
         """
         conllu_sentences = []
         result = self._analyzer.analyze(re.sub(r'\W+', ' ', text))
-        number_of_word = 0
+        number_of_words = 0
         for ind, sentence in enumerate(split_by_sentence(text)):
             tokens = []
             words = re.findall(r'\w+', sentence)
             for i, word in enumerate(words, 1):
-                if not result[number_of_word]['text'].isalnum():
-                    number_of_word += 1
-                analyzed_content = result[number_of_word]
+                if not result[number_of_words]['text'].isalnum():
+                    number_of_words += 1
+                analyzed_content = result[number_of_words]
                 original_word = analyzed_content['text']
                 if 'analysis' in analyzed_content and analyzed_content['analysis']:
                     lemma = analyzed_content['analysis'][0]['lex']
@@ -303,7 +303,7 @@ class MorphologicalAnalysisPipeline:
                 conllu_token.set_position(i)
                 tokens.append(conllu_token)
 
-                number_of_word += 1
+                number_of_words += 1
             conllu_token = ConlluToken('.')
             conllu_token.set_morphological_parameters(MorphologicalTokenDTO('.', 'PUNCT'))
             conllu_token.set_position(len(words) + 1)
@@ -348,15 +348,15 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        number_of_word = 0
+        number_of_words = 0
         result = self._analyzer.analyze(re.sub(r'\W+', ' ', text))
         for ind, sentence in enumerate(split_by_sentence(text)):
             tokens = []
             words = re.findall(r'\w+', sentence)
             for i, word in enumerate(words, 1):
-                if not result[number_of_word]['text'].isalnum():
-                    number_of_word += 1
-                analyzed_content = result[number_of_word]
+                if not result[number_of_words]['text'].isalnum():
+                    number_of_words += 1
+                analyzed_content = result[number_of_words]
                 original_word = analyzed_content['text']
                 if 'analysis' in analyzed_content and analyzed_content['analysis']:
                     morph_tags = analyzed_content['analysis'][0]['gr']
@@ -381,7 +381,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma=lemma, pos=pos, tags=tags))
                 conllu_token.set_position(i)
                 tokens.append(conllu_token)
-                number_of_word += 1
+                number_of_words += 1
             conllu_token = ConlluToken('.')
             conllu_token.set_morphological_parameters(MorphologicalTokenDTO('.', 'PUNCT'))
             conllu_token.set_position(len(words) + 1)
