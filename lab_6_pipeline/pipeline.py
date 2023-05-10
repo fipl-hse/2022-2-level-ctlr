@@ -12,11 +12,11 @@ from core_utils.constants import ASSETS_PATH
 from string import punctuation
 
 
-class EmptyDirectoryError:
+class EmptyDirectoryError(Exception):
     pass
 
 
-class InconsistentDatasetError:
+class InconsistentDatasetError(Exception):
     pass
 
 
