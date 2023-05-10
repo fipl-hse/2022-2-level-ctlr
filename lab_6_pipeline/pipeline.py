@@ -78,6 +78,7 @@ class CorpusManager:
             if meta_file.stat().st_size == 0:
                 raise InconsistentDatasetError
 
+        raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
         if not raw_files:
             raise EmptyDirectoryError(f"Directory '{self.path_to_raw_txt_data}' is empty")
 
