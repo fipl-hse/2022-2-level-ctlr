@@ -2,10 +2,10 @@
 Pipeline for CONLL-U formatting
 """
 from pathlib import Path
+import pymorphy2
 from pymystem3 import Mystem
 import re
 from typing import List
-import pymorphy2
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
@@ -335,6 +335,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         result = [i for i in self._backup_analyzer.parse(text) if i['text'].strip() and i['text'].strip()]
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
+
 
 
 
