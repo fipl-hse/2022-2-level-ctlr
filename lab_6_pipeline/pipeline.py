@@ -1,14 +1,14 @@
 """
 Pipeline for CONLL-U formatting
 """
+import re
 from pathlib import Path
 from typing import List
-import re
 
 from pymystem3 import Mystem
 
-from core_utils.article.article import SentenceProtocol, Article, split_by_sentence, get_article_id_from_filepath
-from core_utils.article.io import from_raw, to_cleaned, to_conllu
+from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
+from core_utils.article.io import to_cleaned, to_conllu, from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -125,21 +125,22 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        position = self.position
+        position = str(self.position)
         text = self._text
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
         x_pos = '_'
-        feats = '_'
-        head = 0
+        feats = self._morphological_parameters.tags \
+            if include_morphological_tags and self._morphological_parameters.tags else '_'
+        head = '0'
         deprel = 'root'
         deps = '_'
         misc = '_'
         return '\t'.join([
-            str(position),
-            str(text),
-            str(lemma),
-            str(pos),
+            position,
+            text,
+            lemma,
+            pos,
             x_pos,
             str(feats),
             str(head),
