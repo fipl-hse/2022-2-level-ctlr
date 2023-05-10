@@ -105,15 +105,17 @@ class Config:
         """
         config_dto = self._extract_config_content()
 
+        if not isinstance(config_dto.seed_urls, list):
+            raise IncorrectSeedURLError(IncorrectSeedURLError.__doc__.strip())
+
         for url in config_dto.seed_urls:
-            if not re.match(r'https?://(www.)?', url):
+            if not (isinstance(url, str) and re.match(r'https?://(www.)?', url)):
                 raise IncorrectSeedURLError(IncorrectSeedURLError.__doc__.strip())
 
-        if not (isinstance(config_dto.total_articles, int) and
-                1 <= config_dto.total_articles <= 150):
+        if not (1 <= config_dto.total_articles <= 150):
             raise NumberOfArticlesOutOfRangeError(NumberOfArticlesOutOfRangeError.__doc__.strip())
 
-        if not (isinstance(config_dto.total_articles, int) and config_dto.total_articles > 0):
+        if not isinstance(config_dto.total_articles, int):
             raise IncorrectNumberOfArticlesError(IncorrectNumberOfArticlesError.__doc__.strip())
 
         if not isinstance(config_dto.headers, dict):
