@@ -1,12 +1,12 @@
 """
 Article implementation
 """
+import enum
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Protocol, Sequence
 
-from core_utils.article.constants import ArtifactType
 from core_utils.constants import ASSETS_PATH
 
 
@@ -34,16 +34,38 @@ def split_by_sentence(text: str) -> list[str]:
                  and len(sentence) > 10]
     return sentences
 
+
 # pylint: disable=too-few-public-methods
 class SentenceProtocol(Protocol):
     """
     Protocol definition for sentences to make dependency inversion from direct
     import from lab 6 implementation of ConlluSentence
     """
+
     def get_cleaned_sentence(self) -> str:
         """
         All tokens should be normalized and joined with a space
         """
+
+    def get_tokens(self) -> list:
+        """
+        All tokens should be ConlluToken instance
+        """
+
+    def get_conllu_text(self, include_morphological_tags: bool) -> str:
+        """
+        Gets the text in the CONLL-U format
+        """
+
+
+class ArtifactType(enum.Enum):
+    """
+    Types of artifacts that can be created by text processing pipelines
+    """
+    CLEANED = 'cleaned'
+    MORPHOLOGICAL_CONLLU = 'morphological_conllu'
+    POS_CONLLU = 'pos_conllu'
+    FULL_CONLLU = 'full_conllu'
 
 
 class Article:
@@ -69,7 +91,7 @@ class Article:
 
     def set_pos_info(self, pos_freq: dict) -> None:
         """
-        Adds POS information in meta file
+        Sets POS frequencies attribute
         """
         self.pos_frequencies = pos_freq
 
@@ -93,11 +115,12 @@ class Article:
         """
         return self.text
 
-    def get_conllu_text(self) -> str:
+    def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Gets the text in the CONLL-U format
         """
-        return '\n'.join([str(sentence) for sentence in self._conllu_sentences]) + '\n'
+        return '\n'.join([sentence.get_conllu_text(include_morphological_tags) for sentence in
+                          self._conllu_sentences]) + '\n'
 
     def set_conllu_sentences(self, sentences: Sequence[SentenceProtocol]) -> None:
         """
@@ -133,7 +156,7 @@ class Article:
 
     def get_meta_file_path(self) -> Path:
         """
-        Returns path for requested raw article
+        Returns path for requested article
         """
         meta_file_name = f"{self.article_id}_meta.json"
         return ASSETS_PATH / meta_file_name
@@ -144,7 +167,9 @@ class Article:
         kind: variant of a file -- ArtifactType
         """
 
-        conllu = kind in (ArtifactType.FULL_CONLLU, ArtifactType.MORPHOLOGICAL_CONLLU)
+        conllu = kind in (ArtifactType.POS_CONLLU,
+                          ArtifactType.MORPHOLOGICAL_CONLLU,
+                          ArtifactType.FULL_CONLLU)
 
         extension = '.conllu' if conllu else '.txt'
         article_name = f"{self.article_id}_{kind.value}{extension}"
