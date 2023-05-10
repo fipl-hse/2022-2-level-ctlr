@@ -5,13 +5,13 @@ from pathlib import Path
 from pymystem3 import Mystem
 import re
 from typing import List
-import string
+import pymorphy2
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.constants import ASSETS_PATH
-from core_utils.article.article import Article, split_by_sentence
+from core_utils.article.article import split_by_sentence
 
 
 class InconsistentDatasetError(Exception):
@@ -235,11 +235,20 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
+        pos_tag = str(tags.POS)
+        return self._tag_mapping[self.pos].get(pos_tag)
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
         Converts the OpenCorpora tags into the UD format
         """
+        tags_list = re.split(r'\W+', str(tags))
+        ud_tags = []
+        for tag in tags_list[1:]:
+            for category in self._tag_mapping.keys():
+                if tag in self._tag_mapping[category].keys():
+                    ud_tags.append(f'{category}={self._tag_mapping[category][tag]}')
+        return '|'.join(sorted(ud_tags))
 
 
 class MorphologicalAnalysisPipeline:
@@ -254,6 +263,7 @@ class MorphologicalAnalysisPipeline:
         self._corpus = corpus_manager
         self._mystem = Mystem()
         self._converter_path = Path(__file__).parent/'data'/'mystem_tags_mapping.json'
+        self._converter = MystemTagConverter(self._converter_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
@@ -270,9 +280,9 @@ class MorphologicalAnalysisPipeline:
                 if token.get('analysis'):
                     lemma = token['analysis'][0]['lex']
                     pos = re.match(r'[A-Z]+', token['analysis'][0]['gr']).group()
-                    ud_pos = MystemTagConverter(self._converter_path).convert_pos(pos)
+                    ud_pos = self._converter.convert_pos(pos)
                     tags = token['analysis'][0]['gr']
-                    ud_tags = MystemTagConverter(self._converter_path).convert_morphological_tags(tags)
+                    ud_tags = self._converter.convert_morphological_tags(tags)
                     parameters = MorphologicalTokenDTO(lemma, ud_pos, ud_tags)
                 else:
                     if token['text'].isdigit():
@@ -282,7 +292,6 @@ class MorphologicalAnalysisPipeline:
                     else:
                         pos = 'X'
                     parameters = MorphologicalTokenDTO(token['text'], pos, '_')
-                print(token, ':', token['text'])
                 conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
@@ -313,6 +322,10 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus = corpus_manager
+        self._backup_analyzer= pymorphy2.MorphAnalyzer()
+        self._path = Path(__file__).parent/'data'/'opencorpora_tags_mapping.json'
+        self._backup_tag_converter = OpenCorporaTagConverter(self._path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
