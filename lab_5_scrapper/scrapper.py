@@ -84,11 +84,11 @@ class Config:
         config_dto = self._extract_config_content()
 
         self._seed_urls = config_dto.seed_urls
-        self._total_articles = config_dto.total_articles
+        self._num_articles = config_dto.total_articles
         self._headers = config_dto.headers
         self._encoding = config_dto.encoding
         self._timeout = config_dto.timeout
-        self._verify_certificate = config_dto.should_verify_certificate
+        self._should_verify_certificate = config_dto.should_verify_certificate
         self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
