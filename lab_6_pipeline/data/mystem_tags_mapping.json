@@ -1,6 +1,6 @@
 {
   "POS": {
-    "S" : "NOUN",
+    "S": "NOUN",
     "SPRO": "PRON",
     "A": "ADJ",
     "ANUM": "ADJ",
@@ -8,21 +8,21 @@
     "APRO": "ADJ",
     "COM": "ADJ",
     "V": "VERB",
-    "NUM":"NUM",
+    "NUM": "NUM",
     "ADV": "ADV",
-    "PR" : "ADP",
-    "CONJ" : "CCONJ",
-    "PART" : "PART",
+    "PR": "ADP",
+    "CONJ": "CCONJ",
+    "PART": "PART",
     "INTJ": "INTJ"
   },
- "Case" : {
-   "им" : "Nom",
-   "род" : "Gen",
+ "Case": {
+   "им": "Nom",
+   "род": "Gen",
    "дат": "Dat",
    "вин": "Acc",
    "твор": "Ins",
    "пр": "Loc",
-   "зват" : "Voc",
+   "зват": "Voc",
    "парт": "Par",
    "местн": "Loc"
  },
@@ -31,17 +31,17 @@
     "мн":"Plur"
   },
   "Gender": {
-    "муж":"Masc",
-    "жен":"Fem",
-    "сред":"Neut"
+    "муж": "Masc",
+    "жен": "Fem",
+    "сред": "Neut"
   },
   "Animacy": {
-    "од":"Anim",
-    "неод":"Inan"
+    "од": "Anim",
+    "неод": "Inan"
   },
   "Tense": {
-    "наст":"Pres",
-    "непрош":"Fut",
-    "прош":"Past"
+    "наст": "Pres",
+    "непрош": "Fut",
+    "прош": "Past"
   }
 }
