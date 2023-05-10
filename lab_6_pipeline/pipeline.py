@@ -59,8 +59,8 @@ class CorpusManager:
         """
         Register each dataset entry
         """
-        raw = self._path_to_raw_txt_data.glob("*_raw.txt")
-        for file in raw:
+        raw_1 = self._path_to_raw_txt_data.glob("*_raw.txt")
+        for file in raw_1:
             article = from_raw(file)
             self._storage.update({article.article_id: article})
 
@@ -221,6 +221,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Initializes MorphologicalAnalysisPipeline
         """
+
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
