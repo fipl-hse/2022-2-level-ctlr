@@ -8,7 +8,7 @@ import re
 from pymystem3 import Mystem
 
 from core_utils.article.article import SentenceProtocol, Article, split_by_sentence, get_article_id_from_filepath
-from core_utils.article.io import from_raw, to_cleaned
+from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -55,35 +55,17 @@ class CorpusManager:
         if not self._meta_files and not self._raw_files:
             raise EmptyDirectoryError('directory is empty')
 
-        # checks if a number of meta and raw files is equal
-        # if len(self._meta_files) != len(self._raw_files):
-        #     raise InconsistentDatasetError('number of files is not equal')
-
-        # for file in self._raw_files:
-        #     # checks that a name of a raw file contains an ID
-        #     if not re.match(r'\d+_raw\.txt', file.name):
-        #         raise InconsistentDatasetError('some file does not contain an ID')
-
         for raw, meta in zip(self._raw_files, self._meta_files):
             # checks that raw files are not empty
             if raw.stat().st_size == 0 or meta.stat().st_size == 0:
                 raise InconsistentDatasetError('files are empty')
 
         data_ids = [get_article_id_from_filepath(i) for i in self._raw_files]
-        # checks that IDs contain no slips
-        # for idx, id_obj in enumerate(sorted(data_ids, reverse=True)):
-        #     try:
-        #         if id_obj - data_ids[idx + 1] != 1:
-        #             raise InconsistentDatasetError('files\' IDs contain slips')
-        #
-        #     except IndexError:
-        #         break
-
         max_number = max(data_ids)
         list_of_proper_ids = [ind for ind in range(1, max_number + 1)]
 
         if sorted(data_ids) != sorted(list_of_proper_ids):
-            raise InconsistentDatasetError
+            raise InconsistentDatasetError('files contain slip in ID')
 
     def _scan_dataset(self) -> None:
         """
@@ -147,23 +129,23 @@ class ConlluToken:
         text = self._text
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
-        x_pos = "_"
+        x_pos = '_'
         feats = '_'
         head = 0
         deprel = 'root'
         deps = '_'
         misc = '_'
         return '\t'.join([
-              str(position),
-              str(text),
-              str(lemma),
-              str(pos),
-              x_pos,
-              str(feats),
-              str(head),
-              deprel,
-              deps,
-              misc
+            str(position),
+            str(text),
+            str(lemma),
+            str(pos),
+            x_pos,
+            str(feats),
+            str(head),
+            deprel,
+            deps,
+            misc
         ])
 
     def get_cleaned(self) -> str:
@@ -194,8 +176,8 @@ class ConlluSentence(SentenceProtocol):
         Creates string representation of the sentence
         """
         return f'# sent_id = {self._position}\n' \
-        f'# text = {self._text}\n' \
-        f'{self._format_tokens(include_morphological_tags)}\n'
+               f'# text = {self._text}\n' \
+               f'{self._format_tokens(include_morphological_tags)}\n'
 
     def get_cleaned_sentence(self) -> str:
         """
@@ -259,10 +241,36 @@ class MorphologicalAnalysisPipeline:
         """
         splitted_text = split_by_sentence(text)
         conllu_sent_lst = []
+        analyzer = Mystem().analyze(text)
 
-        for pos, text in enumerate(splitted_text):
-            conllu_token_lst = [ConlluToken(token) for token in text.split()]
-            conllu_sent_lst.append(ConlluSentence(pos, text, conllu_token_lst))
+        for position_sent, _ in enumerate(splitted_text):
+            conllu_tokens_lst = []
+
+            #  ID, FORM, LEMMA, UPOS, FEATS
+            for position, token in enumerate(analyzer, start=1):
+                form = token['text']
+
+                if form.strip() and form.isalpha():
+                    lemma = token['analysis'][0]['lex']
+                    token_gr = token['analysis'][0]['gr'].split(',', 1)
+
+                    if form.isdigit():
+                        upos = 'NUM'
+
+                    elif re.match(r'[^\w\s]', form):
+                        upos = 'PUNC'
+
+                    else:
+                        upos = re.match(r'\w+', token_gr[0]).group()
+
+                    feats = token_gr[1:]
+
+                    conllu_token = ConlluToken(token)
+                    conllu_token.position = position
+                    conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, upos, feats))
+                    conllu_tokens_lst.append(conllu_token)
+
+            conllu_sent_lst.append(ConlluSentence(position_sent, text, conllu_tokens_lst))
 
         return conllu_sent_lst
 
@@ -276,6 +284,7 @@ class MorphologicalAnalysisPipeline:
             process = self._process(article.text)
             article.set_conllu_sentences(process)
             to_cleaned(article)
+            to_conllu(article, False, False)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
