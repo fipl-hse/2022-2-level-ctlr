@@ -4,16 +4,19 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import (get_article_id_from_filepath, SentenceProtocol, split_by_sentence)
+from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
-
-class InconsistentDatasetError:
-    pass
+from string import punctuation
 
 
 class EmptyDirectoryError:
+    pass
+
+
+class InconsistentDatasetError:
     pass
 
 
@@ -27,7 +30,7 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
-        self.path_to_raw_txt_data = Path(path_to_raw_txt_data)
+        self._path_to_raw_txt_data = path_to_raw_txt_data
         self._storage = {}
         self._validate_dataset()
         self._scan_dataset()
@@ -36,27 +39,39 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        if not self.path_to_raw_txt_data.exists():
+        if not self._path_to_raw_txt_data.exists():
             raise FileNotFoundError
-        if not self.path_to_raw_txt_data.is_dir():
+        if not self._path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
-        if not any(self.path_to_raw_txt_data.iterdir()):
+        if not any(self._path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
-        meta = list(self.path_to_raw_txt_data.glob("*_meta.txt"))
-        raw = list(self.path_to_raw_txt_data.glob("*_raw.json"))
+
+        meta = list(self._path_to_raw_txt_data.glob("*_meta.json"))
+        raw = list(self._path_to_raw_txt_data.glob("*_raw.txt"))
+
         if len(meta) != len(raw):
             raise InconsistentDatasetError
 
+        meta_index = sorted(get_article_id_from_filepath(met) for met in meta)
+        raw_index = sorted(get_article_id_from_filepath(r) for r in raw)
+        if meta_index != list(range(1, len(meta_index)+1)) or raw_index != list(range(1, len(raw_index)+1)):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        raw = self._path_to_raw_txt_data.glob("*_raw.txt")
+        for file in raw:
+            article = from_raw(file)
+            self._storage.update({article.article_id: article})
+
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
@@ -79,6 +94,8 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
+
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -99,6 +116,8 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        clean_text = self._text.lower().translate(str.maketrans("", "", punctuation))
+        return clean_text
 
 
 class ConlluSentence(SentenceProtocol):
@@ -110,6 +129,9 @@ class ConlluSentence(SentenceProtocol):
         """
         Initializes ConlluSentence
         """
+        self._position = position
+        self._text = text
+        self._tokens = tokens
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
@@ -120,6 +142,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
+        return " ".join([i.get_cleaned() for i in self._tokens if i.get_cleaned()])
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -168,16 +191,27 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus_manager = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        sentences = split_by_sentence(text)
+        conllu_sentences = []
+        for i, sentence in enumerate(sentences, 1):
+            conllu_list = [ConlluToken(text) for text in sentence.split()]
+            conllu_sentences.append(ConlluSentence(i, sentence, conllu_list))
+        return conllu_sentences
 
     def run(self) -> None:
         """
         Performs basic preprocessing and writes processed text to files
         """
+        for article in self._corpus.get_articles().values():
+            sentences = self._process(article.text)
+            article.set_conllu_sentences(sentences)
+            to_cleaned(article)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -205,7 +239,9 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    morph_analysis_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    morph_analysis_pipeline.run()
 
 
 if __name__ == "__main__":
