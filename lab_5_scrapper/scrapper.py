@@ -70,8 +70,8 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
+            config = json.load(file)
         return ConfigDTO(**config)
 
     def _validate_config_content(self) -> None:
@@ -84,9 +84,12 @@ class Config:
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for url in config_dto.seed_urls:
-            if not isinstance(url, str) or not re.match("https?://.*/", url):
-                raise IncorrectSeedURLError
+        if config_dto.seed_urls:
+            for url in config_dto.seed_urls:
+                if not isinstance(url, str) or not re.match("https?://.*/", url):
+                    raise IncorrectSeedURLError
+        else:
+            return None
 
         if (not isinstance(config_dto.total_articles, int)
             or isinstance(config_dto.total_articles, bool)
@@ -164,6 +167,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     timeout = config.get_timeout()
     verify = config.get_verify_certificate()
     response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    response.encoding = config.get_encoding()
     return response
 
 
@@ -178,7 +182,7 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        self.config = config
+        self._config = config
         self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
@@ -186,29 +190,29 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str) and url.startswith('https://www.volga-tv.ru/news/'):
+        if isinstance(url, str):
             return url
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        for seed_url in self.config.get_seed_urls():
-            response = make_request(seed_url, self.config)
+        for seed_url in self._config.get_seed_urls():
+            response = make_request(seed_url, self._config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             all_links = main_bs.find_all('a')
             for link in all_links:
                 url = self._extract_url(link)
                 if url.startswith("/news"):
                     new_url = 'https://www.volga-tv.ru' + url
-                    if new_url not in self.urls and len(self.urls) < self.config.get_num_articles():
+                    if new_url not in self.urls and len(self.urls) < self._config.get_num_articles():
                         self.urls.append(new_url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        return self.config.get_seed_urls()
+        return self._config.get_seed_urls()
 
 
 class HTMLParser:
@@ -229,17 +233,29 @@ class HTMLParser:
         """
         Finds text of article
         """
-        paragraphs = article_soup.find_all('br')
-        for paragraph in paragraphs:
-            self.article.text += paragraph.text
+        paragraphs = article_soup.find_all('div', class_="news-detail hyphenate")
+        links = [tag.text for tag in paragraphs]
+        for link in links:
+            new_l = link.split('.')
+            self.article.text = '.'.join(new_l[:-3])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
         self.article.title = article_soup.find('h1').text
+        paragraphs = article_soup.find('div', class_='news-detail hyphenate')
+        authors = []
+        for paragraph in paragraphs:
+            if "Служба информации:" in paragraph:
+                authors = paragraph.replace(':', ',').strip().split(',')
+                authors.pop(0)
+        if not authors:
+            self.article.author = ['NOT FOUND']
+        else:
+            self.article.author = authors
 
-
+        #self.article.date = article_soup.find('time').get('datetime')
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
