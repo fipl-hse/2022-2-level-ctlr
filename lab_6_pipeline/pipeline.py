@@ -61,16 +61,23 @@ class CorpusManager:
             raise InconsistentDatasetError('Number of meta and raw files is not equal')
 
         raw_ind = sorted([int(file.stem.split("_")[0]) for file in raw_files])
+        meta_ind = sorted([int(file.stem.split("_")[0]) for file in meta_files])
         for id1, id2 in zip(raw_ind, raw_ind[1:]):
             if id2 - id1 > 1:
                 raise InconsistentDatasetError('Article IDs are not sequential')
+
+        for id1, id2 in zip(meta_ind, meta_ind[1:]):
+            if id2 - id1 > 1:
+                raise InconsistentDatasetError('Article IDs in meta data are not sequential')
 
         for raw_file in raw_files:
             if raw_file.stat().st_size == 0:
                 raise InconsistentDatasetError
 
-        if not raw_files:
-            raise EmptyDirectoryError(f"Directory '{self.path_to_raw_txt_data}' is empty")
+        for meta_file in meta_files:
+            if meta_file.stat().st_size == 0:
+                raise InconsistentDatasetError
+
 
     def _scan_dataset(self) -> None:
         """
@@ -179,7 +186,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return ' '.join(token.get_cleaned() for token in self._tokens if token.get_cleaned())
+        return re.sub(r'\W+', '', self._text.lower())
 
 
     def get_tokens(self) -> list[ConlluToken]:
@@ -203,16 +210,11 @@ class MystemTagConverter(TagConverter):
         extracted_tags = re.findall(r'[а-я]+', tags.replace('(', '').replace(')', '').split('|')[0])
 
         pos_specific_categories = {
-            "NOUN": [self.case, self.gender, self.number, self.animacy],
+            "NOUN": [self.case, self.number, self.gender, self.animacy],
             "VERB": [self.tense, self.number, self.gender],
             "ADJ": [self.case, self.number, self.gender],
-            "ADV": [],
-            "PRON": [self.case, self.number, self.gender, self.animacy],
             "NUM": [self.case, self.number, self.gender],
-            "PART": [],
-            "INTJ": [],
-            "CCONJ": [],
-            "ADP": [],
+            "PRON": [self.case, self.number, self.gender, self.animacy],
         }
         ud_tags = {category: self._tag_mapping[category][tag] for category in pos_specific_categories[pos]
                                                        for tag in extracted_tags
