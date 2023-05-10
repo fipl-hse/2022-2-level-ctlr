@@ -23,7 +23,8 @@ from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (CRAWLER_CONFIG_PATH,
                                   ASSETS_PATH,
                                   TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT)
+                                  TIMEOUT_UPPER_LIMIT,
+                                  NUM_ARTICLES_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -112,11 +113,11 @@ class Config:
             if not (isinstance(url, str) and re.match(r'https?://(www.)?', url)):
                 raise IncorrectSeedURLError(IncorrectSeedURLError.__doc__.strip())
 
-        if not (1 <= config_dto.total_articles <= 150):
-            raise NumberOfArticlesOutOfRangeError(NumberOfArticlesOutOfRangeError.__doc__.strip())
-
-        if not isinstance(config_dto.total_articles, int):
+        if not (isinstance(config_dto.total_articles, int) and config_dto.total_articles > 0):
             raise IncorrectNumberOfArticlesError(IncorrectNumberOfArticlesError.__doc__.strip())
+
+        if not config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError(NumberOfArticlesOutOfRangeError.__doc__.strip())
 
         if not isinstance(config_dto.headers, dict):
             raise IncorrectHeadersError(IncorrectHeadersError.__doc__.strip())
