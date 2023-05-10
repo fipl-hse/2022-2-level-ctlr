@@ -189,7 +189,7 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
-        self._corpus_manager = corpus_manager
+        self._corpus = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
