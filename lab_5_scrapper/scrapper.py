@@ -21,7 +21,9 @@ from core_utils.article.article import Article
 from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (CRAWLER_CONFIG_PATH,
-                                  ASSETS_PATH)
+                                  ASSETS_PATH,
+                                  TIMEOUT_LOWER_LIMIT,
+                                  TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
@@ -104,14 +106,14 @@ class Config:
         config_dto = self._extract_config_content()
 
         for url in config_dto.seed_urls:
-            if not re.match(r'https?://w?w?w?.', url):
+            if not re.match(r'https?://(www.)?', url):
                 raise IncorrectSeedURLError(IncorrectSeedURLError.__doc__.strip())
 
         if not (isinstance(config_dto.total_articles, int) and
                 1 <= config_dto.total_articles <= 150):
             raise NumberOfArticlesOutOfRangeError(NumberOfArticlesOutOfRangeError.__doc__.strip())
 
-        if not isinstance(config_dto.total_articles, int):
+        if not (isinstance(config_dto.total_articles, int) and config_dto.total_articles > 0):
             raise IncorrectNumberOfArticlesError(IncorrectNumberOfArticlesError.__doc__.strip())
 
         if not isinstance(config_dto.headers, dict):
@@ -121,10 +123,11 @@ class Config:
             raise IncorrectEncodingError(IncorrectEncodingError.__doc__.strip())
 
         if not (isinstance(config_dto.timeout, int) and
-                1 <= config_dto.timeout <= 60):
+                TIMEOUT_LOWER_LIMIT < config_dto.timeout <= TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError(IncorrectTimeoutError.__doc__.strip())
 
-        if not isinstance(config_dto.should_verify_certificate, bool):
+        if not (isinstance(config_dto.should_verify_certificate, bool) and
+                isinstance(config_dto.headless_mode, bool)):
             raise IncorrectVerifyError(IncorrectVerifyError.__doc__.strip())
 
     def get_seed_urls(self) -> list[str]:
