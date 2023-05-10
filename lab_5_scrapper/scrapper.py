@@ -116,7 +116,7 @@ class Config:
         if not (isinstance(config_dto.total_articles, int) and config_dto.total_articles > 0):
             raise IncorrectNumberOfArticlesError(IncorrectNumberOfArticlesError.__doc__.strip())
 
-        if not config_dto.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if not config_dto.total_articles < NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError(NumberOfArticlesOutOfRangeError.__doc__.strip())
 
         if not isinstance(config_dto.headers, dict):
