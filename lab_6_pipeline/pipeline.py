@@ -52,7 +52,14 @@ class CorpusManager:
             raise NotADirectoryError('Path does not lead to directory')
 
         meta_files = list(self.path_to_raw_txt_data.glob("*_meta.json"))
+        metas_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_files)
+        if metas_order != list(range(1, len(meta_files) + 1)):
+            raise InconsistentDatasetError
+
         raw_files = list(self.path_to_raw_txt_data.glob("*_raw.txt"))
+        raw_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in raw_files)
+        if raw_order != list(range(1, len(raw_files) + 1)):
+            raise InconsistentDatasetError
 
         if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError("Number of meta and raw files is not equal")
@@ -136,6 +143,8 @@ class ConlluToken:
         text = self._text
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
+        if pos is None:
+            pos = 'X'
         xpos = '_'
         feats = '_'
         if include_morphological_tags:
@@ -168,25 +177,25 @@ class ConlluSentence(SentenceProtocol):
         self._tokens = tokens
 
     def _format_tokens(self, include_morphological_tags: bool) -> str:
-        res = f'# sent_id = {self._position}\n# text = {self._text}\n'
-
+        conllu_texts = []
         for token in self._tokens:
-            res += token.get_conllu_text(include_morphological_tags) + '\n'
-
-        return res
+            conllu_texts.append(token.get_conllu_text(include_morphological_tags))
+        return '\n'.join(conllu_texts)
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
-        return self._format_tokens(include_morphological_tags)
+        return f"# sent_id = {self._position}\n# text = {self._text}\n" \
+               f"{self._format_tokens(include_morphological_tags)}\n"
 
     def get_cleaned_sentence(self) -> str:
         """
         Returns the lowercase representation of the sentence
         """
         cleaned_sentence = ' '.join(token.get_cleaned() for token in self._tokens)
-        return re.sub(r'\s+', ' ', cleaned_sentence).strip()
+        cleaned_sentence = re.sub(r'\s+', ' ', cleaned_sentence).strip()
+        return cleaned_sentence
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -229,7 +238,8 @@ class OpenCorporaTagConverter(TagConverter):
         """
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
-        return self._tag_mapping[self.pos][tags.POS]
+        if tags.POS is not None:
+            return self._tag_mapping[self.pos][tags.POS]
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
@@ -330,7 +340,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         super().__init__(corpus_manager)
         self._backup_tag_converter = OpenCorporaTagConverter(
-            Path(__file__).parent / 'data' / 'pymorphy2_tags_mapping.json')
+            Path(__file__).parent / 'data' / 'opencorpora_tags_mapping.json')
         self._backup_analyzer = pymorphy2.MorphAnalyzer()
 
     def _process(self, text: str) -> List[ConlluSentence]:
@@ -340,7 +350,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         conllu_sentences = []
         number_of_word = 0
         result = self._analyzer.analyze(re.sub(r'\W+', ' ', text))
-        for ind, sentence in enumerate(split_by_sentence(text), 1):
+        for ind, sentence in enumerate(split_by_sentence(text)):
             tokens = []
             words = re.findall(r'\w+', sentence)
             for i, word in enumerate(words, 1):
@@ -393,7 +403,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
             article = from_raw(value.get_raw_text_path(), value)
             article.set_conllu_sentences(self._process(article.get_raw_text()))
             to_cleaned(article)
-            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=True)
+            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
 
 
 def main() -> None:
@@ -401,8 +411,10 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(const.ASSETS_PATH)
-    MorphologicalAnalysisPipeline(corpus_manager).run()
-    AdvancedMorphologicalAnalysisPipeline(corpus_manager).run()
+    morph_pipe = MorphologicalAnalysisPipeline(corpus_manager)
+    morph_pipe.run()
+    advanced_morph_pipe = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
+    advanced_morph_pipe.run()
 
 
 if __name__ == "__main__":
