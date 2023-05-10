@@ -9,8 +9,6 @@ import re
 from pymorphy2 import MorphAnalyzer
 from pymystem3 import Mystem
 
-
-
 from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
 from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
