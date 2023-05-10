@@ -9,7 +9,7 @@ from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
-from string import punctuation
+
 
 
 class EmptyDirectoryError(Exception):
