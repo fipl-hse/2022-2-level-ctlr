@@ -258,5 +258,6 @@ def main() -> None:
     pipeline = MorphologicalAnalysisPipeline(corpus_manager)
     pipeline.run()
 
+
 if __name__ == "__main__":
     main()
