@@ -3,7 +3,6 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
-import string
 import re
 
 from pymorphy2 import MorphAnalyzer
@@ -239,10 +238,8 @@ class MystemTagConverter(TagConverter):
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
-        pos_match = re.search(r'[A-Z]+', tags)
-        return self._tag_mapping["POS"][pos_match[0]] if \
-            pos_match and pos_match[0] in self._tag_mapping[
-            "POS"] else ''
+        pos = re.search(r'[A-Z]+', tags)[0]
+        return self._tag_mapping[self.pos][pos]
 
 
 class OpenCorporaTagConverter(TagConverter):
