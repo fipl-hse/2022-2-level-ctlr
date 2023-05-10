@@ -54,7 +54,6 @@ class CorpusManager:
         if raw_index != list(range(1, len(raw_index)+1)):
             raise InconsistentDatasetError
 
-
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
@@ -63,7 +62,6 @@ class CorpusManager:
         for file in raw_1:
             article = from_raw(file)
             self._storage.update({article.article_id: article})
-
 
     def get_articles(self) -> dict:
         """
@@ -93,7 +91,6 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
-
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -221,7 +218,6 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Initializes MorphologicalAnalysisPipeline
         """
-
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
