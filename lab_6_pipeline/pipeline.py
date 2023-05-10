@@ -78,6 +78,11 @@ class CorpusManager:
             if meta_file.stat().st_size == 0:
                 raise InconsistentDatasetError
 
+        if not raw_files:
+            raise EmptyDirectoryError(f"Directory '{self.path_to_raw_txt_data}' is empty")
+
+
+
 
     def _scan_dataset(self) -> None:
         """
@@ -157,7 +162,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return self._text.lower().translate(str.maketrans('', '', string.punctuation))
+        return re.sub(r'\W+', '', self._text.lower())
 
 
 class ConlluSentence(SentenceProtocol):
@@ -186,7 +191,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return re.sub(r'\W+', '', self._text.lower())
+        return ' '.join(token.get_cleaned() for token in self._tokens if token.get_cleaned())
 
 
     def get_tokens(self) -> list[ConlluToken]:
