@@ -193,7 +193,7 @@ class Crawler:
         Finds articles
         """
         themes = ['grazhdanam_dnr_i_lnr', 'kultura', 'nauka', 'obrazovanie', 'obshchestvo', 'politika', 'incidents',
-                  'spetsoperatsiya_na_ukraine', 'sport', 'ekonomika']
+                  'spetsoperatsiya_na_ukraine', 'sport', 'ekonomika', 'vremya_obnovleniya']
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
@@ -250,7 +250,10 @@ class HTMLParser:
         self.article.title = title.text
 
         authors = article_soup.find('li', class_='author')
-        self.article.author = [author.text for author in authors]
+        if authors:
+            self.article.author = [author.text for author in authors]
+        else:
+            self.article.author = ['NOT FOUND']
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
