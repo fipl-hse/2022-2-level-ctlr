@@ -248,8 +248,8 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-    manager = CorpusManager(ASSETS_PATH)
-    morph = MorphologicalAnalysisPipeline(manager)
+    c_manager = CorpusManager(ASSETS_PATH)
+    morph = MorphologicalAnalysisPipeline(c_manager)
     morph.run()
 
 
