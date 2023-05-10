@@ -143,7 +143,7 @@ class Config:
         """
         Retrieve total number of articles to scrape
         """
-        return self._total_articles
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
@@ -167,7 +167,7 @@ class Config:
         """
         Retrieve whether to verify certificate
         """
-        return self._verify_certificate
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
