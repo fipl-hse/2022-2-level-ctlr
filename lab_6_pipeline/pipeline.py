@@ -11,19 +11,6 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class FileNotFoundError(Exception):
-    """
-    File does not exist
-    """
-    pass
-
-
-class NotADirectoryError(Exception):
-    """
-    Path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     IDs contain slips, number of meta and raw files is not equal, files are empty
@@ -64,13 +51,20 @@ class CorpusManager:
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
-        texts = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
-        if not (file.stat().st_size for file in texts):
+        raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
+
+        text_order = []
+        for text in raw_files:
+            searched = re.search(r'\d+', text.name)
+            text_order.append(int(searched.group(0)))
+        text_order.sort()
+
+        if text_order != list(range(1, len(raw_files) + 1)):
             raise InconsistentDatasetError
 
-        texts_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts)
-        if texts_order != list(range(1, len(texts) + 1)):
-            raise InconsistentDatasetError
+        for file in raw_files:
+            if not file.stat().st_size:
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
