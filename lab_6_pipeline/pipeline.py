@@ -136,7 +136,7 @@ class ConlluToken:
         String representation of the token for conllu files
         """
         xpos = '_'
-        if not self._morphological_parameters.tags:
+        if not self._morphological_parameters.tags or not include_morphological_tags:
             feats = '_'
         else:
             feats = self._morphological_parameters.tags
@@ -152,7 +152,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'[^\w\s]', '', self._text.lower())
+        return re.sub(r'\W+', '', self._text).lower().replace('_', '')
 
 
 class ConlluSentence(SentenceProtocol):
@@ -208,9 +208,9 @@ class MystemTagConverter(TagConverter):
         ud_tags = {}
         for tag in token_tags:
             for parameter in (self.number, self.case, self.gender, self.animacy, self.tense):
-                if tag not in self._tag_mapping[parameter]:
-                    continue
-                ud_tags[parameter] = self._tag_mapping[parameter][tag]
+                if tag in self._tag_mapping[parameter] and parameter not in ud_tags:
+                    ud_tags[parameter] = self._tag_mapping[parameter][tag]
+                    break
         return '|'.join(f'{key}={val}' for key, val in sorted(ud_tags.items()))
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
