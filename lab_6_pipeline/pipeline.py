@@ -2,7 +2,6 @@
 Pipeline for CONLL-U formatting
 """
 import re
-import string
 from pathlib import Path
 from typing import List
 
@@ -69,8 +68,7 @@ class CorpusManager:
             if not all(file.stat().st_size for file in files):
                 raise InconsistentDatasetError
 
-        if not self.path_to_raw_txt_data.iterdir() or \
-                not any(self.path_to_raw_txt_data.iterdir()):
+        if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
     def _scan_dataset(self) -> None:
@@ -154,8 +152,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return self._text.translate(str.maketrans(
-            '', '', string.punctuation + '«»—%')).lower()
+        return re.sub(r'[^\w\s]', '', self._text.lower())
 
 
 class ConlluSentence(SentenceProtocol):
