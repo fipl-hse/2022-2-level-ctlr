@@ -274,7 +274,6 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        punct = '°!"#$%&()*+,-—/:;<=>?@[\]^_`{|}~«»№'
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [
@@ -282,7 +281,8 @@ class MorphologicalAnalysisPipeline:
                         for i in self._mystem.analyze(sentence)
                         if re.fullmatch(r'[A-Za-zА-Яа-я0-9.,!]+', i['text'].strip())
                         ]
-            for token_id, token in enumerate(result, start=1):
+            token_ind = 1
+            for token in result:
                 if 'analysis' in token and token['analysis']:
                     lemma = token['analysis'][0]['lex']
                     ud_pos = self._converter.convert_pos(token['analysis'][0]['gr'])
@@ -301,7 +301,8 @@ class MorphologicalAnalysisPipeline:
                         continue
                     parameters = MorphologicalTokenDTO(token['text'].strip(), pos, '_')
                 conllu_token = ConlluToken(token['text'].strip())
-                conllu_token.set_position(token_id)
+                conllu_token.set_position(token_ind)
+                token_ind += 1
                 conllu_token.set_morphological_parameters(parameters)
                 conllu_tokens.append(conllu_token)
             conllu_sent.append(ConlluSentence(sent_id, sentence, conllu_tokens))
@@ -341,9 +342,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         Returns the text representation as the list of ConlluSentence
         """
         sentences = split_by_sentence(text)
-        punct = '!"#$%&()*+,-/:;<=>?@[\]^_`{|}~'
-        result = [i for i in self._mystem.analyze(text) if i['text'].strip()
-                  not in punct and i['text'].strip()]
+        result = [i for i in self._mystem.analyze(text) if i['text'].strip()]
         conllu_sent = []
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
