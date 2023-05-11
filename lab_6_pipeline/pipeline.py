@@ -6,9 +6,36 @@ from typing import List
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
 
 
 # pylint: disable=too-few-public-methods
+
+
+class FileNotFoundError(Exception):
+    """
+    file does not exist
+    """
+
+
+class NotADirectoryError(Exception):
+    """
+    path does not lead to directory
+    """
+
+
+class InconsistentDatasetError(Exception):
+    """
+    IDs contain slips, number of meta and raw files is not equal, files are empty
+    """
+
+
+class EmptyDirectoryError(Exception):
+    """
+    directory is empty
+    """
+
+
 class CorpusManager:
     """
     Works with articles and stores them
@@ -18,11 +45,18 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._storage = {}
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        for x in self.path_to_raw_txt_data.glob("/*.txt"):
+            print(x)
 
     def _scan_dataset(self) -> None:
         """
@@ -181,6 +215,7 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
 
 
 if __name__ == "__main__":
