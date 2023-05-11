@@ -236,13 +236,15 @@ class Crawler:
             return self.driver.page_source
 
         for url_to_crawl in self.get_search_urls():
-            soup = BeautifulSoup(scroll_through_page(), 'lxml')
-            articles_html = soup.find_all('article')
+            response = requests.get(url_to_crawl, self.config)
+            if response.status_code == 200:
+                soup = BeautifulSoup(scroll_through_page(), 'lxml')
+                articles_html = soup.find_all('article')
 
-            for article in articles_html:
-                result_url = self._extract_url(article)
-                if result_url and result_url not in self.urls:
-                    self.urls.append(result_url)
+                for article in articles_html:
+                    result_url = self._extract_url(article)
+                    if result_url and result_url not in self.urls:
+                        self.urls.append(result_url)
 
     def get_search_urls(self) -> list:
         """
