@@ -290,6 +290,7 @@ class MorphologicalAnalysisPipeline:
                     tags = token['analysis'][0]['gr']
                     ud_tags = self._converter.convert_morphological_tags(tags)
                     parameters = MorphologicalTokenDTO(lemma, ud_pos, ud_tags)
+
                 else:
                     if token['text'].isdigit():
                         pos = 'NUM'
