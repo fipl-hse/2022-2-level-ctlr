@@ -7,12 +7,10 @@ from pymystem3 import Mystem
 import re
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.constants import ASSETS_PATH
-from core_utils.article.article import split_by_sentence
-
 
 class InconsistentDatasetError(Exception):
     """
