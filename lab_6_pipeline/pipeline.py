@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import List
 import re
 
-from pymorphy2 import MorphAnalyzer
+
+import pymorphy2 as pymorphy2
 from pymystem3 import Mystem
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
@@ -78,9 +79,6 @@ class CorpusManager:
         for meta_file in meta_files:
             if meta_file.stat().st_size == 0:
                 raise InconsistentDatasetError
-
-
-
 
 
     def _scan_dataset(self) -> None:
@@ -339,10 +337,6 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Initializes MorphologicalAnalysisPipeline
         """
-        super().__init__(corpus_manager)
-        self._backup_analyzer = MorphAnalyzer()
-        mapping_path = Path(__file__).parent / 'data' / 'opencorpora_tags_mapping.json'
-        self._backup_tag_converter = OpenCorporaTagConverter(mapping_path)
 
 
     def _process(self, text: str) -> List[ConlluSentence]:
@@ -356,6 +350,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
 
 
+
 def main() -> None:
     """
     Entrypoint for pipeline module
@@ -363,6 +358,7 @@ def main() -> None:
     manager = CorpusManager(ASSETS_PATH)
     morph_pipe = MorphologicalAnalysisPipeline(manager)
     morph_pipe.run()
+
 
 
 if __name__ == "__main__":
