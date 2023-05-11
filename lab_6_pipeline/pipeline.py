@@ -297,7 +297,7 @@ class MorphologicalAnalysisPipeline:
                         pos = 'PUNCT'
                     else:
                         pos = 'X'
-                    parameters = MorphologicalTokenDTO(token['text'], pos, '_')
+                    parameters = MorphologicalTokenDTO(token['text'], pos, '')
                 conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
