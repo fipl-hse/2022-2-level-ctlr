@@ -295,9 +295,9 @@ class MorphologicalAnalysisPipeline:
                 else:
                     if token['text'].isdigit():
                         pos = 'NUM'
-                    elif token['text'] == '.':
+                    elif token['text'].strip() == '.':
                         pos = 'PUNCT'
-                    elif re.fullmatch(r'[A-Za-z]+',token['text']):
+                    elif re.fullmatch(r'[A-Za-z]+', token['text']):
                         pos = 'X'
                     else:
                         continue
