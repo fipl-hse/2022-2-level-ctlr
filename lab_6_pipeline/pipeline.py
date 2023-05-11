@@ -217,8 +217,9 @@ class MystemTagConverter(TagConverter):
         ud_tags = {}
         for tag in extracted_tags:
             for category in (self.case, self.number, self.gender, self.animacy, self.tense):
-                if tag in self._tag_mapping[category]:
+                if tag in self._tag_mapping[category] and category not in ud_tags:
                     ud_tags[category] = self._tag_mapping[category][tag]
+                    break
         return '|'.join(f'{k}={v}' for k, v in sorted(ud_tags.items()))
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
@@ -321,8 +322,7 @@ class MorphologicalAnalysisPipeline:
         """
         Performs basic preprocessing and writes processed text to files
         """
-        for key, value in self._corpus_manager.get_articles().items():
-            article = from_raw(value.get_raw_text_path(), value)
+        for article in self._corpus_manager.get_articles().values():
             article.set_conllu_sentences(self._process(article.get_raw_text()))
             to_cleaned(article)
             to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
@@ -399,11 +399,10 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Performs basic preprocessing and writes processed text to files
         """
-        for key, value in self._corpus_manager.get_articles().items():
-            article = from_raw(value.get_raw_text_path(), value)
+        for article in self._corpus_manager.get_articles().values():
             article.set_conllu_sentences(self._process(article.get_raw_text()))
             to_cleaned(article)
-            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
+            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=True)
 
 
 def main() -> None:
@@ -411,10 +410,8 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(const.ASSETS_PATH)
-    morph_pipe = MorphologicalAnalysisPipeline(corpus_manager)
-    morph_pipe.run()
-    advanced_morph_pipe = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
-    advanced_morph_pipe.run()
+    MorphologicalAnalysisPipeline(corpus_manager).run()
+    AdvancedMorphologicalAnalysisPipeline(corpus_manager).run()
 
 
 if __name__ == "__main__":
