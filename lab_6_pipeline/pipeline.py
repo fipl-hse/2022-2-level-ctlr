@@ -152,7 +152,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'\W+', '', self._text).lower().replace('_', '')
+        return re.sub(r'\W+', '', self._text).replace('_', '').lower().strip()
 
 
 class ConlluSentence(SentenceProtocol):
