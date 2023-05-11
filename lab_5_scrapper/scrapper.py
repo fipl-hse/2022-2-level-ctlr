@@ -12,7 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
-from core_utils.article.io import to_raw, to_meta
+from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT,
@@ -122,7 +122,8 @@ class Config:
         if not TIMEOUT_LOWER_LIMIT <= config.timeout <= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError('Timeout value is out of range')
 
-        if not isinstance(config.headless_mode, bool) or not isinstance(config.should_verify_certificate, bool):
+        if not isinstance(config.headless_mode, bool) or \
+                not isinstance(config.should_verify_certificate, bool):
             raise IncorrectVerifyError('Verify certificate value is not boolean')
 
     def get_seed_urls(self) -> list[str]:
