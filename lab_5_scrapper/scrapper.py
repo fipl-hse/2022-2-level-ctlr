@@ -275,14 +275,17 @@ class HTMLParser:
         """
         Unifies date format
         """
-        pattern = '%d / %m / %Y в %H:%M'
-        return datetime.datetime.strptime(date_str, pattern)
+        return datetime.datetime.strptime(date_str, '%d / %m / %Y в %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article
         """
-        pass
+        response = make_request(self._full_url, self._config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
