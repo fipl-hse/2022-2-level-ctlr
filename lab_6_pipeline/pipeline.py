@@ -152,7 +152,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'\W+', '', self._text).replace('_', '').lower().strip()
+        return re.sub(r'\W+', '', self._text).replace('_', '').lower()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -275,8 +275,8 @@ class MorphologicalAnalysisPipeline:
                     lemma = token['text']
                     pos = 'NUM'
                     tags = ''
-                elif token['text'] == '.':
-                    lemma = token['text']
+                elif '.' in token['text']:
+                    lemma = token['text'].strip()
                     pos = 'PUNCT'
                     tags = ''
                 else:
