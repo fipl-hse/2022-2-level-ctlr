@@ -276,12 +276,13 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
+        punct = '!"#$%&()*+,-—/:;<=>?@[\]^_`{|}~«»'
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [
                         i
                         for i in self._mystem.analyze(sentence)
-                        if re.fullmatch(r'[a-zA-Zа-яА-Я0-9.]', i['text'].strip())
+                        if i['text'].strip() not in punct and  i['text'].strip()
                         ]
             for token_id, token in enumerate(result, start=1):
                 if 'analysis' in token and token['analysis']:
@@ -296,8 +297,10 @@ class MorphologicalAnalysisPipeline:
                         pos = 'NUM'
                     elif token['text'] == '.':
                         pos = 'PUNCT'
-                    else:
+                    elif re.fullmatch(r'[A-Za-z]+',token['text']):
                         pos = 'X'
+                    else:
+                        continue
                     parameters = MorphologicalTokenDTO(token['text'].strip(), pos, '_')
                 conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_id)
