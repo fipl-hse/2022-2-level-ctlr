@@ -291,6 +291,11 @@ class MorphologicalAnalysisPipeline:
 
             for token in mystem_analysis:
                 if not word_regex.match(token['text']):
+                    if token['text'] == '.':
+                        conllu_token = ConlluToken('.')
+                        conllu_token.set_morphological_parameters(MorphologicalTokenDTO('.', 'PUNCT'))
+                        conllu_token.set_position(len(conllu_tokens) + 1)
+                        conllu_tokens.append(conllu_token)
                     continue
                 sentence_counter += 1
 
