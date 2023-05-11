@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import List
 import re
 
-
-import pymorphy2 as pymorphy2
 from pymystem3 import Mystem
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
