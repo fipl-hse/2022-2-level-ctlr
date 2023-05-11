@@ -55,6 +55,8 @@ class CorpusManager:
 
         meta_files = list(self.path_to_raw_txt_data.glob('*_meta.json'))
         raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
+        if not raw_files:
+            raise EmptyDirectoryError(f"Directory '{self.path_to_raw_txt_data}' is empty")
 
         if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError('Number of meta and raw files is not equal')
@@ -77,9 +79,6 @@ class CorpusManager:
             if meta_file.stat().st_size == 0:
                 raise InconsistentDatasetError
 
-        raw_files = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
-        if not raw_files:
-            raise EmptyDirectoryError(f"Directory '{self.path_to_raw_txt_data}' is empty")
 
 
 
@@ -178,14 +177,18 @@ class ConlluSentence(SentenceProtocol):
         self._text = text
         self._tokens = tokens
 
+
+    def _format_tokens(self, include_morphological_tags: bool) -> str:
+        return '\n'.join([token.get_conllu_text(include_morphological_tags)
+                          for token in self._tokens])
+
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
-        conllu_tokens = []
-        for token in self._tokens:
-            conllu_tokens.append(token.get_conllu_text(include_morphological_tags))
-        return f"# sent_id = {self._position}\n# text = {self._text}\n" + '\n'.join(conllu_tokens) + '\n'
+        conllu_text = f"# sent_id = {self._position}\n# text = {self._text}\n"
+        conllu_text += self._format_tokens(include_morphological_tags) + '\n'
+        return conllu_text
 
     def get_cleaned_sentence(self) -> str:
         """
@@ -211,27 +214,17 @@ class MystemTagConverter(TagConverter):
         """
         Converts the Mystem tags into the UD format
         """
-        pos = self.convert_pos(tags)
-        extracted_tags = re.findall(r'[а-я]+', tags.replace('(', '').replace(')', '').split('|')[0])
-
-        pos_specific_categories = {
-            "NOUN": [self.case, self.gender, self.number, self.animacy],
-            "VERB": [self.tense, self.number, self.gender],
-            "ADJ": [self.case, self.number, self.gender],
-            "PRON": [self.case, self.number, self.gender, self.animacy],
-            "NUM": [self.case, self.number, self.gender],
-        }
-
+        tag_list = re.findall(r'[а-я]+', tags)
         ud_tags = {}
-        if pos in pos_specific_categories:
-            for tag in extracted_tags:
-                for category in pos_specific_categories[pos]:
-                    if tag in self._tag_mapping[category]:
-                        ud_tags[category] = self._tag_mapping[category][tag]
 
-        feats = '|'.join(f'{category}={value}' for category, value in sorted(ud_tags.items()))
+        for tag in tag_list:
+            for category in (self.case, self.number, self.gender, self.animacy, self.tense):
+                if tag in self._tag_mapping[category] and category not in ud_tags:
+                    ud_tags[category] = self._tag_mapping[category][tag]
+                    break
+
+        feats = '|'.join(f'{cat}={val}' for cat, val in sorted(ud_tags.items()))
         return feats
-
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
@@ -290,7 +283,6 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = []
         word_regex = re.compile(r'\w+|[.]')
-        counter = 0
 
         for sentence_idx, sentence in enumerate(split_by_sentence(text)):
             conllu_tokens = []
@@ -300,15 +292,12 @@ class MorphologicalAnalysisPipeline:
             for token in mystem_analysis:
                 if not word_regex.match(token['text']):
                     continue
-                counter += 1
                 sentence_counter += 1
-
-                if token['text'].endswith('. '):
-                    token['text'] = token['text'].replace('. ', '.')
 
                 if token['text'].isalpha():
                     if 'analysis' in token and token['analysis']:
-                        lemma, gram_info = token['analysis'][0]['lex'], token['analysis'][0]['gr']
+                        lemma = token['analysis'][0]['lex']
+                        gram_info = token['analysis'][0]['gr']
                         pos = self._converter.convert_pos(gram_info)
                         tags = self._converter.convert_morphological_tags(gram_info)
                     else:
@@ -325,7 +314,6 @@ class MorphologicalAnalysisPipeline:
 
             sentence_obj = ConlluSentence(sentence_idx, sentence, conllu_tokens)
             sentences.append(sentence_obj)
-            counter = sentence_counter
 
         return sentences
 
