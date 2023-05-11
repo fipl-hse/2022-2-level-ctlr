@@ -69,13 +69,12 @@ class POSFrequencyPipeline:
         """
         Visualizes the frequencies of each part of speech
         """
-        for key, value in self._corpus_manager.get_articles().items():
+        for value in self._corpus_manager.get_articles().values():
             article = from_conllu(value.get_file_path(ArtifactType.MORPHOLOGICAL_CONLLU))
             article = from_meta(const.ASSETS_PATH / f'{article.article_id}_meta.json', article=article)
             count_frequencies = self._count_frequencies(article)
             article.set_pos_info(count_frequencies)
             to_meta(article)
-            print(const.ASSETS_PATH)
             visualize(article=article, path_to_save=article_instance.ASSETS_PATH / f'{article.article_id}_image.png')
 
     def _count_frequencies(self, article: Article) -> dict[str, int]:

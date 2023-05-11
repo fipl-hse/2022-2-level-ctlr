@@ -139,22 +139,15 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        position = str(self._position)
-        text = self._text
-        lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
         if pos is None:
             pos = 'X'
-        xpos = '_'
         feats = '_'
         if include_morphological_tags:
             feats = self._morphological_parameters.tags if self._morphological_parameters.tags else '_'
-        head = '0'
-        deprel = 'root'
-        deps = '_'
-        misc = '_'
 
-        return '\t'.join([position, text, lemma, pos, xpos, feats, head, deprel, deps, misc])
+        return '\t'.join([str(self._position), self._text,
+                          self._morphological_parameters.lemma, pos, '_', feats, '0', 'root', '_', '_'])
 
     def get_cleaned(self) -> str:
         """
