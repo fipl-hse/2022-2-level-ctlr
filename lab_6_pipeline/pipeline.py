@@ -275,7 +275,7 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        punct = '!"#$%&()*+,-—/:;<=>?@[]^_`{|}~«»\\'
+        punct = '!"#$%&()*+,-—/:;<=>?@[\]^_`{|}~«»'
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [
@@ -297,7 +297,7 @@ class MorphologicalAnalysisPipeline:
                         pos = 'PUNCT'
                     else:
                         pos = 'X'
-                    parameters = MorphologicalTokenDTO(token['text'], pos, '')
+                    parameters = MorphologicalTokenDTO(token['text'], pos, '_')
                 conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
