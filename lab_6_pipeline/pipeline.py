@@ -284,7 +284,7 @@ class MorphologicalAnalysisPipeline:
                         if i['text'].strip() not in punct and i['text'].strip()
                         ]
             for token_id, token in enumerate(result, start=1):
-                if token.get('analysis'):
+                if 'analysis' in token and token['analysis']:
                     lemma = token['analysis'][0]['lex']
                     ud_pos = self._converter.convert_pos(token['analysis'][0]['gr'])
                     tags = token['analysis'][0]['gr']
@@ -297,7 +297,7 @@ class MorphologicalAnalysisPipeline:
                         pos = 'PUNCT'
                     else:
                         pos = 'X'
-                    parameters = MorphologicalTokenDTO(token['text'], pos, '_')
+                    parameters = MorphologicalTokenDTO(token['text'].strip(), pos, '_')
                 conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_id)
                 conllu_token.set_morphological_parameters(parameters)
@@ -345,10 +345,6 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         conllu_sent = []
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
-            token_sent = []
-            for token in result:
-                if token['text'] in sentence:
-                    token_sent.append(token)
             for token_id, token in enumerate(token_sent):
                 if token.get('analysis'):
                     lemma = token['analysis'][0]['lex']
