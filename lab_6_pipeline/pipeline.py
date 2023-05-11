@@ -5,10 +5,8 @@ import re
 from pathlib import Path
 from typing import List
 
-from pymystem3 import Mystem
-
-from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
-from core_utils.article.io import to_cleaned, to_conllu, from_raw
+from core_utils.article.article import SentenceProtocol, Article, split_by_sentence, get_article_id_from_filepath
+from core_utils.article.io import to_cleaned, from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -142,8 +140,8 @@ class ConlluToken:
             lemma,
             pos,
             x_pos,
-            str(feats),
-            str(head),
+            feats,
+            head,
             deprel,
             deps,
             misc
@@ -242,36 +240,10 @@ class MorphologicalAnalysisPipeline:
         """
         splitted_text = split_by_sentence(text)
         conllu_sent_lst = []
-        analyzer = Mystem().analyze(text)
 
-        for position_sent, _ in enumerate(splitted_text):
-            conllu_tokens_lst = []
-
-            #  ID, FORM, LEMMA, UPOS, FEATS
-            for position, token in enumerate(analyzer, start=1):
-                form = token['text']
-
-                if form.strip() and form.isalpha():
-                    lemma = token['analysis'][0]['lex']
-                    token_gr = token['analysis'][0]['gr'].split(',', 1)
-
-                    if form.isdigit():
-                        upos = 'NUM'
-
-                    elif re.match(r'[^\w\s]', form):
-                        upos = 'PUNC'
-
-                    else:
-                        upos = re.match(r'\w+', token_gr[0]).group()
-
-                    feats = token_gr[1:]
-
-                    conllu_token = ConlluToken(token)
-                    conllu_token.position = position
-                    conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, upos, feats))
-                    conllu_tokens_lst.append(conllu_token)
-
-            conllu_sent_lst.append(ConlluSentence(position_sent, text, conllu_tokens_lst))
+        for pos, text in enumerate(splitted_text):
+            conllu_token_lst = [ConlluToken(token) for token in text.split()]
+            conllu_sent_lst.append(ConlluSentence(pos, text, conllu_token_lst))
 
         return conllu_sent_lst
 
@@ -285,7 +257,6 @@ class MorphologicalAnalysisPipeline:
             process = self._process(article.text)
             article.set_conllu_sentences(process)
             to_cleaned(article)
-            to_conllu(article, False, False)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
