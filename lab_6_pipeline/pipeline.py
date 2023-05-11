@@ -144,7 +144,7 @@ class ConlluToken:
         deprel = 'root'
         deps = '_'
         misc = '_'
-        return '\t'.join([str(self.position), self._text, self._morphological_parameters.lemma,
+        return '\t'.join([str(self.position), self._text.strip(), self._morphological_parameters.lemma,
                           self._morphological_parameters.pos, xpos, feats, head, deprel,
                           deps, misc])
 
