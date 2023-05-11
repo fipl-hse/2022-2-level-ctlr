@@ -276,7 +276,7 @@ class MorphologicalAnalysisPipeline:
         """
         sentences = split_by_sentence(text)
         conllu_sent = []
-        punct = '!"#$%&()*+,-—/:;<=>?@[\]^_`{|}~«»'
+        punct = '!"#$%&()*+,-—/:;<=>?@[\]^_`{|}~«»№'
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
             result = [
