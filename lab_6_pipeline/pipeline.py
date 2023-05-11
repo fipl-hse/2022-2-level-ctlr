@@ -56,11 +56,14 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        if not self.path_to_data.exists():
+        if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
+
+        if not any(self.path_to_raw_txt_data.iterdir()):
+            raise EmptyDirectoryError
 
         list_of_ids = []
         for file in self.path_to_raw_txt_data.glob("*_raw.txt"):
