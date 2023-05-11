@@ -223,7 +223,8 @@ class MystemTagConverter(TagConverter):
                 for category in pos_categories[pos]:
                     if tag in self._tag_mapping[category].keys():
                         ud_tags.append(f'{category}={self._tag_mapping[category][tag]}')
-            return '|'.join(sorted(ud_tags))
+            if ud_tags:
+                return '|'.join(sorted(ud_tags))
         return '_'
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
@@ -345,7 +346,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         conllu_sent = []
         for sent_id, sentence in enumerate(sentences):
             conllu_tokens = []
-            for token_id, token in enumerate(token_sent):
+            for token_id, token in enumerate(result):
                 if token.get('analysis'):
                     lemma = token['analysis'][0]['lex']
                     ud_pos = self._converter.convert_pos(token['analysis'][0]['gr'])
