@@ -26,14 +26,6 @@ class InconsistentDatasetError(Exception):
     """
 
 
-def empty_file(files):
-    for file in files:
-        with open(file) as f:
-            f.seek(0, os.SEEK_END)
-            if not f.tell():
-                raise InconsistentDatasetError
-
-
 # pylint: disable=too-few-public-methods
 class CorpusManager:
     """
@@ -71,8 +63,9 @@ class CorpusManager:
         if text_order != list(range(1, len(texts_raw) + 1)) or meta_order != list(range(1, len(meta_f) + 1)):
             raise InconsistentDatasetError
 
-        empty_file(meta)
-        empty_file(texts)
+        for files in meta_f, texts_raw:
+            if not all(i.stat().st_size for i in files):
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
