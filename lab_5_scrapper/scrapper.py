@@ -274,7 +274,7 @@ class HTMLParser:
                                                                 class_="single-header__rubric")]
         if topics:
             self.article.topics = topics[:-1]
-            self.article.author = [-1]
+            self.article.author = topics[-1]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
