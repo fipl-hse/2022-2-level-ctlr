@@ -105,10 +105,10 @@ class Config:
             if not re.match(r"https?://w?w?w?.", url):
                 raise IncorrectSeedURLError('Seed URL does not match standard pattern')
 
-        if not isinstance(config.total_articles, int):
-            raise IncorrectNumberOfArticlesError('Total number of articles is not integer')
+        if not isinstance(config.total_articles, int) or config.total_articles < 1:
+            raise IncorrectNumberOfArticlesError('Total number of articles is not a positive integer')
 
-        if config.total_articles > NUM_ARTICLES_UPPER_LIMIT or config.total_articles < 1:
+        if config.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError('Total number of articles is out of range')
 
         if not isinstance(config.headers, dict):
