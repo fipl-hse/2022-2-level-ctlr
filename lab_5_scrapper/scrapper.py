@@ -81,7 +81,7 @@ class Config:
         self._encoding = config_dto.encoding
         self._timeout = config_dto.timeout
         self._should_verify_certificate = config_dto.should_verify_certificate
-        self._headless_mode = config_dto.headless_mode 
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
@@ -204,16 +204,11 @@ class Crawler:
         self._config = config
         self.urls = []
 
-    # Make sure that find_articles only iterates over
-    # seed URLs and stores newly collected ones,
-    # while all the extraction is performed via protected
-    # _extract_url method.
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        # url = re.compile(r'(?<=href=")[\w./:]+(?=")')
         if isinstance(url, str):
             return url
         return ''
@@ -225,13 +220,10 @@ class Crawler:
         for seed_url in self._seed_urls:
             res = make_request(seed_url, self._config)
             html = BeautifulSoup(res.content, 'lxml')
-            # print(html.find_all('a', class_="news-list-card"))
             for paragraph in html.find_all('a', {'class': "news-list-card"}):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
-                # print("bbb", paragraph)
                 url = self._extract_url(paragraph)
-                # print("aaa", self.urls)
                 if not url or url in self.urls:
                     continue
                 self.urls.append(url)
@@ -264,7 +256,6 @@ class HTMLParser:
         article_content = article_soup.find("div", {'class': "article-body__content"})
         paragraphs = article_content.find_all("p")
         self.article.text = ' '.join(paragraph.text.strip() for paragraph in paragraphs)
-        print(self.article.text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -273,50 +264,52 @@ class HTMLParser:
         title = article_soup.find('h1', class_="article-body__title")
         if title:
             self.article.title = title.text
+        else:
+            self.article.title = 'NOT FOUND'
         date = article_soup.find('div', class_="single-header__time")
         if date:
             try:
                 self.article.date = self.unify_date_format(date.text)
             except ValueError:
                 pass
+        else:
+            self.article.date = 'NOT FOUND'
         topics = [topic.text for topic in article_soup.find_all('a',
                                                                 class_="single-header__rubric")]
         if topics:
-            self.article.topics = topics
-        self.article.author = ["NOT FOUND"]
+            self.article.topics = topics[:-1]
+            self.article.author = [-1]
+        else:
+            self.article.topics = ['NOT FOUND']
+            self.article.author = 'NOT FOUND'
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        # date1 = re.search(r'\d{1,2} [А-Яа-я]+ \d{4}, \d+:\d{1,2}'
-        # , date_str).group(0)
-        # print(date1)
         if not re.search(r'\d{4}', date_str):
             curr_year = datetime.date.today().year
             date_str = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})',
                               f' {curr_year}', date_str)
 
-        ru_eng_months = {
-            "января": "jan",
-            "февраля": "feb",
-            "марта": "mar",
-            "апреля": "apr",
-            "мая": "may",
-            "июня": "jun",
-            "июля": "jul",
-            "августа": "aug",
-            "сентября": "sep",
-            "октября": "oct",
-            "ноября": "nov",
-            "декабря": "dec"
-        }
+            ru_eng_months = {
+                "января": "jan",
+                "февраля": "feb",
+                "марта": "mar",
+                "апреля": "apr",
+                "мая": "may",
+                "июня": "jun",
+                "июля": "jul",
+                "августа": "aug",
+                "сентября": "sep",
+                "октября": "oct",
+                "ноября": "nov",
+                "декабря": "dec"
+            }
 
-        ru_month = re.search(r"[а-я]{3,8}", date_str).group()
-        date_str = date_str.replace(ru_month, ru_eng_months[ru_month])
-        print(date_str)
-        print(datetime.datetime.strptime(date_str, '%d %b  %Y, %H:%M'))
-        return datetime.datetime.strptime(date_str, '%d %b  %Y, %H:%M')
+            ru_month = re.search(r"[а-я]{3,8}", date_str).group()
+            date_str = date_str.replace(ru_month, ru_eng_months[ru_month])
+            return datetime.datetime.strptime(date_str, '%d %b  %Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
@@ -342,7 +335,6 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    # YOUR CODE GOES HERE
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
