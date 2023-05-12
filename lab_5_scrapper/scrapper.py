@@ -205,13 +205,15 @@ class Crawler:
             response = make_request(seed_url, self._config)
             main_bs = BeautifulSoup(response.text, 'lxml')
             all_articles = main_bs.find("div", class_="item news")
-            all_links = all_articles.find_all("a")
-            for link in all_links:
-                if len(self.urls) >= self._config.get_num_articles():
-                    return
-                url = self._extract_url(link)
-                if url and url not in self.urls:
-                    self.urls.append("https://www.volga-tv.ru" + url)
+            if all_articles:
+                all_links = all_articles.find_all("a")
+                for link in all_links:
+                    if len(self.urls) >= self._config.get_num_articles():
+                        return
+                    url = self._extract_url(link)
+                    if url and url not in self.urls:
+                        self.urls.append("https://www.volga-tv.ru" + url)
+
 
     def get_search_urls(self) -> list:
         """
