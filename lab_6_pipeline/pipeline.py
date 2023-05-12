@@ -50,7 +50,7 @@ class CorpusManager:
             raise FileNotFoundError
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
-        if not next(x for x in self.path_to_raw_txt_data.iterdir()):
+        if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
         texts = list(self.path_to_raw_txt_data.glob('**/*.txt'))
@@ -62,6 +62,9 @@ class CorpusManager:
         meta_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in meta_f)
 
         if text_order != list(range(1, len(texts_raw) + 1)) or meta_order != list(range(1, len(meta_f) + 1)):
+            raise InconsistentDatasetError
+
+        if len(text_order) != len(meta_order):
             raise InconsistentDatasetError
 
         for files in meta_f, texts_raw:
