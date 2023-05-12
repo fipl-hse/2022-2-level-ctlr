@@ -4,7 +4,6 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 import re
-import os
 from string import punctuation
 from pymystem3 import Mystem
 
