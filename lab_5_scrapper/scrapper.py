@@ -194,7 +194,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str):
+        if isinstance(url, str) and url.startswith('/news'):
             return url
 
     def find_articles(self) -> None:
@@ -204,13 +204,14 @@ class Crawler:
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
             main_bs = BeautifulSoup(response.text, 'lxml')
-            all_links = main_bs.find_all('a')
+            all_articles = main_bs.find("div", class_="item news")
+            all_links = all_articles.find_all("a")
             for link in all_links:
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
                 url = self._extract_url(link)
-                if url.startswith("/news"):
-                    new_url = 'https://www.volga-tv.ru' + url
-                    if new_url not in self.urls and len(self.urls) < self._config.get_num_articles():
-                        self.urls.append(new_url)
+                if url and url not in self.urls:
+                    self.urls.append("https://www.volga-tv.ru" + url)
 
     def get_search_urls(self) -> list:
         """
@@ -258,8 +259,6 @@ class HTMLParser:
             self.article.author = ['NOT FOUND']
         else:
             self.article.author = authors
-
-        self.article.date = article_soup.find('time').get('datetime')
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
