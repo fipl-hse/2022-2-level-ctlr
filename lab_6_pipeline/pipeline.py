@@ -49,7 +49,7 @@ class CorpusManager:
             raise FileNotFoundError
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
-        if not [x for x in self.path_to_raw_txt_data.iterdir()]:
+        if not next(x for x in self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
         texts = list(self.path_to_raw_txt_data.glob('**/*.txt'))
