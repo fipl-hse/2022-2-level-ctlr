@@ -18,7 +18,7 @@ from core_utils.article.io import (from_meta, from_raw, to_cleaned, to_conllu,
                                    to_meta, to_raw)
 from core_utils.article.ud import (TagConverter,
                                    extract_sentences_from_raw_conllu)
-from core_utils.tests.utils import TestInputs, universal_setup
+from core_utils.tests.utils import universal_setup
 
 
 class ArticleSupplementalTest(unittest.TestCase):
@@ -29,7 +29,10 @@ class ArticleSupplementalTest(unittest.TestCase):
     def setUp(self) -> None:
         article.ASSETS_PATH = TEST_PATH
         universal_setup()
-        self.text = TestInputs.text
+        self.text = "Мама красиво мыла раму. Мама красиво мыла раму... " \
+                    "Мама красиво мыла раму! Мама красиво мыла раму!!! " \
+                    "Мама красиво мыла раму? Мама красиво мыла раму?! " \
+                    "Мама мыла раму... красиво. Мама сказала: \"Помой раму!\""
 
     @pytest.mark.core_utils
     def test_date_from_meta_ideal(self):
@@ -63,7 +66,10 @@ class ArticleSupplementalTest(unittest.TestCase):
         Ensure that split_by_sentence() function
         returns correctly separated sentences
         """
-        sentences = TestInputs.correctly_separated_sentences
+        sentences = ["Мама красиво мыла раму.", "Мама красиво мыла раму...",
+                     "Мама красиво мыла раму!", "Мама красиво мыла раму!!!",
+                     "Мама красиво мыла раму?", "Мама красиво мыла раму?!",
+                     "Мама мыла раму... красиво.", "Мама сказала: \"Помой раму!\""]
 
         error_msg = "Function doesn't return correctly separated sentences"
         self.assertEqual(split_by_sentence(self.text), sentences, error_msg)
@@ -310,6 +316,7 @@ class UDTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.path = TEST_FILES_FOLDER / "reference_score_six_test.conllu"
+        self.path_to_reference = TEST_FILES_FOLDER / "reference_output_article_test.json"
         self.tag_mapping_path = (
                 PROJECT_ROOT / "lab_6_pipeline" / "data" / "mystem_tags_mapping.json"
         )
@@ -332,7 +339,11 @@ class UDTest(unittest.TestCase):
         extracts and stores sentences correctly
         """
         error_msg = "Function stores sentences from the CONLL-U-formatted article incorrectly"
-        expected = TestInputs.extracted_sentences_from_conllu
+
+        expected = []
+        with open(self.path_to_reference, "r", encoding="utf-8") as f:
+            extracted_sentences_from_conllu = json.load(f)
+        expected.append(extracted_sentences_from_conllu)
 
         with open(file=self.path,
                   mode='r',
