@@ -81,7 +81,7 @@ class Config:
         self._encoding = config_dto.encoding
         self._timeout = config_dto.timeout
         self._should_verify_certificate = config_dto.should_verify_certificate
-        self._headless_mode = config_dto.headless_mode
+        self._headless_mode = config_dto.headless_mode 
 
     def _extract_config_content(self) -> ConfigDTO:
         """
