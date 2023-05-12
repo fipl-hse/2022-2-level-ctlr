@@ -3,14 +3,14 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
+
 import re
 from string import punctuation
 from pymystem3 import Mystem
 
-from core_utils.article.article import SentenceProtocol, split_by_sentence, get_article_id_from_filepath
-
+from core_utils.article.article import split_by_sentence, get_article_id_from_filepath
 from core_utils.article.io import from_raw, to_cleaned, to_conllu
-
+from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
