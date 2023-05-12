@@ -70,14 +70,8 @@ class CorpusManager:
             if id2 - id1 > 1:
                 raise InconsistentDatasetError('Article IDs in meta data are not sequential')
 
-        for raw_file in raw_files:
-            if raw_file.stat().st_size == 0:
-                raise InconsistentDatasetError
-
-        for meta_file in meta_files:
-            if meta_file.stat().st_size == 0:
-                raise InconsistentDatasetError
-
+        if any(file.stat().st_size == 0 for file in raw_files + meta_files):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
@@ -323,8 +317,8 @@ class MorphologicalAnalysisPipeline:
         for article in self._corpus.get_articles().values():
             article.set_conllu_sentences(self._process(article.text))
             to_cleaned(article)
-            to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
-            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
+            to_conllu(article, include_morphological_tags=False)
+            to_conllu(article, include_morphological_tags=True)
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
     """
