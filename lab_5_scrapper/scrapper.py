@@ -102,6 +102,9 @@ class Config:
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
+        if not config_dto.seed_urls:
+            raise IncorrectSeedURLError
+
         for url in config_dto.seed_urls:
             if not isinstance(url, str) or \
                     not re.match(r'https://\w*.\w+.ru/\w+/*\d*', url):
@@ -183,10 +186,12 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     time.sleep(determined_pause + random.random() / divider)
     headers = config.get_headers()
     timeout = config.get_timeout()
-    return requests.get(url,
+    response = requests.get(url,
                         headers=headers,
                         timeout=timeout,
                         verify=config.get_verify_certificate())
+    response.encoding = config.get_encoding()
+    return response
 
 
 class Crawler:
@@ -262,19 +267,17 @@ class HTMLParser:
         Finds meta information of article
         """
         title = article_soup.find('h1', class_="article-body__title")
-        if title:
-            self.article.title = title.text
+        self.article.title = title.text
         date = article_soup.find('div', class_="single-header__time")
-        if date:
-            try:
-                self.article.date = self.unify_date_format(date.text)
-            except ValueError:
-                pass
+
+        try:
+            self.article.date = self.unify_date_format(date.text)
+        except ValueError:
+            pass
         topics = [topic.text.strip() for topic in article_soup.find_all('a',
                                                                 class_="single-header__rubric")]
-        if topics:
-            self.article.topics = topics[:-1]
-            self.article.author = [topics[-1]]
+        self.article.topics = topics[:-1]
+        self.article.author = [topics[-1]]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
