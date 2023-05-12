@@ -264,24 +264,17 @@ class HTMLParser:
         title = article_soup.find('h1', class_="article-body__title")
         if title:
             self.article.title = title.text
-        else:
-            self.article.title = 'NOT FOUND'
         date = article_soup.find('div', class_="single-header__time")
         if date:
             try:
                 self.article.date = self.unify_date_format(date.text)
             except ValueError:
                 pass
-        else:
-            self.article.date = 'NOT FOUND'
         topics = [topic.text for topic in article_soup.find_all('a',
                                                                 class_="single-header__rubric")]
         if topics:
             self.article.topics = topics[:-1]
             self.article.author = [-1]
-        else:
-            self.article.topics = ['NOT FOUND']
-            self.article.author = 'NOT FOUND'
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
