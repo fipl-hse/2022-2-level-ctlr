@@ -292,24 +292,24 @@ class HTMLParser:
             date_str = re.sub(r'(?<=[А-Яа-я])(?=,\s\d{2})',
                               f' {curr_year}', date_str)
 
-            ru_eng_months = {
-                "января": "jan",
-                "февраля": "feb",
-                "марта": "mar",
-                "апреля": "apr",
-                "мая": "may",
-                "июня": "jun",
-                "июля": "jul",
-                "августа": "aug",
-                "сентября": "sep",
-                "октября": "oct",
-                "ноября": "nov",
-                "декабря": "dec"
-            }
+        ru_eng_months = {
+            "января": "jan",
+            "февраля": "feb",
+            "марта": "mar",
+            "апреля": "apr",
+            "мая": "may",
+            "июня": "jun",
+            "июля": "jul",
+            "августа": "aug",
+            "сентября": "sep",
+            "октября": "oct",
+            "ноября": "nov",
+            "декабря": "dec"
+        }
 
-            ru_month = re.search(r"[а-я]{3,8}", date_str).group()
-            date_str = date_str.replace(ru_month, ru_eng_months[ru_month])
-            return datetime.datetime.strptime(date_str, '%d %b  %Y, %H:%M')
+        ru_month = re.search(r"[а-я]{3,8}", date_str).group()
+        date_str = date_str.replace(ru_month, ru_eng_months[ru_month])
+        return datetime.datetime.strptime(date_str, '%d %b  %Y, %H:%M')
 
     def parse(self) -> Union[Article, bool, list]:
         """
