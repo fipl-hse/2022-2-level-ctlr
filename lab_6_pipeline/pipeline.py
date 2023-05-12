@@ -61,7 +61,8 @@ class CorpusManager:
             raise InconsistentDatasetError
 
         for files in raw_files, meta_files:
-            list_existing = sorted(int(re.search(r'\d+', file.stem)[0]) for file in files)
+            list_existing = sorted(int(re.search(r'\d+', file.stem)[0])
+                                   if re.search(r'\d+', file.stem)[0] else 0 for file in files)
             list_ideal = list(range(1, len(files) + 1))
             if list_existing != list_ideal:
                 raise InconsistentDatasetError
