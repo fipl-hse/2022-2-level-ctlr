@@ -120,9 +120,6 @@ class ConlluToken:
         """
         self._morphological_parameters = parameters
 
-    def set_position(self, position: int) -> None:
-        self.position = position
-
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
@@ -300,7 +297,7 @@ class MorphologicalAnalysisPipeline:
                     lemma, pos, tags = token['text'], 'PUNCT', ''
 
                 conllu_token = ConlluToken(token['text'])
-                conllu_token.set_position(sentence_counter)
+                conllu_token.position = sentence_counter
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, tags))
                 conllu_tokens.append(conllu_token)
 
