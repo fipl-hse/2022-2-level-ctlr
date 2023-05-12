@@ -270,7 +270,7 @@ class HTMLParser:
                 self.article.date = self.unify_date_format(date.text)
             except ValueError:
                 pass
-        topics = [topic.text for topic in article_soup.find_all('a',
+        topics = [topic.text.strip() for topic in article_soup.find_all('a',
                                                                 class_="single-header__rubric")]
         if topics:
             self.article.topics = topics[:-1]
@@ -340,7 +340,7 @@ def main() -> None:
         if isinstance(article, Article):
             to_raw(article)
             to_meta(article)
-
+            
 
 if __name__ == "__main__":
     main()
