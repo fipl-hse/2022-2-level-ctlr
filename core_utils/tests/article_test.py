@@ -9,7 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from config.test_params import PROJECT_ROOT, TEST_FILES_FOLDER, TEST_PATH
+from config.test_params import (CORE_UTILS_TEST_FILES_FOLDER, PROJECT_ROOT,
+                                TEST_PATH)
 from core_utils.article import article
 from core_utils.article.article import (Article, ArtifactType, date_from_meta,
                                         get_article_id_from_filepath,
@@ -315,8 +316,8 @@ class UDTest(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.path = TEST_FILES_FOLDER / "reference_score_six_test.conllu"
-        self.path_to_reference = TEST_FILES_FOLDER / "reference_output_article_test.json"
+        self.path = CORE_UTILS_TEST_FILES_FOLDER / "reference_score_six_test.conllu"
+        self.path_to_reference = CORE_UTILS_TEST_FILES_FOLDER / "reference_output_article_test.json"
         self.tag_mapping_path = (
                 PROJECT_ROOT / "lab_6_pipeline" / "data" / "mystem_tags_mapping.json"
         )
