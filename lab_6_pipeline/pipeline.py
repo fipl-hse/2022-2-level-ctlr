@@ -6,6 +6,19 @@ from typing import List
 
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class EmptyDirectoryError(Exception):
+    """
+    Daaaaamn yo directory's emptie, maaaan
+    """
+
+
+class InconsistentDatasetError(Exception):
+    """
+    Dis dataset of yours is inconsistent
+    """
 
 
 # pylint: disable=too-few-public-methods
@@ -18,11 +31,31 @@ class CorpusManager:
         """
         Initializes CorpusManager
         """
+        self.path_to_raw_text_data = path_to_raw_txt_data
+        self._storage = {}
+        self._validate_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_text_data.exists():
+            raise FileNotFoundError
+        if not self.path_to_raw_text_data.is_dir():
+            raise NotADirectoryError
+        if not len(list(self.path_to_raw_text_data.glob('*.*'))):
+            raise EmptyDirectoryError
+        raw_paths = list(self.path_to_raw_text_data.glob('*_raw.txt'))
+        meta_paths = list(self.path_to_raw_text_data.glob('*_meta.json'))
+        if len(raw_paths) != len(meta_paths):
+            raise InconsistentDatasetError
+        for i in range(1, len(raw_paths) + 1):
+            raw = list(self.path_to_raw_text_data.glob(str(i) + '_raw.txt'))
+            meta = list(self.path_to_raw_text_data.glob(str(i) + '_meta.json'))
+            if not raw or not meta:
+                raise InconsistentDatasetError
+            if not raw[0].stat().st_size or not meta[0].stat().st_size:
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
@@ -181,6 +214,7 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
+    corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
 
 
 if __name__ == "__main__":
