@@ -260,7 +260,7 @@ class HTMLParser:
                       article_soup.find_all('a', class_='doc_footer__item_name'))
         self.article.topics = topics
 
-        date = article_soup.find('div', class_='doc_header__time').find('time').attrs['datetime'].strip()
+        date = article_soup.find('div', class_='doc_header__time').find('time').attrs['datetime']
         self.article.date = self.unify_date_format(date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
