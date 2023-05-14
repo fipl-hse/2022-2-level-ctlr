@@ -88,7 +88,7 @@ class Config:
         """
         Returns config values
         """
-        with open(self.path_to_config) as file:
+        with open(self.path_to_config, 'r', encoding='utf-8') as file:
             config_dto = json.load(file)
         return ConfigDTO(**config_dto)
 
@@ -201,8 +201,7 @@ class Crawler:
         article_href = article_bs.get('href')
         if isinstance(article_href, str) and article_href.startswith('/doc/'):
             return f'https://www.kommersant.ru{article_href}'
-        else:
-            return ''
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -251,18 +250,17 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        article = article_soup.find('article')
-        title = article.find('header', class_='doc_header').text.strip()
+        title = article_soup.find('header', class_='doc_header').text.strip()
         self.article.title = title
 
-        author = article.find('p', class_='doc__text document_authors')
+        author = article_soup.find('p', class_='doc__text document_authors')
         self.article.author.append(author)
 
         topics = list(theme.text for theme in
-                      article.find_all('a', class_='doc_footer__item_name'))
+                      article_soup.find_all('a', class_='doc_footer__item_name'))
         self.article.topics = topics
 
-        date = article.find('div', class_='doc_header__time').find('time').attrs['datetime'].strip()
+        date = article_soup.find('div', class_='doc_header__time').find('time').attrs['datetime'].strip()
         self.article.date = self.unify_date_format(date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
@@ -275,12 +273,11 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = requests.get(self.full_url)
-        if response.status_code == 200:
-            article_bs = BeautifulSoup(response.text, 'lxml')
-            self._fill_article_with_text(article_bs)
-            self._fill_article_with_meta_information(article_bs)
-            return self.article
+        response = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:

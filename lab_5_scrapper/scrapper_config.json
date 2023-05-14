@@ -1,17 +1,14 @@
 {
     "seed_urls":
     [
+        "https://www.kommersant.ru/archive/list/52/day/2023-05-12",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-11",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-10",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-09",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-08",
-        "https://www.kommersant.ru/archive/list/52/day/2023-05-07",
-        "https://www.kommersant.ru/archive/list/52/day/2023-05-06",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-05",
         "https://www.kommersant.ru/archive/list/52/day/2023-05-04",
-        "https://www.kommersant.ru/archive/list/52/day/2023-05-03",
-        "https://www.kommersant.ru/archive/list/52/day/2023-05-02",
-        "https://www.kommersant.ru/archive/list/52/day/2023-05-01"
+        "https://www.kommersant.ru/archive/list/52/day/2023-05-03"
     ],
     "headers":
     {
@@ -19,7 +16,7 @@
     },
     "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
-    "timeout": 5,
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": false
 }
