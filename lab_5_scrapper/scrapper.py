@@ -203,7 +203,7 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
-            main_bs = BeautifulSoup(response.text, 'lxml')
+            main_bs = BeautifulSoup(response.text, "lxml")
             all_articles = main_bs.find("div", class_="volga-news-line")
             if all_articles:
                 all_links = all_articles.find_all("a")
