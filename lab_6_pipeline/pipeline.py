@@ -116,7 +116,7 @@ class ConlluToken:
         Returns lowercase original form of a token
         """
         clean = self._text.lower()
-        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';']:
+        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';', '…', '»', '«', '—', '(', ')', '/', '•', '+', '*', '№']:
             clean = clean.replace(i, '')
         return clean
 
@@ -144,7 +144,7 @@ class ConlluSentence(SentenceProtocol):
         Returns the lowercase representation of the sentence
         """
         clean = self._text.lower()
-        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';', '…', '»', '«', '—', '(', ')', '/', '•']:
+        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';', '…', '»', '«', '—', '(', ')', '/', '•', '+', '*', '№']:
             clean = clean.replace(i, '')
         return clean
 
