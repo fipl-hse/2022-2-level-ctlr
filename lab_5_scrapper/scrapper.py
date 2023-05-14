@@ -262,14 +262,14 @@ class HTMLParser:
                       article.find_all('a', class_='doc_footer__item_name'))
         self.article.topics = topics
 
-        date = article.find('div', class_='doc_header__time').text.strip()
+        date = article.find('div', class_='doc_header__time').find('time').attrs['datetime'].strip()
         self.article.date = self.unify_date_format(date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S+03:00')
 
     def parse(self) -> Union[Article, bool, list]:
         """
