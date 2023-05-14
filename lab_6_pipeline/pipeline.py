@@ -51,11 +51,8 @@ class CorpusManager:
             raise NotADirectoryError
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
-        meta_files = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
         text_files = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
-        if len(meta_files) != len(text_files):
-            raise InconsistentDatasetError
-        for files in meta_files, text_files:
+        for files in text_files:
             if sorted(get_article_id_from_filepath(i) for i in files) != list(range(1, len(files) + 1)):
                 raise InconsistentDatasetError
             if not all(i.stat().st_size for i in files):
