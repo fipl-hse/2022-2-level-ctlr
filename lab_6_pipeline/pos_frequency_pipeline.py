@@ -1,6 +1,7 @@
 """
 Implementation of POSFrequencyPipeline for score ten only.
 """
+from pathlib import Path
 from typing import Optional
 
 
