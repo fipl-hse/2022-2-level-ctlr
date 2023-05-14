@@ -6,8 +6,8 @@ import json
 import os
 import re
 import shutil
-from typing import Pattern, Union
 from pathlib import Path
+from typing import Pattern, Union
 
 import requests
 from bs4 import BeautifulSoup
@@ -15,11 +15,9 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (CRAWLER_CONFIG_PATH,
-                                  ASSETS_PATH,
-                                  TIMEOUT_LOWER_LIMIT,
-                                  TIMEOUT_UPPER_LIMIT,
-                                  NUM_ARTICLES_UPPER_LIMIT)
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
 class IncorrectSeedURLError(Exception):
