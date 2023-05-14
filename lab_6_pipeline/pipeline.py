@@ -13,18 +13,6 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class FileNotFoundError(Exception):
-    """
-    file does not exist
-    """
-
-
-class NotADirectoryError(Exception):
-    """
-    path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     IDs contain slips, number of
