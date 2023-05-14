@@ -254,7 +254,7 @@ class HTMLParser:
         self.article.title = title
 
         author = article_soup.find('p', class_='doc__text document_authors')
-        self.article.author.append(author)
+        self.article.author = list(author) if author else ["NOT FOUND"]
 
         topics = list(theme.text for theme in
                       article_soup.find_all('a', class_='doc_footer__item_name'))
