@@ -326,6 +326,7 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
 
+
 class CrawlerRecursive(Crawler):
     """
     Recursive crawler implementation
@@ -377,7 +378,6 @@ class CrawlerRecursive(Crawler):
             self.find_articles()
 
 
-
 def main() -> None:
     """
     Entrypoint for scrapper module
@@ -405,6 +405,21 @@ def main() -> None:
     #             counted[json_['topics'][0]] += 1
     # print(counted)
     # print(sorted(counted, key=lambda x: -counted[x]))
+
+def main_recursive() -> None:
+    """
+    Driver code for recursive crawling
+    """
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    crawler_recursive = CrawlerRecursive(config=configuration)
+    crawler_recursive.find_articles()
+    for i, url in enumerate(crawler_recursive.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=i, config=configuration)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
