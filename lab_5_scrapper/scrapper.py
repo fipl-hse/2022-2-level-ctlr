@@ -1,7 +1,6 @@
 """
 Crawler implementation
 """
-import time
 import requests
 import json
 import datetime
@@ -12,10 +11,6 @@ import shutil
 from typing import Pattern, Union
 from bs4 import BeautifulSoup
 from pathlib import Path
-
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.safari.options import Options as SafariOptions
 
 from core_utils.article.article import Article
 from core_utils.article.io import to_raw
@@ -200,46 +195,26 @@ class Crawler:
         """
         self.config = config
         self.urls = []
-        self.driver = webdriver.Safari(options=SafariOptions())
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        try:
-            article_href = article_bs.a.get('href')
-        except AttributeError:
-            pass
+        article_href = article_bs.get('href')
+        if isinstance(article_href, str) and article_href.startswith('/doc/'):
+            return f'https://www.kommersant.ru{article_href}'
         else:
-            if isinstance(article_href, str) and article_href.startswith('/doc/'):
-                return f'https://www.kommersant.ru{article_href.split("?")[0]}'
-            else:
-                return ''
+            return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        def scroll_through_page() -> str:
-            """
-            Uses Selenium to click the button on page
-            Returns HTML-code of page with buttons clicked
-            """
-            self.driver.get(url=url_to_crawl)
-            button_xpath = '/html/body/main/div/div/div/div/button'
-            button = [button for button in self.driver.find_elements(by=By.XPATH,
-                                                                     value=button_xpath)][0]
-            iterations = 5
-            for i in range(iterations):
-                button.click()
-                time.sleep(1.5)
-            return self.driver.page_source
-
         for url_to_crawl in self.get_search_urls():
-            response = requests.get(url_to_crawl, self.config)
+            response = make_request(url_to_crawl, self.config)
             if response.status_code == 200:
-                soup = BeautifulSoup(scroll_through_page(), 'lxml')
-                articles_html = soup.find_all('article')
+                soup = BeautifulSoup(response.text, 'lxml')
+                articles_html = soup.find_all('a', class_='uho__link uho__link--overlay')
 
                 for article in articles_html:
                     result_url = self._extract_url(article)
