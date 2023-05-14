@@ -52,11 +52,10 @@ class CorpusManager:
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
         text_files = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
-        for files in text_files:
-            if sorted(get_article_id_from_filepath(i) for i in files) != list(range(1, len(files) + 1)):
-                raise InconsistentDatasetError
-            if not all(i.stat().st_size for i in files):
-                raise InconsistentDatasetError
+        if sorted(get_article_id_from_filepath(i) for i in text_files) != list(range(1, len(text_files) + 1)):
+            raise InconsistentDatasetError
+        if not all(i.stat().st_size for i in text_files):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
