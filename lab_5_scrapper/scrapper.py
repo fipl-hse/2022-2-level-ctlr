@@ -73,7 +73,7 @@ class Config:
         """
         with open(self.path_to_config,'r', encoding = 'utf-8') as f:
             config_dto = json.load(f)
-        return CongigDTO(**config_dto)
+        return ConfigDTO(**config_dto)
 
     def _validate_config_content(self) -> None:
         """
@@ -115,43 +115,43 @@ class Config:
         """
         Retrieve seed urls
         """
-        pass
+        return self._seed_urls
 
     def get_num_articles(self) -> int:
         """
         Retrieve total number of articles to scrape
         """
-        pass
+        return self._num_articles
 
     def get_headers(self) -> dict[str, str]:
         """
         Retrieve headers to use during requesting
         """
-        pass
+        return self._headers
 
     def get_encoding(self) -> str:
         """
         Retrieve encoding to use during parsing
         """
-        pass
+        return self._encoding
 
     def get_timeout(self) -> int:
         """
         Retrieve number of seconds to wait for response
         """
-        pass
+        return self._timeout
 
     def get_verify_certificate(self) -> bool:
         """
         Retrieve whether to verify certificate
         """
-        pass
+        return self._should_verify_certificate
 
     def get_headless_mode(self) -> bool:
         """
         Retrieve whether to use headless mode
         """
-        pass
+        return self._headless_mode
 
 
 def make_request(url: str, config: Config) -> requests.models.Response:
@@ -159,8 +159,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
-
+    response = requests.get(url, headers=config.get_headers(), timeout=config.get_timeout(),
+                            verify=config.get_verify_certificate())
+    response.encoding = config.get_encoding()
+    return response
 
 class Crawler:
     """
@@ -173,25 +175,30 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self._config = config
+        self._seed_urls = config.get_seed_urls()
+        self.urls = []
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        url = article_bs['href']
+        if isinstance(url, str):
+            return url
+        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -203,13 +210,17 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self._full_url = full_url
+        self._article_id = article_id
+        self._config = config
+        self.article = Article(self._full_url, self._article_id)
 
-    def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
+
+def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
