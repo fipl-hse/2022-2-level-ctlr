@@ -250,7 +250,7 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        title = article_soup.find('header', class_='doc_header').text.strip()
+        title = article_soup.find('h1', class_='doc_header__name js-search-mark').text.strip()
         self.article.title = title
 
         author = article_soup.find('p', class_='doc__text document_authors')
