@@ -1,7 +1,50 @@
 """
 Crawler implementation
 """
+import datetime
+import json
+import re
+import shutil
+from pathlib import Path
 from typing import Pattern, Union
+
+import requests
+from bs4 import BeautifulSoup
+
+from core_utils.article.article import Article
+from core_utils.article.io import to_meta, to_raw
+from core_utils.config_dto import ConfigDTO
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+                                  NUM_ARTICLES_UPPER_LIMIT,
+                                  TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
+
+
+class IncorrectSeedURLError(Exception):
+    pass
+
+
+class NumberOfArticlesOutOfRangeError(Exception):
+    pass
+
+
+class IncorrectNumberOfArticlesError(Exception):
+    pass
+
+
+class IncorrectHeadersError(Exception):
+    pass
+
+
+class IncorrectEncodingError(Exception):
+    pass
+
+
+class IncorrectTimeoutError(Exception):
+    pass
+
+
+class IncorrectVerifyError(Exception):
+    pass
 
 
 class Config:
@@ -13,20 +56,60 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        pass
+        self.path_to_config = path_to_config
+        self._validate_config_content()
+        config_content = self._extract_config_content()
+        self._seed_urls = config_content.seed_urls
+        self._num_articles = config_content.total_articles
+        self._headers = config_content.headers
+        self._encoding = config_content.encoding
+        self._timeout = config_content.timeout
+        self._should_verify_certificate = config_content.should_verify_certificate
+        self._headless_mode = config_content.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        pass
+        with open(self.path_to_config,'r', encoding = 'utf-8') as f:
+            config_dto = json.load(f)
+        return CongigDTO(**config_dto)
 
     def _validate_config_content(self) -> None:
         """
         Ensure configuration parameters
         are not corrupt
         """
-        pass
+        config_dto = self._extract_config_content()
+        if not isinstance(config_dto.seed_urls, list):
+            raise IncorrectSeedURLError
+
+        for urls in config_dto.seed_urls:
+            if not re.match(r'https?://.*^', urls) or not isinstance(urls,str):
+                raise IncorrectSeedURLError
+
+        total_articles = config_dto.total_articles
+        if not isinstance(total_articles, int) \
+                or total_articles < 1:
+            raise IncorrectNumberOfArticlesError
+
+        if total_articles > NUM_ARTICLES_UPPER_LIMIT:
+            raise NumberOfArticlesOutOfRangeError
+
+        if not isinstance(config_dto.headers, dict):
+            raise IncorrectHeadersError
+
+        if not isinstance(config_dto.encoding, str):
+            raise IncorrectEncodingError
+
+        timeout = config_dto.timeout
+        if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeot >= TIMEOUT_UPPER_LIMIT:
+            raise IncorrectTimeoutError
+
+        should_verify = config_dto.should_verify_certificate
+        if not isinstance(should_verify, bool) or not isinstance(config_dto.headless_mode, bool):
+            raise IncorrectVerifyError
+
 
     def get_seed_urls(self) -> list[str]:
         """

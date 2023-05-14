@@ -1,20 +1,24 @@
-import requests
-from bs4 import BeautifulSoup
+from pymystem3 import Mystem
+from pathlib import Path
+
 
 def main():
+    mystem = Mystem()
+    text_path = Path(__file__).parent / 'lab_6_pipeline' / '1_raw.txt'
+    with text_path.open(encoding='utf-8') as f:
+        content = f.read()
+    print(content)
 
-    url = 'https://www.fontanka.ru/2023/04/06/72197210/'
-    response = requests.get(url)
-    print(response.status_code)
 
-    main_bs = BeautifulSoup(response.text, 'lxml')
-
-    """
-    <h1 item
-    """
-    title_bs = main_bs.find_all('h1')
-    print(title_bs[0].text, type(title_bs[0]))
-
+analyzed_content = Mystem.analyze(content)
+print(analyzed_content)
+noun_count = 0
+for i in analyzed_content:
+    if 'analysis' in i:
+        a = i['analysis'][0]['gr']
+        if a[0] == 'S':
+            noun_count += 1
+print(noun_count)
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,9 @@
 {
-    "seed_urls": [],
+    "seed_urls": ["https://www.fontanka.ru/24hours_articles.html"],
     "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "total_articles_to_find_and_parse": 5,
+    "encoding": "utf-8",
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
