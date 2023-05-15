@@ -8,10 +8,11 @@
     "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "cookie": "_ga=GA1.2.308876638.1678906613; adtech_uid=0240696e-2a76-4990-b71a-caf4cbbff82c%3Avolga-tv.ru; top100_id=t1.7096681.542431274.1678906613790; BX_USER_ID=adce56d5d783135d51d13c7db3109ca8; _ym_uid=1649353872112929567; _ym_d=1678906614; BITRIX_SM_TZ=Europe/Moscow; _gid=GA1.2.1162823459.1683290702; PHPSESSID=5GoZdWspMREvfaEsSiAVmHPCW636VAIG; BITRIX_CONVERSION_CONTEXT_s1=%7B%22ID%22%3A3%2C%22EXPIRE%22%3A1683406740%2C%22UNIQUE%22%3A%5B%22conversion_visit_day%22%5D%7D; _gat=1; _ym_isad=2; last_visit=1683359418496%3A%3A1683370218496; _ym_visorc=w; BITRIX_SM_BANNERS=1_100_34_13052023%2C9_40_5_10052023%2C9_41_5_10052023%2C9_42_5_10052023; t3_sid_7096681=s1.1480836008.1683370218299.1683370260707.10.8",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"},
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+    },
     "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
-    "timeout": 45,
+    "timeout": 5,
     "should_verify_certificate": true,
     "headless_mode": true
 }
