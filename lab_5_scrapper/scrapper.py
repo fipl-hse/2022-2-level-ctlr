@@ -192,7 +192,14 @@ class Crawler:
         """
         Finds articles
         """
-
+        for seed_url in self._config.get_seed_urls():
+            response = make_request(seed_url, self._config)
+            article_bs = BeautifulSoup(response.text,'lxml')
+            article_page = article_bs.find_all('a')
+            for url in article_page:
+                href = self._extract_url(url)
+                if href is None:
+                    continue
 
 
     def get_search_urls(self) -> list:
@@ -221,7 +228,11 @@ class HTMLParser:
         """
         Finds text of article
         """
-
+        article_content = article_soup.find('p')
+        text = ''
+        for paragraph in article_content:
+            text += paragraph.get_text().strip() + '\n'
+        self.article.text += text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
