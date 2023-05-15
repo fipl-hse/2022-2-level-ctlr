@@ -3,8 +3,13 @@ Implementation of POSFrequencyPipeline for score ten only.
 """
 from typing import Optional
 from pathlib import Path
-from core_utils.article.article import Article
-from lab_6_pipeline.pipeline import CorpusManager, ConlluSentence, ConlluToken
+from core_utils.article.article import Article, ArtifactType, get_article_id_from_filepath
+from lab_6_pipeline.pipeline import CorpusManager, ConlluSentence, ConlluToken, MorphologicalTokenDTO
+from core_utils.article.ud import extract_sentences_from_raw_conllu
+from core_utils.visualizer import visualize
+from core_utils.constants import ASSETS_PATH
+from core_utils.article.io import from_meta, to_meta
+from collections import Counter
 
 class EmptyFileError(Exception):
     """
@@ -15,6 +20,21 @@ def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
     """
     Populates the Article abstraction with all information from the conllu file
     """
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    sentences = extract_sentences_from_raw_conllu(content)
+    conllu_sentences = []
+    for sentence in sentences:
+        parsed_tokens = [_parse_conllu_token(token) for token in sentence['tokens']]
+        conllu_sentence = ConlluSentence(position=sentence['position'], text=sentence['text'], tokens=parsed_tokens)
+        conllu_sentences.append(conllu_sentence)
+
+    if not article:
+        article = Article(None, get_article_id_from_filepath(path))
+
+    article.set_conllu_sentences(conllu_sentences)
+    return article
 
 
 def _parse_conllu_token(token_line: str) -> ConlluToken:
@@ -24,6 +44,13 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
     Example:
     '2	произошло	происходить	VERB	_	Gender=Neut|Number=Sing|Tense=Past	0	root	_	_'
     """
+    split_line = token_line.split('\t')
+    conllu_token = ConlluToken(split_line[1])
+    conllu_token.set_position(int(split_line[0]))
+    params = MorphologicalTokenDTO(lemma=split_line[2], pos=split_line[3], tags=split_line[5])
+    conllu_token.set_morphological_parameters(params)
+    return conllu_token
+
 
 
 # pylint: disable=too-few-public-methods
@@ -37,23 +64,45 @@ class POSFrequencyPipeline:
         """
         Initializes PosFrequencyPipeline
         """
-
+        self.corpus_manager = corpus_manager
     def run(self) -> None:
         """
         Visualizes the frequencies of each part of speech
         """
 
+        articles = self.corpus_manager.get_articles().values()
+        for article in articles:
+            conllu_path = article.get_file_path(ArtifactType.MORPHOLOGICAL_CONLLU)
+            if not conllu_path.stat().st_size:
+                raise EmptyFileError
+
+            article = from_meta(article.get_meta_file_path(), article)
+            article = from_conllu(conllu_path, article)
+            pos = self._count_frequencies(article)
+            article.set_pos_info(pos)
+
+            to_meta(article)
+
+            visualize(article, ASSETS_PATH/ f'{article.article_id}_image.png')
+
     def _count_frequencies(self, article: Article) -> dict[str, int]:
         """
         Counts POS frequency in Article
         """
-
+        pos_count = []
+        for sentence in article.get_conllu_sentences():
+            for token in sentence.get_tokens():
+                pos = token.get_morphological_parameters().pos
+                pos_count.append(pos)
+        return Counter(pos_count)
 
 def main() -> None:
     """
     Entrypoint for the module
     """
-
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    pipeline = POSFrequencyPipeline(corpus_manager)
+    pipeline.run()
 
 if __name__ == "__main__":
     main()
