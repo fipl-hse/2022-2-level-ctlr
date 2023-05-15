@@ -15,6 +15,7 @@ from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT)
 from urllib.parse import urlparse
+from core_utils.article.io import to_meta, to_raw
 
 
 class IncorrectSeedURLError(Exception):
@@ -114,7 +115,6 @@ class Config:
         if not isinstance(self.config_data.headers, dict):
             raise IncorrectHeadersError
 
-
         # IncorrectEncodingError: encoding must be specified as a string
         if not isinstance(self.config_data.encoding, str):
             raise IncorrectEncodingError
@@ -210,7 +210,6 @@ class Crawler:
             return full_url
         return ''
 
-
     def find_articles(self) -> None:
         """
         Finds articles
@@ -242,13 +241,21 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.config = config
+        self.full_url = full_url
+        self.article_id = article_id
+        self.article = Article(url=self.full_url, article_id=self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+
+        self.article.title = article_soup.find('h1', {'class': 'article__h1'}).text
+        # description = article_soup.find('p', itemprop='description').text
+        paragraphs_lst = article_soup.find('div', {'class': 'articleBody'})
+        paragraphs = "".join([i.text for i in paragraphs_lst.find_all('p')])
+        self.article.text = '. '.join(paragraphs)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
@@ -266,7 +273,11 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self.full_url, self.config)
+        article_bs = BeautifulSoup(response.content, 'lxml')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -291,6 +302,12 @@ def main() -> None:
     configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
+    for idx, url in enumerate(crawler.urls, start=1):
+        parser = HTMLParser(full_url=url, article_id=idx, config=configuration)
+        parsed_article = parser.parse()
+        if isinstance(parsed_article, Article):
+            to_raw(parsed_article)
+            to_meta(parsed_article)
 
 
 if __name__ == "__main__":
