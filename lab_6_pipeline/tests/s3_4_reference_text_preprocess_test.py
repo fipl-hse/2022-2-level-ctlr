@@ -8,7 +8,7 @@ from string import punctuation
 
 import pytest
 
-from config.test_params import TEST_FILES_FOLDER, TEST_PATH
+from config.test_params import PIPE_TEST_FILES_FOLDER, TEST_PATH
 from core_utils.article import article
 from core_utils.article.ud import extract_sentences_from_raw_conllu
 from lab_6_pipeline.pipeline import (CorpusManager,
@@ -34,7 +34,7 @@ class ReferenceTextPreprocessTestSimplified(unittest.TestCase):
         pipe.run()
 
     def setUp(self) -> None:
-        path = TEST_FILES_FOLDER / 'reference_score_four_test.txt'
+        path = PIPE_TEST_FILES_FOLDER / 'reference_score_four_test.txt'
         with path.open('r', encoding='utf-8') as reference:
             self.reference = reference.read()
         path = TEST_PATH / "1_cleaned.txt"
@@ -96,7 +96,7 @@ class ReferenceTextPreprocessAdvancedTest(unittest.TestCase):
         pipe.run()
 
     def setUp(self) -> None:
-        path = TEST_FILES_FOLDER / 'reference_score_eight_test.conllu'
+        path = PIPE_TEST_FILES_FOLDER / 'reference_score_eight_test.conllu'
         with path.open('r', encoding='utf-8') as ref:
             self.conllu_reference = ref.read()
         self.ref_sentences = extract_sentences_from_raw_conllu(self.conllu_reference)
@@ -164,8 +164,8 @@ class ReferenceTextPreprocessAdvancedTest(unittest.TestCase):
                       f"You have {proc_sentence.get('position')}, " \
                       f"but you must have {self.ref_sentences[id_sentence].get('position')}"
             self.assertEqual(
-                proc_sentence.get('position'),
                 self.ref_sentences[id_sentence].get('position'),
+                proc_sentence.get('position'),
                 msg=message)
 
             message = f"In {id_sentence} sentence --- " \
@@ -173,15 +173,15 @@ class ReferenceTextPreprocessAdvancedTest(unittest.TestCase):
                       f"You have {proc_sentence.get('text')}, " \
                       f"but you must have {self.ref_sentences[id_sentence].get('text')}"
             self.assertEqual(
-                proc_sentence.get('text'),
                 self.ref_sentences[id_sentence].get('text'),
+                proc_sentence.get('text'),
                 msg=message)
 
             message = f"In {id_sentence} sentence --- " \
                       f"You have wrong tokens "
             self.assertEqual(
-                proc_sentence.get('tokens'),
                 self.ref_sentences[id_sentence].get('tokens'),
+                proc_sentence.get('tokens'),
                 msg=message)
 
     @pytest.mark.mark8
@@ -228,7 +228,7 @@ class ReferenceTextPreprocessBasicTest(unittest.TestCase):
         pipe.run()
 
     def setUp(self) -> None:
-        path = TEST_FILES_FOLDER / 'reference_score_six_test.conllu'
+        path = PIPE_TEST_FILES_FOLDER / 'reference_score_six_test.conllu'
         with path.open('r', encoding='utf-8') as ref:
             self.conllu_reference = ref.read()
         self.ref_sentences = extract_sentences_from_raw_conllu(self.conllu_reference)
