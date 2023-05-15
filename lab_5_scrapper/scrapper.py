@@ -103,7 +103,7 @@ class Config:
             raise IncorrectEncodingError
 
         timeout = config_dto.timeout
-        if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeot >= TIMEOUT_UPPER_LIMIT:
+        if not isinstance(timeout, int) or timeout <= TIMEOUT_LOWER_LIMIT or timeout >= TIMEOUT_UPPER_LIMIT:
             raise IncorrectTimeoutError
 
         should_verify = config_dto.should_verify_certificate
