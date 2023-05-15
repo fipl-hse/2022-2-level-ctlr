@@ -58,20 +58,20 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        config_content = self._extract_config_content()
-        self._seed_urls = config_content.seed_urls
-        self._num_articles = config_content.total_articles
-        self._headers = config_content.headers
-        self._encoding = config_content.encoding
-        self._timeout = config_content.timeout
-        self._should_verify_certificate = config_content.should_verify_certificate
-        self._headless_mode = config_content.headless_mode
+        config_dto = self._extract_config_content()
+        self._seed_urls = config_dto.seed_urls
+        self._num_articles = config_dto.total_articles
+        self._headers = config_dto.headers
+        self._encoding = config_dto.encoding
+        self._timeout = config_dto.timeout
+        self._should_verify_certificate = config_dto.should_verify_certificate
+        self._headless_mode = config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
-        with open(self.path_to_config,'r', encoding = 'utf-8') as f:
+        with open(self.path_to_config, 'r', encoding='utf-8') as f:
             config_dto = json.load(f)
         return ConfigDTO(**config_dto)
 
@@ -84,8 +84,8 @@ class Config:
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for urls in config_dto.seed_urls:
-            if not re.match(r'https?://.*^', urls) or not isinstance(urls, str):
+        for seed_url in config_dto.seed_urls:
+            if not re.match(r'https?://.*', seed_url) or not isinstance(seed_url, str):
                 raise IncorrectSeedURLError
 
         total_articles = config_dto.total_articles
