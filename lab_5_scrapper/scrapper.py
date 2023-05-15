@@ -198,9 +198,10 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
+        main_href = 'https://www.kommersant.ru'
         article_href = article_bs.get('href')
         if isinstance(article_href, str) and article_href.startswith('/doc/'):
-            return f'https://www.kommersant.ru{article_href}'
+            return main_href + article_href
         return ''
 
     def find_articles(self) -> None:
