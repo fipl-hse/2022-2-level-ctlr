@@ -85,7 +85,7 @@ class Config:
             raise IncorrectSeedURLError
 
         for urls in config_dto.seed_urls:
-            if not re.match(r'https?://.*^', urls) or not isinstance(urls,str):
+            if not re.match(r'https?://.*^', urls) or not isinstance(urls, str):
                 raise IncorrectSeedURLError
 
         total_articles = config_dto.total_articles
@@ -183,7 +183,7 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        url = article_bs['href']
+        url = article_bs.get('href')
         if isinstance(url, str):
             return url
         return ''
@@ -192,6 +192,7 @@ class Crawler:
         """
         Finds articles
         """
+
 
 
     def get_search_urls(self) -> list:
@@ -216,7 +217,7 @@ class HTMLParser:
         self.article = Article(self._full_url, self._article_id)
 
 
-def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
+    def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
