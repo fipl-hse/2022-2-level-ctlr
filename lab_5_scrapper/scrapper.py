@@ -9,6 +9,7 @@ import json
 import requests
 import re
 import shutil
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
 from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
@@ -113,9 +114,6 @@ class Config:
         if not isinstance(self.config_data.headers, dict):
             raise IncorrectHeadersError
 
-        for header in self.config_data.headers:
-            if not header == True or not header == False:
-                raise IncorrectHeadersError
 
         # IncorrectEncodingError: encoding must be specified as a string
         if not isinstance(self.config_data.encoding, str):
@@ -203,16 +201,15 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        href = 'https://www.business-gazeta.ru/' + article_bs.get('href')
-        if not isinstance(href, str):
-            return ''
-        parsed_url = urlparse(href)
-        if isinstance(href, str) \
-                and parsed_url.scheme == 'https' \
-                and parsed_url.netloc == 'business-gazeta.ru' \
-                and parsed_url.path.startswith('/article/'):
-            return href
+
+        href = article_bs.get('href')
+        if href:
+            full_url = urljoin('https://www.business-gazeta.ru/', str(href))
+            if not urlparse(full_url).scheme:
+                full_url = "http://" + full_url
+            return full_url
         return ''
+
 
     def find_articles(self) -> None:
         """
