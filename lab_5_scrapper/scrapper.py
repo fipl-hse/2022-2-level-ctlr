@@ -8,10 +8,12 @@ from pathlib import Path
 import json
 import requests
 import re
+import shutil
 from bs4 import BeautifulSoup
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (CRAWLER_CONFIG_PATH,
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
                                   NUM_ARTICLES_UPPER_LIMIT)
+from urllib.parse import urlparse
 
 
 class IncorrectSeedURLError(Exception):
@@ -176,7 +178,10 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    pass
+    response = requests.get(url, headers=config.get_headers(),
+                            timeout=config.get_timeout())
+    response.encoding = config.get_encoding()
+    return response
 
 
 class Crawler:
@@ -190,25 +195,45 @@ class Crawler:
         """
         Initializes an instance of the Crawler class
         """
-        pass
+        self._config = config
+        self.urls = []
+        self._seed_urls = self._config.get_seed_urls()
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
-        pass
+        href = 'https://www.business-gazeta.ru/' + article_bs.get('href')
+        if not isinstance(href, str):
+            return ''
+        parsed_url = urlparse(href)
+        if isinstance(href, str) \
+                and parsed_url.scheme == 'https' \
+                and parsed_url.netloc == 'business-gazeta.ru' \
+                and parsed_url.path.startswith('/article/'):
+            return href
+        return ''
 
     def find_articles(self) -> None:
         """
         Finds articles
         """
-        pass
+        for seed_url in self._seed_urls:
+            response = make_request(seed_url, self._config)
+            soup = BeautifulSoup(response.content, "lxml")
+            for paragraph in soup.find_all('a', class_="article-news__title"):
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
+                url = self._extract_url(paragraph)
+                if not url or url in self.urls:
+                    continue
+                self.urls.append(url)
 
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
         """
-        pass
+        return self._seed_urls
 
 
 class HTMLParser:
@@ -251,14 +276,24 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    # Функция rmtree() модуля shutil рекурсивно удаляет все дерево каталогов.
+    # Путь path должен указывать на каталог, но не символическую ссылку на каталог.
+    # Функция mkdir() модуля os создает каталог с именем path с режимом доступа к нему mode.
+    # Аргумент path может принимать объекты, представляющие путь файловой системы, такие как pathlib.PurePath.
+    # The parents=True tells the mkdir command to also create any intermediate parent dirctries that don't already exist
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    crawler = Crawler(config=configuration)
+    crawler.find_articles()
 
 
 if __name__ == "__main__":

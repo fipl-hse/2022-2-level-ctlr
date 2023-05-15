@@ -1,9 +1,25 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://www.business-gazeta.ru/"],
+    "headers": {
+        "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "en-US,en;q=0.9,ru;q=0.8",
+        "cache-control": "max-age=0",
+        "cookie": "p=uREBABIS+QgA; searchuid=7900966711663492684; s=rt=1|dpr=1.25; _ym_uid=1667905871412867522; _ym_d=1667905871; c=neL0YwEAoHsTAAAUAQwACQAAQDF2ngHsNoh2lbEHAIT9NKEJDoJtM78A; b=6UsAAJDnrvkBpcMnfVEGPqYN5cMn/VACAAAI; i=AQCF7DdkCQATAAgrDnEAAQkBAhwBAR8BARkCAfACAVsIATwJAUMLAZALAQYcAbkeAfYgAfEiAbsBCAQBAgABkwIIWx5uAAEBAgECAgEFAgEHAgEJAgEKAgENAgETAgEYAgFbBQFcBQFhBQFoBQF0BQF2BQGhBQGkBQGmBQGpBQF6BgHFCwHICwHKCwHMCwHOCwF0DQF3DQGGDQHNYwHcBAgEAQEAAeEECQEC4gQKBBEJ0wc6BQgZCHgHAS8IAQMLAe0LAUcMAeAMAQANAQ8OAdYGCAQBAQABvQcIBAGtFQE=; VID=1mpRd-3s0l2H00000h1ML4IH:::0-0-979f412-8414f19:CAASEIkbTyPtVWKn45nYrVIGQWwacDUSwfxkrwsjdH6EQ19V4A4FxavpFRMEihf4srf7QYEfVUOPmQC-jJ3w43Z-TnLSzML27stNBoboVAstK_HTTx_F2vuLVFDKSbLxfZe1XxNJntca8R3-8swiHCjB0dRH8WQqVDvZFoo3dYXOYbWfmI8",
+        "referer": "https://www.business-gazeta.ru/",
+        "sec-ch-ua": "'Chromium';v='112', 'Google Chrome';v='112', 'Not:A-Brand';v='99'",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "'Windows'",
+        "sec-fetch-dest": "image",
+        "sec-fetch-mode": "no-cors",
+        "sec-fetch-site": "cross-site",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+    },
+    "total_articles_to_find_and_parse": 10,
+    "encoding": "utf-8",
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
