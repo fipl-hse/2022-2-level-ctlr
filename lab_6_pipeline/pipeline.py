@@ -412,6 +412,7 @@ def main() -> None:
     """
     corpus_manager = CorpusManager(ASSETS_PATH)
     pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    pipeline.run()
     adv_pipeline = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
     adv_pipeline.run()
 

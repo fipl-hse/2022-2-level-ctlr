@@ -76,8 +76,8 @@ class POSFrequencyPipeline:
             if not conllu_path.stat().st_size:
                 raise EmptyFileError
 
-            article = from_meta(article.get_meta_file_path(), article)
             article = from_conllu(conllu_path, article)
+            article = from_meta(article.get_meta_file_path(), article)
             pos = self._count_frequencies(article)
             article.set_pos_info(pos)
 
