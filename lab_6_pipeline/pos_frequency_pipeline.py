@@ -4,6 +4,8 @@ Implementation of POSFrequencyPipeline for score ten only.
 from pathlib import Path
 from typing import Optional
 
+from core_utils.article.article import Article
+
 
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
     """
