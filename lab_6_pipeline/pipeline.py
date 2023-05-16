@@ -61,7 +61,6 @@ class CorpusManager:
         if sorted(list_of_ids) != list(range(1, len(list_of_ids) + 1)):
             raise InconsistentDatasetError
 
-
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
