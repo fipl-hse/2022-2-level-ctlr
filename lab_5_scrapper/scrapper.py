@@ -259,7 +259,7 @@ class HTMLParser:
         return self.article
 
 
-def prepare_environment(base_path: Union[Path, str]) -> None:
+    def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
@@ -268,20 +268,20 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     base_path.mkdir(parents=True)
 
 
-def main() -> None:
+    def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
-    prepare_environment(ASSETS_PATH)
-    crawler = Crawler(config=configuration)
-    crawler.find_articles()
-    for id, url in enumerate(crawler.urls, start=1)
-        parser = HTMLParser(full_url=url, article_id=id, config=configuration)
-        article = parser.parse()
-        to_raw(article)
-        to_meta(article)
-
+        configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
+        prepare_environment(ASSETS_PATH)
+        crawler = Crawler(config=configuration)
+        crawler.find_articles()
+        for id_, url in enumerate(crawler.urls, start=1)
+            parser = HTMLParser(full_url=url, article_id=id_, config=configuration)
+            article = parser.parse()
+            if isinstance(article, Article):
+                to_raw(article)
+                to_meta(article)
 
 if __name__ == "__main__":
     main()
