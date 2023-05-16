@@ -125,12 +125,15 @@ class ConlluToken:
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
         xpos = '_'
-        feats = '_'
+        if include_morphological_tags and self._morphological_parameters.tags:
+            feats = self._morphological_parameters.tags
+        else:
+            feats = '_'
         head = '0'
         deprel = 'root'
         deps = '_'
         misc = '_'
-        
+
         return '\t'.join([position, text, lemma, pos, xpos, feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
@@ -180,6 +183,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns sentences from ConlluSentence
         """
+        return self._tokens
 
 
 class MystemTagConverter(TagConverter):
@@ -191,6 +195,27 @@ class MystemTagConverter(TagConverter):
         """
         Converts the Mystem tags into the UD format
         """
+        pos = self.convert_pos(tags)
+        pos_categories = {
+            "NOUN": [self.case, self.number, self.gender, self.animacy],
+            "VERB": [self.tense, self.number, self.gender],
+            "ADJ": [self.case, self.number, self.gender],
+            "NUM": [self.case, self.number, self.gender],
+            "PRON": [self.case, self.number, self.gender, self.animacy],
+        }
+
+        if pos not in pos_categories:
+            return ''
+
+        tags = re.sub(r'\((.+?)\|.+\)', r'\1', tags)
+        extracted_tags = re.findall(r'[а-я]+', tags)
+        ud_tags = {}
+        for tag in extracted_tags:
+            for category in pos_categories[pos]:
+                if tag in self._tag_mapping[category]:
+                    ud_tags[category] = self._tag_mapping[category][tag]
+
+        return '|'.join(f'{k}={v}' for k, v in sorted(ud_tags.items()))
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
@@ -255,7 +280,8 @@ class MorphologicalAnalysisPipeline:
                     token_position += 1
                     conllu_token = ConlluToken(text=token['text'], position=token_position)
                     morph_params = MorphologicalTokenDTO(lemma=token['analysis'][0]['lex'],
-                                                         pos=self._converter.convert_pos(token['analysis'][0]['gr']))
+                                                         pos=self._converter.convert_pos(tags=token['analysis'][0]['gr']),
+                                                         tags=self._converter.convert_morphological_tags(tags=token['analysis'][0]['gr']))
                     conllu_token.set_morphological_parameters(morph_params)
                     conllu_tokens.append(conllu_token)
                 elif 'analysis' in token:
@@ -292,7 +318,7 @@ class MorphologicalAnalysisPipeline:
             article.set_conllu_sentences(sentences=self._process(text=article.get_raw_text()))
             to_cleaned(article)
             to_conllu(article,
-                      include_morphological_tags=False,
+                      include_morphological_tags=True,
                       include_pymorphy_tags=False)
 
 
