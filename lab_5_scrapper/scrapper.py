@@ -84,8 +84,8 @@ class Config:
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for seed_url in config_dto.seed_urls:
-            if not re.match(r'https?://.*', seed_url) or not isinstance(seed_url, str):
+        for url in config_dto.seed_urls:
+            if not re.match(r'https?://.*', url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
         total_articles = config_dto.total_articles
@@ -194,12 +194,14 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text,'lxml')
-            article_page = article_bs.find_all('a')
-            for url in article_page:
-                href = self._extract_url(url)
-                if href is None:
+            article_bs = BeautifulSoup(response.text, 'lxml')
+            for paragraph in article_bs.find_all('a', class_="color-main ff-text-header text-header"):
+                if len(self.urls) >= self._config.get_num_articles():
+                    return
+                url = self._extract_url(paragraph)
+                if not url or url in self.urls:
                     continue
+                self.urls.append('https://www.fontanka.ru/' + url)
 
 
     def get_search_urls(self) -> list:
@@ -250,14 +252,20 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self._full_url, self._config)
+        article_bs = BeautifulSoup(response.text, 'lxml')
+        self._fill_article_with_text(article_bs)
+        self._fill_article_with_meta_information(article_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
     """
     Creates ASSETS_PATH folder if no created and removes existing folder
     """
-    pass
+    if base_path.exists():
+        shutil.rmtree(base_path)
+    base_path.mkdir(parents=True)
 
 
 def main() -> None:
