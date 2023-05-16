@@ -14,18 +14,6 @@ from core_utils.constants import ASSETS_PATH
 # pylint: disable=too-few-public-methods
 
 
-class FileNotFoundError(Exception):
-    """
-    file does not exist
-    """
-
-
-class NotADirectoryError(Exception):
-    """
-    path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     IDs contain slips, number of meta and raw files is not equal, files are empty
