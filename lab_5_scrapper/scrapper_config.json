@@ -4,13 +4,15 @@
         "https://www.fontanka.ru/24hours_articles.html",
         "https://www.fontanka.ru/24hours_news.html"
     ],
-    "headers": {"User_Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+    "headers": {
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "ru,en;q=0.9",
+                "referer": "https://www.fontanka.ru/",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 YaBrowser/23.3.3.719 Yowser/2.5 Safari/537.36"
     },
     "total_articles_to_find_and_parse": 5,
     "encoding": "utf-8",
-    "timeout": 5,
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
