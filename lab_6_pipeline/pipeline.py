@@ -65,15 +65,13 @@ class CorpusManager:
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
-        list_of_ids = []
-        for file in self.path_to_raw_txt_data.glob("*_raw.txt"):
-            print(file)
+        raw_files = [i for i in self.path_to_raw_txt_data.glob('*_raw.txt')]
+        for file in raw_files:
             if not file.stat().st_size:
                 raise InconsistentDatasetError
-
-            list_of_ids.append(int(file.name[:file.name.index('_')]))
-            if sorted(list_of_ids) != list(range(1, len(list_of_ids) + 1)):
-                raise InconsistentDatasetError
+        list_of_ids = [int(file.name[:file.name.index('_')]) for file in raw_files]
+        if sorted(list_of_ids) != list(range(1, len(list_of_ids) + 1)):
+            raise InconsistentDatasetError
 
 
     def _scan_dataset(self) -> None:
