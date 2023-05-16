@@ -260,18 +260,18 @@ class HTMLParser:
 
 
     def prepare_environment(base_path: Union[Path, str]) -> None:
-    """
-    Creates ASSETS_PATH folder if no created and removes existing folder
-    """
-    if base_path.exists():
-        shutil.rmtree(base_path)
-    base_path.mkdir(parents=True)
+        """
+        Creates ASSETS_PATH folder if no created and removes existing folder
+        """
+        if base_path.exists():
+            shutil.rmtree(base_path)
+        base_path.mkdir(parents=True)
 
 
     def main() -> None:
-    """
-    Entrypoint for scrapper module
-    """
+        """
+        Entrypoint for scrapper module
+        """
         configuration = Config(path_to_config=CRAWLER_CONFIG_PATH)
         prepare_environment(ASSETS_PATH)
         crawler = Crawler(config=configuration)
@@ -282,6 +282,7 @@ class HTMLParser:
             if isinstance(article, Article):
                 to_raw(article)
                 to_meta(article)
+
 
 if __name__ == "__main__":
     main()
