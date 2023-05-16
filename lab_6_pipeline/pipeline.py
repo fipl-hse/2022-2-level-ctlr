@@ -15,6 +15,7 @@ class CorpusManager:
     """
 
     def __init__(self, path_to_raw_txt_data: Path):
+
         """
         Initializes CorpusManager
         """
