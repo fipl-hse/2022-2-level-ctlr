@@ -57,7 +57,7 @@ class CorpusManager:
         if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError('Path does not lead to directory')
 
-        if self.path_to_raw_txt_data.stat().st_size == 0:
+        if not list(self.path_to_raw_txt_data.glob("*")):
             raise EmptyDirectoryError(EmptyDirectoryError.__doc__.strip())
 
         raw_file_paths = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
@@ -160,7 +160,8 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return ' '.join(token.get_cleaned() for token in self._tokens).strip()
+        return ' '.join(token.get_cleaned() for token in self._tokens
+                        if token.get_cleaned()).strip()
 
     def get_tokens(self) -> list[ConlluToken]:
         """
