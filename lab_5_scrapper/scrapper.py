@@ -364,7 +364,7 @@ class CrawlerRecursive(Crawler):
         res = make_request(self.start_url, self._config)
         soup = BeautifulSoup(res.content, 'lxml')
         relevant_urls = [*map(self._extract_url, soup.find_all(
-            "a", {"class": ["article-list__title",  "article__embedded", "card__title"]}))]
+            "a", {"class": ["news-list-card",  "article__embedded", "card__title"]}))]
         for url in map(self._extract_url, soup.find_all('a')):
             if len(self.urls) >= self._config.get_num_articles():
                 return
@@ -424,3 +424,4 @@ def main_recursive() -> None:
 
 if __name__ == "__main__":
     main()
+    #main_recursive()
