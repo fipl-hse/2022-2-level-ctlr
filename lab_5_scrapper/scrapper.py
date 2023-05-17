@@ -194,6 +194,8 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
+            if response.status_code != 200:
+                continue
             article_bs = BeautifulSoup(response.text, 'lxml')
             for paragraph in article_bs.find_all('a', class_="color-main ff-text-header text-header"):
                 if len(self.urls) >= self._config.get_num_articles():
