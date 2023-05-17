@@ -202,7 +202,7 @@ class Crawler:
                 url = self._extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
-                self.urls.append("https://www.fontanka.ru/24hours.html" + url)
+                self.urls.append("https://www.fontanka.ru/" + url)
 
 
     def get_search_urls(self) -> list:
