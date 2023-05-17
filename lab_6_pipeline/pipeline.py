@@ -66,7 +66,7 @@ class CorpusManager:
                 if not file.stat().st_size:
                     raise InconsistentDatasetError
                 ids.add(int(file.stem.split("_")[0]))
-            if sorted(list(ids)) != list(range(1, len(files)+1)):
+            if sorted(list(ids)) != list(range(1, len(files) + 1)):
                 raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
@@ -106,7 +106,6 @@ class ConlluToken:
         self._text = text
         self._morphological_parameters = MorphologicalTokenDTO()
 
-
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
@@ -121,7 +120,6 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-
 
     def get_cleaned(self) -> str:
         """
