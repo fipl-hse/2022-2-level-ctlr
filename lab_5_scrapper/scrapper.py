@@ -3,10 +3,8 @@ Crawler implementation
 """
 import datetime
 import json
-import random
 import re
 import shutil
-import time
 from pathlib import Path
 from typing import Pattern, Union
 
@@ -196,7 +194,7 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str) and url.startswith('/news'):
+        if isinstance(url, str) and url.startswith('https://abnews.ru/'):
             return url
 
     def find_articles(self) -> None:
@@ -206,7 +204,7 @@ class Crawler:
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
             main_bs = BeautifulSoup(response.text, "lxml")
-            all_articles = main_bs.find("div", class_="volga-news-line")
+            all_articles = main_bs.find("div", class_="sidebar-news-list")
             if all_articles:
                 all_links = all_articles.find_all("a")
                 for link in all_links:
@@ -215,8 +213,8 @@ class Crawler:
                     url = self._extract_url(link)
                     if url is None:
                         continue
-                    if url and ("https://www.volga-tv.ru" + url) not in self.urls:
-                        self.urls.append("https://www.volga-tv.ru" + url)
+                    if url and url not in self.urls:
+                        self.urls.append(url)
 
 
 
@@ -245,27 +243,21 @@ class HTMLParser:
         """
         Finds text of article
         """
-        paragraphs = article_soup.find_all('div', class_="news-detail hyphenate")
-        links = [tag.text for tag in paragraphs]
-        for link in links:
-            new_l = link.split('.')
-            self.article.text = '.'.join(new_l[:-3])
+        article_text = article_soup.find('div', class_='article-text')
+        all_paragraphs = article_text.find_all('p')
+        for p in all_paragraphs:
+            self.article.text += p.text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
         self.article.title = article_soup.find('h1').text
-        paragraphs = article_soup.find('div', class_='news-detail hyphenate')
-        authors = []
-        for paragraph in paragraphs:
-            if "Служба информации:" in paragraph:
-                authors = paragraph.replace(':', ',').strip().split(',')
-                authors.pop(0)
-        if not authors:
-            self.article.author = ['NOT FOUND']
+        authors = article_soup.find('span', class_='author-post')
+        if authors:
+            self.article.author = [name.text[8:] for name in authors]
         else:
-            self.article.author = authors
+            self.article.author = ['NOT FOUND']
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
