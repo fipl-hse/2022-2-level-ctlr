@@ -164,16 +164,6 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     return response
 
 
-def _extract_url(article_bs: BeautifulSoup) -> str:
-    """
-    Finds and retrieves URL from HTML
-    """
-    url = article_bs.get('href')
-    if isinstance(url, str):
-        return url
-    return ''
-
-
 class Crawler:
     """
     Crawler implementation
@@ -188,6 +178,16 @@ class Crawler:
         self._config = config
         self._seed_urls = config.get_seed_urls()
         self.urls = []
+
+    def _extract_url(article_bs: BeautifulSoup) -> str:
+        """
+        Finds and retrieves URL from HTML
+        """
+        url = article_bs.get('href')
+        if isinstance(url, str):
+            return url
+        return ''
+
 
     def find_articles(self) -> None:
         """
