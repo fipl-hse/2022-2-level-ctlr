@@ -169,19 +169,19 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randrange(5, 10))
+    time.sleep(random.randrange(3, 7))
     headers = config.get_headers()
     timeout = config.get_timeout()
     verify = config.get_verify_certificate()
-    try:
-        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
-        response.encoding = config.get_encoding()
-        return response
-    except requests.exceptions.ConnectTimeout:
-        time.sleep(5)
-        response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
-        response.encoding = config.get_encoding()
-        return response
+    response = requests.get(url, headers=headers, timeout=timeout, verify=verify)
+    response.encoding = config.get_encoding()
+    print(f'Made request to: {url}')
+    print(f'Headers: {config.get_headers()}')
+    print(f'Response code: {response.status_code}')
+    print(f'Response text: {response.text}')
+    return response
+
+
 
 
 class Crawler:
