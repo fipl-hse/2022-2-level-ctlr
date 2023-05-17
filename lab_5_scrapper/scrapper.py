@@ -198,7 +198,7 @@ class Crawler:
             if response.status_code != 200:
                 continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_="KJed"):
+            for paragraph in article_bs.find_all('a', class_="KNa1"):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = _extract_url(paragraph)
