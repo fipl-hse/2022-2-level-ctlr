@@ -193,16 +193,16 @@ class Crawler:
         """
         Finds articles
         """
-        for seed_url in self._config.get_seed_urls():
+        for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a'):
+            for paragraph in article_bs.find_all('a', class_="KJed"):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
-                url = _extract_url(paragraph)
+                url = self._extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
-                self.urls.append(url)
+                self.urls.append("https://www.fontanka.ru/24hours.html" + url)
 
 
     def get_search_urls(self) -> list:
