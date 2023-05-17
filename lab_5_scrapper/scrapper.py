@@ -261,7 +261,15 @@ class HTMLParser:
         """
         Finds meta information of article
         """
-        pass
+        author = article_soup.find('div', {'class': 'article-copyright__author'})
+        self.article.author = [author.text] if author else ['NOT FOUND']
+        date = article_soup.find('time', {'class': 'article__date'}).get('datetime')
+        if date:
+            self.article.date = self.unify_date_format(str(date[:11]))
+        for link in article_soup.find_all('a', href=True):
+            if link['href'].startswith('/text/tags/'):
+                if tag := link.get('title'):
+                    self.article.topics.append(tag)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """

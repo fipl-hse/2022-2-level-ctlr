@@ -1,5 +1,8 @@
 {
-    "seed_urls": ["https://www.business-gazeta.ru/"],
+    "seed_urls": ["https://www.business-gazeta.ru/",
+        "https://www.business-gazeta.ru/page/2",
+        "https://www.business-gazeta.ru/page/3",
+        "https://www.business-gazeta.ru/page/4"],
     "headers": {
         "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
         "accept-encoding": "gzip, deflate, br",
@@ -17,9 +20,9 @@
         "upgrade-insecure-requests": "1",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
     },
-    "total_articles_to_find_and_parse": 10,
+    "total_articles_to_find_and_parse": 100,
     "encoding": "utf-8",
-    "timeout": 10,
+    "timeout": 30,
     "should_verify_certificate": true,
     "headless_mode": true
 }
