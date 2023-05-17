@@ -110,7 +110,6 @@ class Config:
         if not isinstance(should_verify, bool) or not isinstance(config_dto.headless_mode, bool):
             raise IncorrectVerifyError
 
-
     def get_seed_urls(self) -> list[str]:
         """
         Retrieve seed urls
@@ -164,6 +163,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     response.encoding = config.get_encoding()
     return response
 
+
 class Crawler:
     """
     Crawler implementation
@@ -201,8 +201,7 @@ class Crawler:
                 url = self._extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
-                self.urls.append('https://www.fontanka.ru/' + url)
-
+                self.urls.append('https://www.fontanka.ru' + url)
 
     def get_search_urls(self) -> list:
         """
@@ -224,7 +223,6 @@ class HTMLParser:
         self._article_id = article_id
         self._config = config
         self.article = Article(self._full_url, self._article_id)
-
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -276,7 +274,7 @@ def main() -> None:
     prepare_environment(ASSETS_PATH)
     crawler = Crawler(config=configuration)
     crawler.find_articles()
-    for id_, url in enumerate(crawler.urls, start=1)
+    for id_, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=id_, config=configuration)
         article = parser.parse()
         if isinstance(article, Article):
