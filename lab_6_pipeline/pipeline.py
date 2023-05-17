@@ -1,11 +1,26 @@
 """
 Pipeline for CONLL-U formatting
 """
+import re
 from pathlib import Path
 from typing import List
 
-from core_utils.article.article import SentenceProtocol
+from core_utils.article.article import SentenceProtocol, split_by_sentence
+from core_utils.article.io import from_raw, to_cleaned
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
+from core_utils.constants import ASSETS_PATH
+
+
+class InconsistentDatasetError(Exception):
+    """
+    The IDs contain slips, the number of meta and raw files is not equal, the files are empty
+    """
+
+
+class EmptyDirectoryError(Exception):
+    """
+    Directory is empty
+    """
 
 
 # pylint: disable=too-few-public-methods
@@ -19,20 +34,46 @@ class CorpusManager:
         Initializes CorpusManager
         """
 
+        self.path_to_raw_txt_data = path_to_raw_txt_data
+        self._validate_dataset()
+        self._storage = {}
+        self._scan_dataset()
+
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
+        if not self.path_to_raw_txt_data.exists():
+            raise FileNotFoundError
+
+        if not self.path_to_raw_txt_data.is_dir():
+            raise NotADirectoryError
+
+        if not any(self.path_to_raw_txt_data.iterdir()):
+            raise EmptyDirectoryError
+
+        raw_files = [text for text in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
+        list_existing = sorted(int(re.search(r'\d+', file.stem)[0]) for file in raw_files)
+        list_ideal = list(range(1, len(raw_files) + 1))
+        if list_existing != list_ideal:
+            raise InconsistentDatasetError
+
+        if not any(file.stat().st_size for file in raw_files):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        for file in self.path_to_raw_txt_data.glob(r'*_raw.txt'):
+            file_id = int(re.search(r'\d+', file.stem)[0])
+            self._storage[file_id] = from_raw(file)
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
@@ -55,6 +96,7 @@ class ConlluToken:
         """
         Initializes ConlluToken
         """
+        self._text = text
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -75,6 +117,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
+        return re.sub(r'[^\w\s]+', '', self._text).lower().strip()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -86,6 +129,9 @@ class ConlluSentence(SentenceProtocol):
         """
         Initializes ConlluSentence
         """
+        self._position = position
+        self._text = text
+        self._tokens = tokens
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
@@ -96,6 +142,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
+        return ' '.join([token.get_cleaned() for token in self._tokens if token.get_cleaned()])
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -144,16 +191,26 @@ class MorphologicalAnalysisPipeline:
         """
         Initializes MorphologicalAnalysisPipeline
         """
+        self._corpus = corpus_manager
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        conllu_sentences = []
+        for idx, sentence in enumerate(split_by_sentence(text), 1):
+            conllu_wordlist = [ConlluToken(token) for token in sentence.split()]
+            conllu_sentences.append(ConlluSentence(idx, sentence, conllu_wordlist))
+        return conllu_sentences
 
     def run(self) -> None:
         """
         Performs basic preprocessing and writes processed text to files
         """
+        for article in self._corpus.get_articles().values():
+            sentences = self._process(article.text)
+            article.set_conllu_sentences(sentences)
+            to_cleaned(article)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
@@ -181,7 +238,9 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-
+    corpus_manager = CorpusManager(ASSETS_PATH)
+    pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    pipeline.run()
 
 if __name__ == "__main__":
     main()
