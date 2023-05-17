@@ -3,8 +3,10 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
+import re
 
 from core_utils.article.article import SentenceProtocol
+from core_utils.article.io import from_raw
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -43,32 +45,48 @@ class CorpusManager:
         Initializes CorpusManager
         """
 
-        self._path = path_to_raw_txt_data
-        self._storage = []
+        self._path_to_raw_txt_data = path_to_raw_txt_data
+        self._storage = {}
         self._validate_dataset()
 
     def _validate_dataset(self) -> None:
         """
         Validates folder with assets
         """
-        if not self._path.exists():
+        if not self._path_to_raw_txt_data.exists():
             raise FileNotFoundError
-        if not self._path.is_dir():
+        if not self._path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
+
+        meta_files = [meta for meta in self._path_to_raw_txt_data.glob(r'*_meta.json')]
+        raw_files = [raw for raw in self._path_to_raw_txt_data.glob(r'*_raw.txt')]
+
         if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError
 
+        if not meta_files or not raw_files:
+            raise EmptyDirectoryError
 
+        if sorted([int(re.match(r'\d+', file.name)[0]) for file in raw_files]) != list(range(1, len(raw_files) + 1)):
+            raise InconsistentDatasetError
+
+        for file in raw_files:
+            if file.stat().st_size == 0:
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
+        for f in self._path_to_raw_txt_data.glob('*_raw.txt'):
+            article = from_raw(f)
+            self._storage.update({article.article_id: article})
 
     def get_articles(self) -> dict:
         """
         Returns storage params
         """
+        return self._storage
 
 
 class MorphologicalTokenDTO:
