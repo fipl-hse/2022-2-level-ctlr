@@ -74,7 +74,7 @@ class CorpusManager:
             raise InconsistentDatasetError
 
         list_of_meta_ids = []
-        for file in raw_files:
+        for file in meta_files:
             list_of_meta_ids.append(int(file.name[:file.name.index('_')]))
         if sorted(list_of_meta_ids) != list(range(1, len(list_of_meta_ids) + 1)):
             raise InconsistentDatasetError
