@@ -164,6 +164,16 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     return response
 
 
+def _extract_url(article_bs: BeautifulSoup) -> str:
+    """
+    Finds and retrieves URL from HTML
+    """
+    url = article_bs.get('href')
+    if isinstance(url, str):
+        return url
+    return ''
+
+
 class Crawler:
     """
     Crawler implementation
@@ -179,15 +189,6 @@ class Crawler:
         self._seed_urls = config.get_seed_urls()
         self.urls = []
 
-    def _extract_url(self, article_bs: BeautifulSoup) -> str:
-        """
-        Finds and retrieves URL from HTML
-        """
-        url = article_bs.get('href')
-        if isinstance(url, str):
-            return url
-        return ''
-
     def find_articles(self) -> None:
         """
         Finds articles
@@ -197,10 +198,10 @@ class Crawler:
             if response.status_code != 200:
                 continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_="color-main ff-text-header text-header"):
+            for paragraph in article_bs.find_all('a', class_="KJed"):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
-                url = self._extract_url(paragraph)
+                url = _extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
                 self.urls.append('https://www.fontanka.ru' + url)
