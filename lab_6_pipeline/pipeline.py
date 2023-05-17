@@ -120,21 +120,11 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        position = str(self.position)
-        text = self._text
-        lemma = self._morphological_parameters.lemma
-        pos = self._morphological_parameters.pos
-        xpos = '_'
-        if include_morphological_tags and self._morphological_parameters.tags:
-            feats = self._morphological_parameters.tags
-        else:
-            feats = '_'
-        head = '0'
-        deprel = 'root'
-        deps = '_'
-        misc = '_'
-
-        return '\t'.join([position, text, lemma, pos, xpos, feats, head, deprel, deps, misc])
+        return '\t'.join([str(self.position), self._text, self._morphological_parameters.lemma,
+                          self._morphological_parameters.pos, '_',
+                          self._morphological_parameters.tags if include_morphological_tags and self._morphological_parameters.tags
+                          else '_',
+                          '0', 'root', '_', '_'])
 
     def get_cleaned(self) -> str:
         """
@@ -276,35 +266,20 @@ class MorphologicalAnalysisPipeline:
                     break
             token_position = 0
             for token in sentence_tokens:
-                if 'analysis' in token and token['analysis']:
-                    token_position += 1
-                    conllu_token = ConlluToken(text=token['text'], position=token_position)
-                    morph_params = MorphologicalTokenDTO(lemma=token['analysis'][0]['lex'],
-                                                         pos=self._converter.convert_pos(tags=token['analysis'][0]['gr']),
-                                                         tags=self._converter.convert_morphological_tags(tags=token['analysis'][0]['gr']))
-                    conllu_token.set_morphological_parameters(morph_params)
-                    conllu_tokens.append(conllu_token)
-                elif 'analysis' in token:
-                    token_position += 1
-                    conllu_token = ConlluToken(text=token['text'], position=token_position)
-                    morph_params = MorphologicalTokenDTO(lemma=token['text'],
-                                                         pos='X')
-                    conllu_token.set_morphological_parameters(morph_params)
-                    conllu_tokens.append(conllu_token)
-                elif token['text'].isnumeric():
-                    token_position += 1
-                    conllu_token = ConlluToken(text=token['text'], position=token_position)
-                    morph_params = MorphologicalTokenDTO(lemma=token['text'],
-                                                         pos='NUM')
-                    conllu_token.set_morphological_parameters(morph_params)
-                    conllu_tokens.append(conllu_token)
-                elif token['text'].strip() == '.':
-                    token_position += 1
-                    conllu_token = ConlluToken(text=token['text'].strip(), position=token_position)
-                    morph_params = MorphologicalTokenDTO(lemma=token['text'].strip(),
-                                                         pos='PUNCT')
-                    conllu_token.set_morphological_parameters(morph_params)
-                    conllu_tokens.append(conllu_token)
+                token_position += 1
+                conllu_token = ConlluToken(text=token['text'].strip(), position=token_position)
+                morph_params = MorphologicalTokenDTO(lemma=token['analysis'][0]['lex'] if 'analysis' in token and token['analysis']
+                                                     else token['text'].strip(),
+                                                     pos=self._converter.convert_pos(tags=token['analysis'][0]['gr'])
+                                                     if 'analysis' in token and token['analysis']
+                                                     else 'X' if 'analysis' in token
+                                                     else 'NUM' if token['text'].isnumeric()
+                                                     else 'PUNCT',
+                                                     tags=self._converter.convert_morphological_tags(tags=token['analysis'][0]['gr'])
+                                                     if 'analysis' in token and token['analysis']
+                                                     else None)
+                conllu_token.set_morphological_parameters(morph_params)
+                conllu_tokens.append(conllu_token)
             sentence_list.append(ConlluSentence(position=sentence_position,
                                                 text=sentence, tokens=conllu_tokens))
 
