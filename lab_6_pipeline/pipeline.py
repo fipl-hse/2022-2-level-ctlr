@@ -11,22 +11,11 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class FileNotFoundError(Exception):
-    """
-    If file does not exist
-    """
-
-
-class NotADirectoryError(Exception):
-    """
-    if path does not lead to directory
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     If IDs contain slips, number of meta and raw files is not equal, files are empty
     """
+
 
 class EmptyDirectoryError(Exception):
     """
