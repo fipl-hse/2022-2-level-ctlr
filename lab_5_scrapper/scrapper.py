@@ -195,16 +195,15 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
-            if response.status_code != 200:
-                continue
             article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_="KNa1"):
+            for paragraph in article_bs.find_all('a'):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = _extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
-                self.urls.append('https://www.fontanka.ru' + url)
+                self.urls.append(url)
+
 
     def get_search_urls(self) -> list:
         """
