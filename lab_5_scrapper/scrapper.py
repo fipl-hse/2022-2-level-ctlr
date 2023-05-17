@@ -183,10 +183,11 @@ class Crawler:
         """
         Finds and retrieves URL from HTML
         """
-        url = article_bs.get('href')
-        if isinstance(url, str):
-            return url
-        return ''
+        href = article_bs.get("href")
+
+        if href and href.startswith("https://www.fontanka.ru/") and 'hashtag' not in href:
+            return str(href)
+        return ""
 
 
     def find_articles(self) -> None:
@@ -195,14 +196,15 @@ class Crawler:
         """
         for seed_url in self._seed_urls:
             response = make_request(seed_url, self._config)
-            article_bs = BeautifulSoup(response.text, 'lxml')
-            for paragraph in article_bs.find_all('a', class_="KJed"):
+            soup = BeautifulSoup(response.text, "lxml")
+            for paragraph in soup.find_all('a'):
                 if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = self._extract_url(paragraph)
                 if not url or url in self.urls:
                     continue
-                self.urls.append("https://www.fontanka.ru/" + url)
+
+                self.urls.append(url)
 
 
     def get_search_urls(self) -> list:
@@ -221,18 +223,18 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        self._full_url = full_url
-        self._article_id = article_id
-        self._config = config
-        self.article = Article(self._full_url, self._article_id)
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        article_content = article_soup.find('p')
+        article_bs = article_soup.find('p')
         text = ''
-        for paragraph in article_content:
+        for paragraph in article_bs:
             text += paragraph.get_text().strip() + '\n'
         self.article.text += text
 
@@ -253,7 +255,7 @@ class HTMLParser:
         Parses each article
         """
         response = make_request(self._full_url, self._config)
-        article_bs = BeautifulSoup(response.text, 'lxml')
+        article_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(article_bs)
         self._fill_article_with_meta_information(article_bs)
         return self.article
