@@ -6,8 +6,6 @@
         "https://www.volga-tv.ru/news/?PAGEN_1=5"
     ],
     "headers": {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
         "cookie": "_ga=GA1.2.308876638.1678906613; adtech_uid=0240696e-2a76-4990-b71a-caf4cbbff82c%3Avolga-tv.ru; top100_id=t1.7096681.542431274.1678906613790; BX_USER_ID=adce56d5d783135d51d13c7db3109ca8; _ym_uid=1649353872112929567; _ym_d=1678906614; BITRIX_SM_TZ=Europe/Moscow; BITRIX_CONVERSION_CONTEXT_s1=%7B%22ID%22%3A3%2C%22EXPIRE%22%3A1684270740%2C%22UNIQUE%22%3A%5B%22conversion_visit_day%22%5D%7D; _gid=GA1.2.886573823.1684256001; _ym_isad=2; _ym_visorc=w; PHPSESSID=ZQhLXwr77JC3e9lGIs9K9l0p1Z4QCeF1; BITRIX_SM_BANNERS=1_100_110_23052023; _gat=1; last_visit=1684258001021%3A%3A1684268801021; t3_sid_7096681=s1.1251935392.1684267478451.1684268803556.22.10",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
