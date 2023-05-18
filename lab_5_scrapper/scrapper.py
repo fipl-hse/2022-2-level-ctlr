@@ -58,22 +58,30 @@ class Config:
         """
         self.path_to_config = path_to_config
         self._validate_config_content()
-        config_dto = self._extract_config_content()
-        self._seed_urls = config_dto.seed_urls
-        self._num_articles = config_dto.total_articles
-        self._headers = config_dto.headers
-        self._encoding = config_dto.encoding
-        self._timeout = config_dto.timeout
-        self._should_verify_certificate = config_dto.should_verify_certificate
-        self._headless_mode = config_dto.headless_mode
+        self._config_dto = self._extract_config_content()
+        self._seed_urls = self._config_dto.seed_urls
+        self._num_articles = self._config_dto.total_articles
+        self._headers = self._config_dto.headers
+        self._encoding = self._config_dto.encoding
+        self._timeout = self._config_dto.timeout
+        self._should_verify_certificate = self._config_dto.should_verify_certificate
+        self._headless_mode = self._config_dto.headless_mode
 
     def _extract_config_content(self) -> ConfigDTO:
         """
         Returns config values
         """
         with open(self.path_to_config, 'r', encoding='utf-8') as f:
-            config_dto = json.load(f)
-        return ConfigDTO(**config_dto)
+            config = json.load(f)
+        return ConfigDTO(
+            config["seed_urls"],
+            config["total_articles_to_find_and_parse"],
+            config["headers"],
+            config["encoding"],
+            config["timeout"],
+            config["should_verify_certificate"],
+            config["headless_mode"],
+        )
 
     def _validate_config_content(self) -> None:
         """
@@ -81,11 +89,12 @@ class Config:
         are not corrupt
         """
         config_dto = self._extract_config_content()
+
         if not isinstance(config_dto.seed_urls, list):
             raise IncorrectSeedURLError
 
         for url in config_dto.seed_urls:
-            if not re.match(r'https?://.*', url) or not isinstance(url, str):
+            if not re.match(r"https?://.*/", url) or not isinstance(url, str):
                 raise IncorrectSeedURLError
 
         total_articles = config_dto.total_articles
@@ -126,7 +135,7 @@ class Config:
         """
         Retrieve headers to use during requesting
         """
-        return self._headers
+        return self._config_dto.headers
 
     def get_encoding(self) -> str:
         """
@@ -179,7 +188,7 @@ class Crawler:
         self._seed_urls = config.get_seed_urls()
         self.urls = []
 
-    def _extract_url(article_bs: BeautifulSoup) -> str:
+    def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
         Finds and retrieves URL from HTML
         """
@@ -254,7 +263,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = make_request(self._full_url, self._config)
+        response = make_request(self.full_url, self.config)
         article_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(article_bs)
         self._fill_article_with_meta_information(article_bs)
