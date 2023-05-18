@@ -190,6 +190,8 @@ class ConlluSentence(SentenceProtocol):
         text = f'text = {self._text}\n'
         tokens = f'tokens = {self._format_tokens(include_morphological_tags)}'
 
+        return f'{sent_id}{text}{tokens}'
+
     def get_cleaned_sentence(self) -> str:
         """
         Returns the lowercase representation of the sentence
