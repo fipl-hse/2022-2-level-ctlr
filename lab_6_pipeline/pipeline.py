@@ -196,7 +196,7 @@ class ConlluSentence(SentenceProtocol):
         Creates string representation of the sentence
         """
         sent_id = f'# sent_id = {self._position}\n'
-        text = f'text = {self._text}\n'
+        text = f'# text = {self._text}\n'
         tokens = f'{self._format_tokens(include_morphological_tags)}\n'
 
 
@@ -288,7 +288,7 @@ class OpenCorporaTagConverter(TagConverter):
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
         pos = tags.POS
-        return self._tag_mapping[self.pos].get(pos)
+        return self._tag_mapping[self.pos].get(pos, '')
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
@@ -305,7 +305,7 @@ class OpenCorporaTagConverter(TagConverter):
             tag = getattr(tags, feature.lower(), None)
             if not tag:
                 continue
-            ud_tag = self._tag_mapping[feature].get(tag)
+            ud_tag = self._tag_mapping[feature].get(tag, '')
             answer.append(f'{feature}={ud_tag}')
 
         return '|'.join(answer)
@@ -348,11 +348,10 @@ class MorphologicalAnalysisPipeline:
                 if 'analysis' in one_word and one_word['analysis']:
                     about_part = one_word['analysis'][0]['gr']
                     part = re.search(r'\w+', about_part)
-
-                    if not part:
-                        continue
-
-                    pos = part[0]
+                    if part:
+                        pos = part[0]
+                    else:
+                        pos = 'X'
                     lemma = one_word['analysis'][0]['lex']
                     tags = one_word['analysis'][0]['gr']
                     morphological_tags = self._mystem_tag_converter.convert_morphological_tags(tags)
@@ -393,7 +392,9 @@ class MorphologicalAnalysisPipeline:
 
             to_cleaned(one_article)
             to_conllu(one_article)
-            to_conllu(one_article, include_morphological_tags=True, include_pymorphy_tags=False)
+            to_conllu(one_article,
+                      include_morphological_tags=True,
+                      include_pymorphy_tags=False)
 
 
 
@@ -409,7 +410,7 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         super().__init__(corpus_manager)
         self._backup_analyzer = pymorphy2.MorphAnalyzer()
         self.tag_mapping_path = Path(__file__).parent / 'data' / 'opencorpora_tags_mapping.json'
-        self._backup_tag_converter = OpenCorporaTagConverter()
+        self._backup_tag_converter = OpenCorporaTagConverter(self.tag_mapping_path)
 
 
 
@@ -440,11 +441,15 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
 
                     pos = part[0]
                     if pos == 'S':
-                        pymorphy_analysis = self._backup_analyzer(one_word['text'])[0]
-                        lemma = pymorphy_analysis.normal_form
+                        pymorphy_analysis = self._backup_analyzer.parse(one_word['text'])[0]
+                        if pymorphy_analysis.normal_form:
+                            lemma = pymorphy_analysis.normal_form
+                        else:
+                            lemma = one_word['text']
+
                         tags = pymorphy_analysis.tag
-                        morphological_tags = self._backup_tag_converter(tags)
-                        pos_ud = self._backup_tag_converter.convert_pos(tags.POS)
+                        morphological_tags = self._backup_tag_converter.convert_morphological_tags(tags)
+                        pos_ud = self._backup_tag_converter.convert_pos(tags)
 
                     else:
                         lemma = one_word['analysis'][0]['lex']
@@ -480,15 +485,14 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
         Performs basic preprocessing and writes processed text to files
         """
-        article_dict = self._corpus.get_articles()
+        articles = self._corpus.get_articles()
 
-        for one_article in article_dict.values():
-            conllu_sentences = self._process(one_article.text)
-            one_article.set_conllu_sentences(conllu_sentences)
-
-            to_cleaned(one_article)
-            to_conllu(one_article)
-            to_conllu(one_article, include_morphological_tags=True, include_pymorphy_tags=True)
+        for article in articles.values():
+            sentences = self._process(article.text)
+            article.set_conllu_sentences(sentences)
+            to_conllu(article,
+                      include_morphological_tags=True,
+                      include_pymorphy_tags=True)
 
 
 def main() -> None:
@@ -496,8 +500,11 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    morpho_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    one_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    one_pipeline.run()
+    morpho_pipeline = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
     morpho_pipeline.run()
+
 
 
 

@@ -290,7 +290,9 @@ class HTMLParser:
         result = []
         for one_txt in texts:
             result.append(one_txt.get_text(strip=True))
-        self.article.text = ' '.join(result)
+        text = ' '.join(result)
+        text = text.replace('ЧИТАЙТЕ НАС ВТЕЛЕГРАМЕ ', '')
+        self.article.text = text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
