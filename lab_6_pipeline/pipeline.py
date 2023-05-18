@@ -293,15 +293,15 @@ class MorphologicalAnalysisPipeline:
         return conllu_sentences
 
     def run(self) -> None:
-            """
-            Performs basic preprocessing and writes processed text to files
-            """
-            for article in self._corpus.get_articles().values():
-                sentences = self._process(article.text)
-                article.set_conllu_sentences(sentences)
-                to_cleaned(article)
-                to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
-                to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
+        """
+        Performs basic preprocessing and writes processed text to files
+        """
+        for article in self._corpus.get_articles().values():
+            sentences = self._process(article.text)
+            article.set_conllu_sentences(sentences)
+            to_cleaned(article)
+            to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
+            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=False)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
