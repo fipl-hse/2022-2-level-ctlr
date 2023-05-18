@@ -305,8 +305,10 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     # Функция rmtree() модуля shutil рекурсивно удаляет все дерево каталогов.
     # Путь path должен указывать на каталог, но не символическую ссылку на каталог.
     # Функция mkdir() модуля os создает каталог с именем path с режимом доступа к нему mode.
-    # Аргумент path может принимать объекты, представляющие путь файловой системы, такие как pathlib.PurePath.
-    # The parents=True tells the mkdir command to also create any intermediate parent dirctries that don't already exist
+    # Аргумент path может принимать объекты, представляющие путь файловой системы,
+    # такие как pathlib.PurePath.
+    # The parents=True tells the mkdir command to also create
+    # any intermediate parent dirctries that don't already exist
     if base_path.exists():
         shutil.rmtree(base_path)
     base_path.mkdir(parents=True)
