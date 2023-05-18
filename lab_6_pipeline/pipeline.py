@@ -197,6 +197,7 @@ class ConlluSentence(SentenceProtocol):
         """
         return self._tokens
 
+
 class MystemTagConverter(TagConverter):
     """
     Mystem Tag Converter
