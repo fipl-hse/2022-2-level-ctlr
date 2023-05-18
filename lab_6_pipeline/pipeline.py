@@ -271,8 +271,6 @@ class MorphologicalAnalysisPipeline:
             conllu_tokens = []
             token_counter = 0
             for token in mystem_sentence:
-                if not re.match(r'\w+|[.]', token['text']):
-                    continue
                 token_counter += 1
                 if token['text'].isalpha() and token.get("analysis"):
                     lemma = token['analysis'][0]['lex']
