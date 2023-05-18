@@ -264,9 +264,8 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        sentences = split_by_sentence(text)
-        for position, sentence in enumerate(sentences):
-            mystem_sentence = self._mystem.analyze(sentence)
+        for sentence_id, sentence in enumerate(split_by_sentence(text)):
+            mystem_sentence = self._stemmer.analyze(sentence)
             conllu_tokens = []
             token_counter = 0
             for token in mystem_sentence:
@@ -282,7 +281,7 @@ class MorphologicalAnalysisPipeline:
                     lemma = token['text']
                     pos = 'NUM'
                 elif '.' in token['text']:
-                    lemma = token['text'].strip()
+                    lemma = text
                     pos = 'PUNCT'
                 else:
                     lemma = token['text']
@@ -292,7 +291,7 @@ class MorphologicalAnalysisPipeline:
                 conllu_token.set_position(token_counter)
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, ''))
                 conllu_tokens.append(conllu_token)
-            conllu_sentence = ConlluSentence(position, sentence, conllu_tokens)
+            conllu_sentence = ConlluSentence(sentence_id, sentence, conllu_tokens)
             conllu_sentences.append(conllu_sentence)
         return conllu_sentences
 
