@@ -49,8 +49,8 @@ class CorpusManager:
         if not self._path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        meta_files = [meta for meta in self._path_to_raw_txt_data.glob(r'*_meta.json')]
-        raw_files = [raw for raw in self._path_to_raw_txt_data.glob(r'*_raw.txt')]
+        meta_files = [meta for meta in self._path_to_raw_txt_data.glob('*_meta.json')]
+        raw_files = [raw for raw in self._path_to_raw_txt_data.glob('*_raw.txt')]
 
         if len(meta_files) != len(raw_files):
             raise InconsistentDatasetError
