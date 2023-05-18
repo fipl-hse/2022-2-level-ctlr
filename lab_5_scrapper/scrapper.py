@@ -264,7 +264,7 @@ class HTMLParser:
         """
         # find author
         author = article_soup.find('div', {'class': 'article-copyright__author'})
-        author = str(author.text).replace("/", "").strip()
+        author = author.text.replace("/", "").strip()
         self.article.author = [author] if author else ['NOT FOUND']
 
         # find and extract date
