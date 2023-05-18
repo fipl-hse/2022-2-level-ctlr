@@ -263,9 +263,15 @@ class HTMLParser:
         Finds meta information of article
         """
         # find author
-        author = article_soup.find('div', {'class': 'article-copyright__author'})
-        author = author.text.replace("/", "").strip()
-        self.article.author = [author] if author else ['NOT FOUND']
+        # author = article_soup.find('div', {'class': 'article-copyright__author'})
+        # author = author.text.replace("/", "")
+        # self.article.author = [author] if author else ['NOT FOUND']
+
+        author = article_soup.find('div', {'class': 'article-copyright__author'}).get('content')
+        if author:
+            self.article.author = [author]
+        else:
+            self.article.author = ['NOT FOUND']
 
         # find and extract date
         date = article_soup.find('time', {'class': 'article__date'}).get('datetime')
