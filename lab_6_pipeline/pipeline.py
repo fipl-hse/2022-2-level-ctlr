@@ -126,7 +126,7 @@ class ConlluToken:
         Returns lowercase original form of a token
         """
         text = self._text
-        for i in string.punctuation + '№':
+        for i in string.punctuation + '«»–—…•№':
             text = text.replace(i, '')
         return text.lower().strip()
 
