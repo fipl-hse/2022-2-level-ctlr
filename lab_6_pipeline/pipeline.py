@@ -267,12 +267,12 @@ class MorphologicalAnalysisPipeline:
                     continue
                 token_counter += 1
                 if token['text'].isalpha() and token.get("analysis"):
-                    lemma = token['analysis'][0]['lex']
+                    lemma = token['analysis'][0]['lex'].strip()
                     morph_tags = token['analysis'][0]['gr']
                     pos = self._tag_converter.convert_pos(morph_tags)
                     tags = self._tag_converter.convert_morphological_tags(morph_tags)
                 elif token['text'].isdigit():
-                    lemma = token['text']
+                    lemma = token['text'].strip()
                     pos = 'NUM'
                     tags = ''
                 elif '.' in token['text']:
@@ -280,11 +280,11 @@ class MorphologicalAnalysisPipeline:
                     pos = 'PUNCT'
                     tags = ''
                 else:
-                    lemma = token['text']
+                    lemma = token['text'].strip()
                     pos = 'X'
                     tags = ''
 
-                conllu_token = ConlluToken(token['text'])
+                conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_counter)
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, tags))
                 conllu_tokens.append(conllu_token)
