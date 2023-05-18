@@ -186,10 +186,9 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     time.sleep(determined_pause + random.random() / divider)
     headers = config.get_headers()
     timeout = config.get_timeout()
-    response = requests.get(url,
-                        headers=headers,
-                        timeout=timeout,
-                        verify=config.get_verify_certificate())
+    response = requests.get(url, headers=headers,
+                            timeout=timeout,
+                            verify=config.get_verify_certificate())
     response.encoding = config.get_encoding()
     return response
 
@@ -275,7 +274,7 @@ class HTMLParser:
         except ValueError:
             pass
         topics = [topic.text.strip() for topic in article_soup.find_all('a',
-                                                                class_="single-header__rubric")]
+                                                                        class_="single-header__rubric")]
         self.article.topics = topics[:-1]
         self.article.author = [topics[-1]]
 
@@ -406,6 +405,7 @@ def main() -> None:
     # print(counted)
     # print(sorted(counted, key=lambda x: -counted[x]))
 
+
 def main_recursive() -> None:
     """
     Driver code for recursive crawling
@@ -424,4 +424,4 @@ def main_recursive() -> None:
 
 if __name__ == "__main__":
     main()
-    #main_recursive()
+    # main_recursive()
