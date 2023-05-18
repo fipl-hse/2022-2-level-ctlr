@@ -53,7 +53,7 @@ class CorpusManager:
         if not any(self.path_to_data.iterdir()):
             raise EmptyDirectoryError
 
-        raw_files = [file for file in self.path_to_data.glob(r'*_raw.txt')]
+        raw_files = [file for file in self.path_to_data.glob('*_raw.txt')]
         meta_files = [file for file in self.path_to_data.glob(r'*_meta.json')]
 
         if len(meta_files) != len(raw_files):
