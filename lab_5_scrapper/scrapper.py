@@ -194,7 +194,7 @@ class Crawler:
         """
         href = article_bs.get("href")
 
-        if href and href.startswith("https://www.fontanka.ru/") and 'longreads' not in href:
+        if href and href.startswith("https://www.fontanka.ru/") and ('longreads' and '__site/about/') not in href:
             return str(href)
         return ""
 
