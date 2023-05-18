@@ -241,7 +241,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        text = '\n'.join([text.text for text in article_soup.find_all('div', class_='CVah B3a1 B3ah')])
+        self.article.text = '\n'.join([text.text for text in article_soup.find_all('div', class_='CVah B3a1 B3ah')])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
