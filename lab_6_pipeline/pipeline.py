@@ -148,7 +148,7 @@ class ConlluToken:
         Returns lowercase original form of a token
         """
         text = self._text
-        for sym in string.punctuation:
+        for sym in (string.punctuation + " "):
             text = text.replace(sym, '')
         return text.lower()
 
