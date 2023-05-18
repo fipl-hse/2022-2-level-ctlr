@@ -44,10 +44,10 @@ def _parse_conllu_token(token_line: str) -> ConlluToken:
     Example:
     '2	произошло	происходить	VERB	_	Gender=Neut|Number=Sing|Tense=Past	0	root	_	_'
     """
-    split_line = token_line.split('\t')
-    conllu_token = ConlluToken(split_line[1])
-    conllu_token.set_position(int(split_line[0]))
-    params = MorphologicalTokenDTO(lemma=split_line[2], pos=split_line[3], tags=split_line[5])
+    token_params = token_line.split('\t')
+    conllu_token = ConlluToken(token_params[1])
+    conllu_token.set_position(int(token_params[0]))
+    params = MorphologicalTokenDTO(lemma=token_params[2], pos=token_params[3], tags=token_params[5])
     conllu_token.set_morphological_parameters(params)
     return conllu_token
 
