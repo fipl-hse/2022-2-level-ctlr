@@ -263,10 +263,6 @@ class HTMLParser:
         Finds meta information of article
         """
         # find author
-        # author = article_soup.find('div', {'class': 'article-copyright__author'})
-        # author = author.text.replace("/", "")
-        # self.article.author = [author] if author else ['NOT FOUND']
-
         author = article_soup.find('div', {'class': 'article-copyright__author'}).get('content')
         if author:
             self.article.author = [author]
@@ -320,6 +316,74 @@ def prepare_environment(base_path: Union[Path, str]) -> None:
     base_path.mkdir(parents=True)
 
 
+class CrawlerRecursive(Crawler):
+    """
+    Recursive Crawler implementation
+    """
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.start_url = config.get_seed_urls()[0]
+        self.crawler_data_path = Path(__file__).parent / 'crawler_data.json'
+        self.num_visited_urls = 0
+        self.visited_urls = []
+        self.load_crawler_data()
+
+    def load_crawler_data(self) -> None:
+        """
+        Loads start_url and collected urls
+        from a json file into crawler
+        """
+        if self.crawler_data_path.exists():
+            with open(self.crawler_data_path, 'r', encoding='utf-8') as file:
+                try:
+                    data = json.load(file)
+                    self.num_visited_urls = data['num_visited_urls']
+                    self.start_url = data['start_url']
+                    self.urls = data['urls']
+                    self.visited_urls = data['visited_urls']
+                except json.JSONDecodeError:
+                    return
+
+    def save_crawler_data(self) -> None:
+        """
+        Saves start_url and collected urls
+        from crawler into a json file
+        """
+        data = {
+            'num_visited_urls': self.num_visited_urls,
+            'start_url': self.start_url,
+            'urls': self.urls,
+            'visited_urls': self.visited_urls
+        }
+        with open(self.crawler_data_path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=True, indent=4, separators=(', ', ': '))
+
+    def find_articles(self) -> None:
+        """
+        Recursive collecting and searching for links on the site
+        """
+        if self.num_visited_urls:
+            self.start_url = self.visited_urls[self.num_visited_urls - 1]
+        response = make_request(self.start_url, self._config)
+        links_bs = BeautifulSoup(response.content, 'lxml')
+        for link in links_bs.find_all('a'):
+            if self._extract_url(link):
+                url = self._extract_url(link)
+                if url and url not in self.urls \
+                        and len(self.urls) < self._config.get_num_articles():
+                    self.urls.append(url)
+            else:
+                href = link.get("href")
+                if href and href not in self.visited_urls \
+                        and urlparse(href).netloc == urlparse(self.start_url).netloc:
+                    self.visited_urls.append(href)
+        while len(self.urls) < self._config.get_num_articles():
+            self.num_visited_urls += 1
+            self.save_crawler_data()
+            self.find_articles()
+
+
 def main() -> None:
     """
     Entrypoint for scrapper module
@@ -334,6 +398,24 @@ def main() -> None:
         if isinstance(parsed_article, Article):
             to_raw(parsed_article)
             to_meta(parsed_article)
+
+
+def main_recursive() -> None:
+    """
+    Entrypoint for scrapper module
+    """
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
+    prepare_environment(ASSETS_PATH)
+    recursive_crawler = CrawlerRecursive(config=config)
+    recursive_crawler.find_articles()
+    for ind, url in enumerate(recursive_crawler.urls, start=1):
+        parser = HTMLParser(full_url=url,
+                            article_id=ind,
+                            config=config)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
