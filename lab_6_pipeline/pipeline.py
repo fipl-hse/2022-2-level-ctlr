@@ -1,6 +1,9 @@
 """
 Pipeline for CONLL-U formatting
 """
+import string
+
+from pymystem3 import Mystem
 import re
 from pathlib import Path
 from typing import List
@@ -229,17 +232,45 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus_manager = corpus_manager
-        self._converter = MystemTagConverter
+        self._mystem = Mystem()
+        self._mapping_path = Path(__file__).parent/'data'/'mystem_tags_mapping.json'
+        self._converter = MystemTagConverter(self._mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
+        punctuation = string.punctuation
         conllu_text = []
-        for index, sentence in enumerate(split_by_sentence(text), 0):
-            conllu_tokens = [ConlluToken(token) for token in sentence.split()]
-            conllu_text.append(ConlluSentence(index, sentence, conllu_tokens))
-        return conllu_text
+
+        for sent_id, sentence in enumerate(split_by_sentence(text)):
+            conllu_processed = []
+            result = [token for token in self._mystem.analyze(text)]
+
+            token_id = 0
+            for token in result:
+                if 'analysis' in token and token['analysis']:
+                    lemma = token['analysis'][0]['lex']
+                    pos = self._converter.convert_pos(token['analysis'][0]['gr'])
+                    morph_param = MorphologicalTokenDTO(lemma, pos)
+                else:
+                    if token['text'].isdigit():
+                        pos = 'NUM'
+                    elif token['text'] in punctuation:
+                        pos = 'PUNCT'
+                    else:
+                        continue
+                    morph_param = MorphologicalTokenDTO(pos)
+
+                conllu_token = ConlluToken(token['text'].strip())
+                conllu_token._position = token_id
+                token_id += 1
+                conllu_token.set_morphological_parameters(morph_param)
+                conllu_processed.append(conllu_token)
+
+            conllu_text.append(ConlluSentence(sent_id, sentence, conllu_processed))
+
+            return conllu_text
 
     def run(self) -> None:
         """

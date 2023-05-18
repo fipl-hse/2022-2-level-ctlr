@@ -214,6 +214,7 @@ class Crawler:
         for seed_url in self.seed_urls:
             response = make_request(seed_url, self._config)
             if response.status_code != 200:
+                print(response.status_code)
                 continue
             main_bs = BeautifulSoup(response.text, 'lxml')
             articles = main_bs.find_all('div', {'class': 'news-item'})
@@ -221,7 +222,7 @@ class Crawler:
                 if len(self.urls) >= self._config.get_num_articles():
                     return
                 url = self._extract_url(article_bs.find('a'))
-                if not url:
+                if url == 'not found':
                     continue
                 if url not in self.urls:
                     url_response = make_request(url, self._config)
@@ -257,9 +258,8 @@ class HTMLParser:
         main_bs = article_soup.find('div', {'class': 'item'})
         content = main_bs.findAll('p')
         text = ''
-        if content:
-            for paragraph in content:
-                text += paragraph.get_text()
+        for paragraph in content:
+            text += paragraph.get_text()
         self.article.text += text
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
@@ -308,6 +308,7 @@ def main() -> None:
     crawler = Crawler(config=config)
 
     crawler.find_articles()
+    print(len(crawler.urls))
     for i, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=i, config=config)
         article = parser.parse()
