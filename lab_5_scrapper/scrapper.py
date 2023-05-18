@@ -269,9 +269,9 @@ class HTMLParser:
         Parses each article
         """
         response = make_request(self.full_url, self._config)
-        article_bs = BeautifulSoup(response.text, "lxml")
-        self._fill_article_with_text(article_bs)
-        self._fill_article_with_meta_information(article_bs)
+        article = BeautifulSoup(response.text, "lxml")
+        self._fill_article_with_text(article)
+        self._fill_article_with_meta_information(article)
         return self.article
 
 
@@ -294,10 +294,10 @@ def main() -> None:
     crawler.find_articles()
     for id_, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=id_, config=configuration)
-        text = parser.parse()
-        if isinstance(text, Article):
-            to_raw(text)
-            to_meta(text)
+        article = parser.parse()
+        if isinstance(article, Article):
+            to_raw(article)
+            to_meta(article)
 
 
 if __name__ == "__main__":
