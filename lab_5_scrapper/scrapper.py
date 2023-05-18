@@ -245,25 +245,60 @@ class HTMLParser:
         """
         article_text = article_soup.find('div', class_='article-text')
         all_paragraphs = article_text.find_all('p')
-        for p in all_paragraphs:
-            self.article.text += p.text
+        par_text = [p.text.strip() for p in all_paragraphs]
+        self.article.text += '\n'.join(par_text)
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
         self.article.title = article_soup.find('h1').text
-        authors = article_soup.find('span', class_='author-post')
-        if authors:
-            self.article.author = [name.text[8:] for name in authors]
+        tag_authors = article_soup.find('span', class_='author-post')
+        authors = [name.text.strip() for name in tag_authors if tag_authors]
+        if authors[1]:
+            self.article.author = authors[1:]
         else:
             self.article.author = ['NOT FOUND']
+
+        topics = [title.text for title in article_soup.find_all('a', class_='tags-link')]
+        self.article.topics = topics
+
+        date = article_soup.find('div', class_='article-info-item')
+        string_date = date.text
+        self.article.date = self.unify_date_format(string_date)
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
         Unifies date format
         """
-        pass
+        list_date = date_str.lower().split()
+
+        months_collection = {"января": "01", "февраля": "02", "марта": "03",
+                             "апреля": "04", "мая": "05", "июня": "06",
+                             "июля": "07", "августа": "08", "сентября": "09",
+                             "октября": "10", "ноября": "11", "декабря": "12"}
+        year = ''
+        month = ''
+        day = ''
+        time = ''
+
+        for el in list_date:
+            if ':' in el:
+                time += el[:5]
+            if el in months_collection:
+                month += months_collection[el]
+            digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+            years = ['2020', '2021', '2022', '2023']
+            if el.isdigit() and el in digits:
+                day += '0' + el
+            if el.isdigit() and el not in digits and el not in years:
+                day += el
+            if el.isdigit() and el in years:
+                year += el
+
+        correct_date = year + month + day + time
+        return datetime.datetime.strptime(correct_date, '%Y%m%d%H:%M')
+
 
     def parse(self) -> Union[Article, bool, list]:
         """
