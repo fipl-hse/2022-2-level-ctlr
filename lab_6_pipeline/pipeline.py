@@ -257,11 +257,19 @@ class OpenCorporaTagConverter(TagConverter):
         """
         tags_list = re.split(r'\W+', str(tags))
         ud_tags = []
+        '''
         if len(tags_list) > 1:
             for tag in tags_list[1:]:
                 for category in self._tag_mapping.keys():
                     if tag in self._tag_mapping[category].keys():
                         ud_tags.append(f'{category}={self._tag_mapping[category][tag]}')
+        '''
+        if len(tags_list) > 1:
+            for tag in tags_list[1:]:
+                ud_tags_one = [f'{category}={self._tag_mapping[category][tag]}'
+                               for category in self._tag_mapping.keys()
+                               if tag in self._tag_mapping[category].keys()]
+                ud_tags.extend(ud_tags_one)
             return '|'.join(sorted(ud_tags))
         else:
             return '_'
@@ -319,7 +327,6 @@ class MorphologicalAnalysisPipeline:
                         ud_pos = 'X'
                     else:
                         continue
-
                     parameters = MorphologicalTokenDTO(lemma=token['text'].strip(), pos=ud_pos, tags= '_')
                 conllu_token = ConlluToken(token['text'].strip())
                 conllu_token.set_position(token_ind)
