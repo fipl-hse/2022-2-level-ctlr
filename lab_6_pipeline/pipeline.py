@@ -294,7 +294,6 @@ class MorphologicalAnalysisPipeline:
                 conllu_tokens.append(conllu_token)
             conllu_sentence = ConlluSentence(position, sentence, conllu_tokens)
             conllu_sentences.append(conllu_sentence)
-
         return conllu_sentences
 
     def run(self) -> None:
