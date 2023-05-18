@@ -291,7 +291,7 @@ class HTMLParser:
             digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             years = ['2020', '2021', '2022', '2023']
             if element.isdigit() and element in digits:
-                day += '0' + el
+                day += '0' + element
             if element.isdigit() and element not in digits and element not in years:
                 day += element
             if element.isdigit() and element in years:
