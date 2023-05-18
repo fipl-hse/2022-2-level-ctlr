@@ -74,10 +74,8 @@ class CorpusManager:
         """
         Register each dataset entry
         """
-        raw_files = [i for i in self.path_to_data.glob('*_raw.txt')]
-        for file in raw_files:
-            article_id = get_article_id_from_filepath(file)
-            self._storage[article_id] = from_raw(path=file)
+        for file in self.path_to_data.glob('*_raw.txt'):
+            self._storage[int(file.stem.split("_")[0])] = from_raw(file)
 
     def get_articles(self) -> dict:
         """
