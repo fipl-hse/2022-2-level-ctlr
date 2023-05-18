@@ -50,32 +50,43 @@ class CorpusManager:
         if not self.path_to_data.is_dir():
             raise NotADirectoryError
 
-        file_count = len(list(self.path_to_data.iterdir()))
-        if not file_count:
+        if not any(self.path_to_data.iterdir()):
             raise EmptyDirectoryError
 
-        meta_files = list(self.path_to_data.glob(r'*_meta.json'))
-        text_files = list(self.path_to_data.glob(r'*_raw.txt'))
+        raw_files = [file for file in self.path_to_data.glob('*_raw.txt')]
+        meta_files = [file for file in self.path_to_data.glob(r'*_meta.json')]
 
-        if len(meta_files) != len(text_files):
+        if len(meta_files) != len(raw_files):
+             raise InconsistentDatasetError
+
+        for file in raw_files:
+            if not file.stat().st_size:
+                raise InconsistentDatasetError
+
+        for file in meta_files:
+            if not file.stat().st_size:
+                raise InconsistentDatasetError
+
+        list_of_raw_ids = []
+        for file in raw_files:
+            list_of_raw_ids.append(int(file.name[:file.name.index('_')]))
+        if sorted(list_of_raw_ids) != list(range(1, len(list_of_raw_ids) + 1)):
             raise InconsistentDatasetError
 
-        for files in meta_files, text_files:
-            ids = set()
-
-            for file in files:
-                if not file.stat().st_size:
-                    raise InconsistentDatasetError
-                ids.add(int(file.stem.split("_")[0]))
-            if sorted(list(ids)) != list(range(1, len(files) + 1)):
-                raise InconsistentDatasetError
+        list_of_meta_ids = []
+        for file in meta_files:
+            list_of_meta_ids.append(int(file.name[:file.name.index('_')]))
+        if sorted(list_of_meta_ids) != list(range(1, len(list_of_meta_ids) + 1)):
+            raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
         Register each dataset entry
         """
-        for file in self.path_to_data.glob('*_raw.txt'):
-            self._storage[int(file.stem.split("_")[0])] = from_raw(file)
+        raw_files = [i for i in self.path_to_data.glob('*_raw.txt')]
+        for file in raw_files:
+            article_id = get_article_id_from_filepath(file)
+            self._storage[article_id] = from_raw(path=file)
 
     def get_articles(self) -> dict:
         """
@@ -148,8 +159,9 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        cleaned_text = re.sub(r'[^\w\s]', '', self._text)
-        return cleaned_text.lower()
+        text = self._text.lower()
+        cleaned_text = re.sub(r'[^\w\s]', '', text)
+        return cleaned_text
 
 
 class ConlluSentence(SentenceProtocol):
@@ -169,8 +181,10 @@ class ConlluSentence(SentenceProtocol):
         """
         Formats tokens per newline
         """
-        return '\n'.join(token.get_conllu_text(include_morphological_tags=include_morphological_tags)
-                         for token in self._tokens)
+        conllu_tokens = []
+        for token in self._tokens:
+            conllu_tokens.append(token.get_conllu_text(include_morphological_tags))
+        return '\n'.join(conllu_tokens)
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
@@ -186,7 +200,13 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns the lowercase representation of the sentence
         """
-        return " ".join(filter(bool, (token.get_cleaned() for token in self._tokens)))
+        sentence = ''
+        for token in self._tokens:
+            cleaned_token = token.get_cleaned()
+            if cleaned_token:
+                sentence += cleaned_token + ' '
+        sentence = sentence.strip()
+        return sentence
 
     def get_tokens(self) -> list[ConlluToken]:
         """
@@ -248,7 +268,8 @@ class MorphologicalAnalysisPipeline:
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        for sentence_id, sentence in enumerate(split_by_sentence(text)):
+        sentences = split_by_sentence(text)
+        for position, sentence in enumerate(sentences):
             mystem_sentence = self._mystem.analyze(sentence)
             conllu_tokens = []
             token_counter = 0
@@ -265,7 +286,7 @@ class MorphologicalAnalysisPipeline:
                     lemma = token['text']
                     pos = 'NUM'
                 elif '.' in token['text']:
-                    lemma = text
+                    lemma = token['text'].strip()
                     pos = 'PUNCT'
                 else:
                     lemma = token['text']
@@ -275,7 +296,7 @@ class MorphologicalAnalysisPipeline:
                 conllu_token.set_position(token_counter)
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, ''))
                 conllu_tokens.append(conllu_token)
-            conllu_sentence = ConlluSentence(sentence_id, sentence, conllu_tokens)
+            conllu_sentence = ConlluSentence(position, sentence, conllu_tokens)
             conllu_sentences.append(conllu_sentence)
         return conllu_sentences
 
