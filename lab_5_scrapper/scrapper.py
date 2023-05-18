@@ -333,8 +333,9 @@ def main() -> None:
     for idx, url in enumerate(crawler.urls):
         parser = HTMLParser(url, idx+1, configuration)
         text = parser.parse()
-        to_raw(text)
-        to_meta(text)
+        if isinstance(text, Article):
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
