@@ -7,6 +7,11 @@ from pathlib import Path
 from core_utils.article.article import Article
 from lab_6_pipeline.pipeline import ConlluToken, CorpusManager
 
+class EmptyFileError(Exception):
+    """
+    IDs contain slips, number of meta and raw files is not equal, files are empty
+    """
+
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:
     """
     Populates the Article abstraction with all information from the conllu file
