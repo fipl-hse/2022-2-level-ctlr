@@ -3,6 +3,7 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
+from string import punctuation
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.io import from_raw, to_cleaned
@@ -49,14 +50,16 @@ class CorpusManager:
             raise EmptyDirectoryError
         raw_paths = list(self.path_to_raw_text_data.glob('*_raw.txt'))
         meta_paths = list(self.path_to_raw_text_data.glob('*_meta.json'))
-        if len(raw_paths) != len(meta_paths):
-            raise InconsistentDatasetError
+        # if len(raw_paths) != len(meta_paths):
+        #     raise InconsistentDatasetError
         for i in range(1, len(raw_paths) + 1):
             raw = list(self.path_to_raw_text_data.glob(str(i) + '_raw.txt'))
-            meta = list(self.path_to_raw_text_data.glob(str(i) + '_meta.json'))
-            if not raw or not meta:
-                raise InconsistentDatasetError
-            if not raw[0].stat().st_size or not meta[0].stat().st_size:
+            # meta = list(self.path_to_raw_text_data.glob(str(i) + '_meta.json'))
+            # if not raw or not meta:
+            #     raise InconsistentDatasetError
+            # if not raw[0].stat().st_size or not meta[0].stat().st_size:
+            #     raise InconsistentDatasetError
+            if not raw or not raw[0].stat().st_size:
                 raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
@@ -116,7 +119,7 @@ class ConlluToken:
         Returns lowercase original form of a token
         """
         clean = self._text.lower()
-        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';', '…', '»', '«', '—', '(', ')', '/', '•', '+', '*', '№']:
+        for i in punctuation + '-–…»«—•№':
             clean = clean.replace(i, '')
         return clean
 
@@ -144,7 +147,7 @@ class ConlluSentence(SentenceProtocol):
         Returns the lowercase representation of the sentence
         """
         clean = self._text.lower()
-        for i in [',', '.', '!', '?', ':', '"', '-', '–', ';', '…', '»', '«', '—', '(', ')', '/', '•', '+', '*', '№']:
+        for i in punctuation + '-–…»«—•№':
             clean = clean.replace(i, '')
         return clean
 
