@@ -234,24 +234,29 @@ class HTMLParser:
         """
         self.full_url = full_url
         self.article_id = article_id
-        self.config = config
+        self._config = config
         self.article = Article(self.full_url, self.article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        article_bs = article_soup.find('p')
-        text = ''
-        for paragraph in article_bs:
-            text += paragraph.get_text().strip() + '\n'
-        self.article.text += text
+        text = '\n'.join([text.text for text in article_soup.find_all('div', class_='CVah B3a1 B3ah')])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('h1', class_="DHat primaryH4HeadlineMobile primaryH2HeadlineTablet")
+        if title:
+            self.article.title = title.text
+        else:
+            self.article.title = "NONE"
+        author = article_soup.find('a', class_="CZk1")
+        if author:
+            self.article.author = [author.text]
+        else:
+            self.article.author = ["NOT FOUND"]
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -263,7 +268,7 @@ class HTMLParser:
         """
         Parses each article
         """
-        response = make_request(self.full_url, self.config)
+        response = make_request(self.full_url, self._config)
         article_bs = BeautifulSoup(response.text, "lxml")
         self._fill_article_with_text(article_bs)
         self._fill_article_with_meta_information(article_bs)
@@ -289,10 +294,10 @@ def main() -> None:
     crawler.find_articles()
     for id_, url in enumerate(crawler.urls, start=1):
         parser = HTMLParser(full_url=url, article_id=id_, config=configuration)
-        article = parser.parse()
-        if isinstance(article, Article):
-            to_raw(article)
-            to_meta(article)
+        text = parser.parse()
+        if isinstance(text, Article):
+            to_raw(text)
+            to_meta(text)
 
 
 if __name__ == "__main__":
