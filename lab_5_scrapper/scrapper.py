@@ -194,7 +194,7 @@ class Crawler:
         """
         href = article_bs.get("href")
 
-        if href and href.startswith("https://www.fontanka.ru/") and 'hashtag' not in href:
+        if href and href.startswith("https://www.fontanka.ru/") and 'longreads' not in href:
             return str(href)
         return ""
 
@@ -241,7 +241,7 @@ class HTMLParser:
         """
         Finds text of article
         """
-        self.article.text = '\n'.join([text.text for text in article_soup.find_all('div', class_='CVah B3a1 B3ah')])
+        self.article.text = '\n'.join([text.get_text(strip=True) for text in article_soup.find_all('div', class_='CVah B3a1 B3ah')])
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
