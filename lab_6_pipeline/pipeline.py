@@ -304,7 +304,7 @@ class MorphologicalAnalysisPipeline:
             sentences = self._process(article.text)
             article.set_conllu_sentences(sentences)
             to_cleaned(article)
-            to_conllu((article, include_morphological_tags=False, include_pymorphy_tags=False))
+            to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
 
 
 class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
