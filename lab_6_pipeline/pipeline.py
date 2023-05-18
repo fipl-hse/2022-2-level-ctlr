@@ -55,12 +55,12 @@ class CorpusManager:
         for i in range(1, len(raw_paths) + 1):
             raw = list(self.path_to_raw_text_data.glob(str(i) + '_raw.txt'))
             meta = list(self.path_to_raw_text_data.glob(str(i) + '_meta.json'))
-            if not raw or not meta:
-                raise InconsistentDatasetError
-            if not raw[0].stat().st_size or not meta[0].stat().st_size:
-                raise InconsistentDatasetError
-            # if not raw or not raw[0].stat().st_size:
+            # if not raw or not meta:
             #     raise InconsistentDatasetError
+            # if not raw[0].stat().st_size or not meta[0].stat().st_size:
+            #     raise InconsistentDatasetError
+            if not raw or not raw[0].stat().st_size:
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
