@@ -63,16 +63,9 @@ class CorpusManager:
         raw_file_paths = list(self.path_to_raw_txt_data.glob('*_raw.txt'))
         raw_file_indexes = sorted(int(path.name.split('_')[0]) for path in raw_file_paths)
 
-        meta_file_paths = list(self.path_to_raw_txt_data.glob('*_meta.json'))
-        meta_file_indexes = sorted(int(path.name.split('_')[0]) for path in meta_file_paths)
-
-        if not (len(raw_file_paths) == len(meta_file_paths)):
-            raise InconsistentDatasetError(InconsistentDatasetError.__doc__.strip())
-
         check_for_slips(raw_file_indexes)
-        check_for_slips(meta_file_indexes)
 
-        for file in raw_file_paths + meta_file_paths:
+        for file in raw_file_paths:
             if file.stat().st_size == 0:
                 raise InconsistentDatasetError(InconsistentDatasetError.__doc__.strip())
 
