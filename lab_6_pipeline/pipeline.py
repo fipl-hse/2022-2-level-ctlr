@@ -3,10 +3,12 @@ Pipeline for CONLL-U formatting
 """
 import string
 from pathlib import Path
-from typing import List
+from typing import Generator, List
+
+from pymystem3 import Mystem
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence
-from core_utils.article.io import from_raw, to_cleaned
+from core_utils.article.io import from_raw, to_cleaned, to_conllu
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
@@ -100,6 +102,9 @@ class MorphologicalTokenDTO:
         """
         Initializes MorphologicalTokenDTO
         """
+        self.lemma = lemma
+        self.pos = pos
+        self.tags = tags
 
 
 class ConlluToken:
@@ -112,21 +117,36 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
+        self._morphological_parameters = MorphologicalTokenDTO()
+        self.position = 0
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
         Stores the morphological parameters
         """
+        self._morphological_parameters = parameters
 
     def get_morphological_parameters(self) -> MorphologicalTokenDTO:
         """
         Returns morphological parameters from ConlluToken
         """
+        return self._morphological_parameters
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         String representation of the token for conllu files
         """
+        postiton = str(self.position)
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
+        xpos = '_'
+        feats = '_'
+        head = '0'
+        deprel = 'root'
+        deps = '_'
+        misc = '_'
+        return '\t'.join([postiton, text, lemma, pos, xpos, feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
         """
@@ -151,10 +171,21 @@ class ConlluSentence(SentenceProtocol):
         self._text = text
         self._tokens = tokens
 
+    def _format_tokens(self, include_morphological_tags: bool) -> str:
+        """
+        Formats tokens per newline
+        """
+        return '\n'.join(token.get_conllu_text(include_morphological_tags) for token in self._tokens)
+
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
+        position = f'# sent_id = {self._position}\n'
+        text = f'# text = {self._text}\n'
+        tokens = f'{self._format_tokens(include_morphological_tags)}\n'
+
+        return position + text + tokens
 
     def get_cleaned_sentence(self) -> str:
         """
@@ -177,11 +208,22 @@ class MystemTagConverter(TagConverter):
         """
         Converts the Mystem tags into the UD format
         """
+        pos = self.convert_pos(tags)
+
+        pos_categories = {
+            'NOUN': [self.gender, self.animacy, self.case, self.number],
+            'ADJ': [self.gender, self.animacy, self.case, self.number],
+            'VERB': [self.tense, self.number, self.gender],
+            'NUM': [self.gender, self.case, self.animacy],
+            'PRON': [self.number, self.case]
+        }
 
     def convert_pos(self, tags: str) -> str:  # type: ignore
         """
         Extracts and converts the POS from the Mystem tags into the UD format
         """
+        pos = tags.split('=')[0]
+        return self._tag_mapping[self.pos][pos]
 
 
 class OpenCorporaTagConverter(TagConverter):
@@ -210,17 +252,67 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
+        self._mystem_analyzer = Mystem()
+
+    def _make_conllu_token(self, token_id: int, token_text: str,
+                           lemma: str, pos: str, tags: str) -> ConlluToken:
+        token = ConlluToken(token_text)
+        token.position = token_id
+        morph_params = MorphologicalTokenDTO(lemma, pos, tags)
+        token.set_morphological_parameters(morph_params)
+        return token
+
+    def _get_tokens(self, result: Generator, sentence: str) -> List:
+        """
+        Processes sentence to extract tokens in Mystem analyzed format
+        """
+        tokens = []
+        while sentence:
+            token = next(result)
+
+            if token['text'] not in sentence:
+                continue
+
+            sentence = sentence.replace(token['text'], '', 1)
+
+            if token['text'].isalnum():
+                tokens.append(token)
+
+            tokens.append({'text': '.'})
+        return tokens
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
-        sentences = split_by_sentence(text)
-        tokenized_sentences = []
-        for i, sent in enumerate(sentences, start=1):
-            tokens = list(ConlluToken(t) for t in sent.split())
-            tokenized_sentences.append(ConlluSentence(i, sent, tokens))
-        return tokenized_sentences
+        conllu_sentences = []
+
+        for sent_position, sent in enumerate(split_by_sentence(text), start=1):
+            result = (i for i in self._mystem_analyzer.analyze(sent))
+            tokens = self._get_tokens(result, sent)
+
+            conllu_tokens = []
+            for token_position, token in enumerate(tokens, start=1):
+                token_text = token['text']
+                if token['analysis']:
+                    lemma = token['analysis'][0]['lex']
+                    pos = ''
+                    tags = ''
+                else:
+                    tags = ''
+                    lemma = text
+                    if text in string.punctuation:
+                        pos = 'PUNCT'
+                    elif text.isdigit():
+                        pos = 'NUM'
+                    else:
+                        pos = 'X'
+
+                conllu_token = self._make_conllu_token(token_position, token_text, lemma, pos, tags)
+                conllu_tokens.append(conllu_token)
+
+            conllu_sentences.append(ConlluSentence(sent_position, sent, conllu_tokens))
+        return conllu_sentences
 
     def run(self) -> None:
         """
