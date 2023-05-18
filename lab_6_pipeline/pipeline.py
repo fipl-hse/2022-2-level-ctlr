@@ -120,10 +120,10 @@ class ConlluToken:
         """
         self._text = text
         self._morphological_parameters = MorphologicalTokenDTO()
-        self.position = 0
+        self._position = 0
 
     def set_position(self, position) -> None:
-        self.position = position
+        self._position = position
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -141,19 +141,18 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        position = str(self.position)
-        text = self._text
-        lemma = self._morphological_parameters.lemma
-        pos = self._morphological_parameters.pos
-        xpos = '_'
-        feats = '_'
-        head = '0'
-        deprel = 'root'
-        deps = '_'
-        misc = '_'
-
-        return '\t'.join([position, text, lemma, pos, xpos,
-                          feats, head, deprel, deps, misc])
+        return "\t".join([
+            str(self._position),
+            self._text,
+            self._morphological_parameters.lemma,
+            self._morphological_parameters.pos,
+            "_",  # xpos
+            "_",  # feats
+            "0",  # head
+            "root",  # deprel
+            "_",  # depscon
+            "_"  # misc
+        ])
 
     def get_cleaned(self) -> str:
         """
