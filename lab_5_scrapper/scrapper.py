@@ -273,8 +273,8 @@ class HTMLParser:
             self.article.date = self.unify_date_format(date.text)
         except ValueError:
             pass
-        topics = [topic.text.strip() for topic in article_soup.find_all('a',
-                                                                        class_="single-header__rubric")]
+        topics = [topic.text.strip() for topic
+                  in article_soup.find_all('a', class_="single-header__rubric")]
         self.article.topics = topics[:-1]
         self.article.author = [topics[-1]]
 
