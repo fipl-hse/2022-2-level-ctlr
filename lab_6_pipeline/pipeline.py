@@ -169,10 +169,8 @@ class ConlluSentence(SentenceProtocol):
         """
         Formats tokens per newline
         """
-        conllu_tokens = []
-        for token in self._tokens:
-            conllu_tokens.append(token.get_conllu_text(include_morphological_tags))
-        return '\n'.join(conllu_tokens)
+        return '\n'.join(token.get_conllu_text(include_morphological_tags=include_morphological_tags)
+                         for token in self._tokens)
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
