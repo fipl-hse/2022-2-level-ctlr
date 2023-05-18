@@ -196,6 +196,7 @@ class Crawler:
         url = article_bs.get('href')
         if isinstance(url, str) and url.startswith('https://abnews.ru/'):
             return url
+        return ''
 
     def find_articles(self) -> None:
         """
@@ -282,19 +283,19 @@ class HTMLParser:
         day = ''
         time = ''
 
-        for el in list_date:
-            if ':' in el:
-                time += el[:5]
-            if el in months_collection:
-                month += months_collection[el]
+        for element in list_date:
+            if ':' in element:
+                time += element[:5]
+            if element in months_collection:
+                month += months_collection[element]
             digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
             years = ['2020', '2021', '2022', '2023']
-            if el.isdigit() and el in digits:
+            if element.isdigit() and element in digits:
                 day += '0' + el
-            if el.isdigit() and el not in digits and el not in years:
-                day += el
-            if el.isdigit() and el in years:
-                year += el
+            if element.isdigit() and element not in digits and element not in years:
+                day += element
+            if element.isdigit() and element in years:
+                year += element
 
         correct_date = year + month + day + time
         return datetime.datetime.strptime(correct_date, '%Y%m%d%H:%M')
