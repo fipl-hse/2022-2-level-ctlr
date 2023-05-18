@@ -2,13 +2,6 @@
 Implementation of POSFrequencyPipeline for score ten only.
 """
 from typing import Optional
-from pathlib import Path
-from core_utils.article.article import Article
-from lab_6_pipeline.pipeline import ConlluToken, CorpusManager
-
-
-class EmptyFileError(Exception):
-    """."""
 
 
 def from_conllu(path: Path, article: Optional[Article] = None) -> Article:

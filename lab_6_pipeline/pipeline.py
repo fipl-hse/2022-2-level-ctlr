@@ -49,16 +49,8 @@ class CorpusManager:
         if not len(list(self.path_to_raw_text_data.glob('*.*'))):
             raise EmptyDirectoryError
         raw_paths = list(self.path_to_raw_text_data.glob('*_raw.txt'))
-        meta_paths = list(self.path_to_raw_text_data.glob('*_meta.json'))
-        # if len(raw_paths) != len(meta_paths):
-        #     raise InconsistentDatasetError
         for i in range(1, len(raw_paths) + 1):
             raw = list(self.path_to_raw_text_data.glob(str(i) + '_raw.txt'))
-            meta = list(self.path_to_raw_text_data.glob(str(i) + '_meta.json'))
-            # if not raw or not meta:
-            #     raise InconsistentDatasetError
-            # if not raw[0].stat().st_size or not meta[0].stat().st_size:
-            #     raise InconsistentDatasetError
             if not raw or not raw[0].stat().st_size:
                 raise InconsistentDatasetError
 
