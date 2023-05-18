@@ -270,14 +270,14 @@ class HTMLParser:
         # find and extract date
         date = article_soup.find('time', {'class': 'article__date'}).get('datetime')
         if date:
-            self.article.date = self.unify_date_format(str(date[:11]))
+            self.article.date = self.unify_date_format(str(date.replace("MSK", " ")+":00"))
 
         # find title
         self.article.title = article_soup.find('h1', {'class': 'article__h1'}).text
 
         # find tags
         for link in article_soup.find_all('a', href=True):
-            if link['href'].startswith('/text/tags/'):
+            if link['href'].startswith('/category/'):
                 if tag := link.get('title'):
                     self.article.topics.append(tag)
 
@@ -285,7 +285,7 @@ class HTMLParser:
         """
         Unifies date format
         """
-        pass
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
 
     def parse(self) -> Union[Article, bool, list]:
         """
