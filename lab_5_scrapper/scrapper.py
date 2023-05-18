@@ -204,18 +204,20 @@ class Crawler:
         """
         for seed_url in self._config.get_seed_urls():
             response = make_request(seed_url, self._config)
-            main_bs = BeautifulSoup(response.text, "lxml")
-            all_articles = main_bs.find("div", class_="sidebar-news-list")
-            if all_articles:
-                all_links = all_articles.find_all("a")
-                for link in all_links:
-                    if len(self.urls) >= self._config.get_num_articles():
-                        break
-                    url = self._extract_url(link)
-                    if url is None:
-                        continue
-                    if url and url not in self.urls:
-                        self.urls.append(url)
+            if response.status_code == 200:
+                main_bs = BeautifulSoup(response.text, 'lxml')
+                all_articles = main_bs.find("div", class_="sidebar-news-list")
+                if all_articles:
+                    all_links = all_articles.find_all("a")
+                    for link in all_links:
+                        if len(self.urls) >= self._config.get_num_articles():
+                            break
+                        url = self._extract_url(link)
+                        if url is None:
+                            continue
+                        if url and url not in self.urls:
+                            self.urls.append(url)
+
 
 
 
