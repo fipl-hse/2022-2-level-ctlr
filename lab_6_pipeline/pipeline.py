@@ -44,40 +44,31 @@ class CorpusManager:
         """
         Validates folder with assets
         """
-        if not self.path_to_data.exists():
+        if not self.path_to_raw_txt_data.exists():
             raise FileNotFoundError
 
-        if not self.path_to_data.is_dir():
+        if not self.path_to_raw_txt_data.is_dir():
             raise NotADirectoryError
 
-        if not any(self.path_to_data.iterdir()):
+        file_count = len(list(self.path_to_raw_txt_data.iterdir()))
+        if not file_count:
             raise EmptyDirectoryError
 
-        raw_files = [file for file in self.path_to_data.glob('*_raw.txt')]
-        meta_files = [file for file in self.path_to_data.glob(r'*_meta.json')]
+        meta_files = list(self.path_to_raw_txt_data.glob(r'*_meta.json'))
+        text_files = list(self.path_to_raw_txt_data.glob(r'*_raw.txt'))
 
-        if len(meta_files) != len(raw_files):
-             raise InconsistentDatasetError
-
-        for file in raw_files:
-            if not file.stat().st_size:
-                raise InconsistentDatasetError
-
-        for file in meta_files:
-            if not file.stat().st_size:
-                raise InconsistentDatasetError
-
-        list_of_raw_ids = []
-        for file in raw_files:
-            list_of_raw_ids.append(int(file.name[:file.name.index('_')]))
-        if sorted(list_of_raw_ids) != list(range(1, len(list_of_raw_ids) + 1)):
+        if len(meta_files) != len(text_files):
             raise InconsistentDatasetError
 
-        list_of_meta_ids = []
-        for file in meta_files:
-            list_of_meta_ids.append(int(file.name[:file.name.index('_')]))
-        if sorted(list_of_meta_ids) != list(range(1, len(list_of_meta_ids) + 1)):
-            raise InconsistentDatasetError
+        for files in meta_files, text_files:
+            ids = set()
+
+            for file in files:
+                if not file.stat().st_size:
+                    raise InconsistentDatasetError
+                ids.add(int(file.stem.split("_")[0]))
+            if sorted(list(ids)) != list(range(1, len(files) + 1)):
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
