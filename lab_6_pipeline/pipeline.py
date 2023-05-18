@@ -120,10 +120,10 @@ class ConlluToken:
         """
         self._text = text
         self._morphological_parameters = MorphologicalTokenDTO()
-        self._position = 0
+        self.position = 0
 
     def set_position(self, position) -> None:
-        self._position = position
+        self.position = position
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -141,18 +141,19 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        return "\t".join([
-            str(self._position),
-            self._text,
-            self._morphological_parameters.lemma,
-            self._morphological_parameters.pos,
-            "_",  # xpos
-            "_",  # feats
-            "0",  # head
-            "root",  # deprel
-            "_",  # depscon
-            "_"  # misc
-        ])
+        position = str(self.position)
+        text = self._text
+        lemma = self._morphological_parameters.lemma
+        pos = self._morphological_parameters.pos
+        xpos = '_'
+        feats = '_'
+        head = '0'
+        deprel = 'root'
+        deps = '_'
+        misc = '_'
+
+        return '\t'.join([position, text, lemma, pos, xpos,
+                          feats, head, deprel, deps, misc])
 
     def get_cleaned(self) -> str:
         """
@@ -179,7 +180,10 @@ class ConlluSentence(SentenceProtocol):
         """
         Formats tokens per newline
         """
-        return '\n'.join(token.get_conllu_text(include_morphological_tags) for token in self._tokens)
+        conllu_tokens = []
+        for token in self._tokens:
+            conllu_tokens.append(token.get_conllu_text(include_morphological_tags))
+        return '\n'.join(conllu_tokens)
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
