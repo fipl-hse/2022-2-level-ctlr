@@ -14,8 +14,6 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-
-
 class InconsistentDatasetError(Exception):
     """
     Check if IDs contain slips, number of meta and raw files is not equal, files are empty
@@ -48,31 +46,29 @@ class CorpusManager:
         Validates folder with assets
         """
         if not self.path_to_raw_txt_data.exists():
-            raise FileNotFoundError(f"Path {self.path_to_raw_txt_data} does not exist")
+            raise FileNotFoundError
 
         if not self.path_to_raw_txt_data.is_dir():
-            raise NotADirectoryError(f"{self.path_to_raw_txt_data} is not a directory")
+            raise NotADirectoryError
 
         if not any(self.path_to_raw_txt_data.iterdir()):
             raise EmptyDirectoryError
 
-        # InconsistentDatasetError: IDs contain slips, number of meta and raw files is not equal, files are empty;
-        # The glob() function returns an array of filenames or directories matching a specified pattern.
+        raw_files = list(self.path_to_raw_txt_data.glob(r'*_raw.txt'))
+        meta_files = list(self.path_to_raw_txt_data.glob(r'*_meta.json'))
 
-        texts = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
-        texts_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts)
-
-        metas = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
-        metas_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in metas)
-
-        if texts_order != list(range(1, len(texts) + 1)):
+        if len(raw_files) != len(meta_files):
             raise InconsistentDatasetError
 
-        if metas_order != list(range(1, len(metas) + 1)):
-            raise InconsistentDatasetError
+        for files in raw_files, meta_files:
+            list_existing = sorted(int(re.search(r'\d+', file.stem)[0])
+                                   if re.search(r'\d+', file.stem)[0] else 0 for file in files)
+            list_ideal = list(range(1, len(files) + 1))
+            if list_existing != list_ideal:
+                raise InconsistentDatasetError
 
-        if not all(file.stat().st_size for file in texts):
-            raise InconsistentDatasetError
+            if not all(file.stat().st_size for file in files):
+                raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
         """
@@ -132,7 +128,7 @@ class ConlluToken:
         """
         String representation of the token for conllu files
         """
-        position = str(self._position)
+        position = str(self.position)
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
         xpos = '_'
@@ -194,6 +190,7 @@ class ConlluSentence(SentenceProtocol):
         Returns sentences from ConlluSentence
         """
         return self._tokens
+
 
 class MystemTagConverter(TagConverter):
     """
@@ -258,6 +255,9 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
+        self._mystem = Mystem()
+        tag_mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+        self._tag_converter = MystemTagConverter(tag_mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
