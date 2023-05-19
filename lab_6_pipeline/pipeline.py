@@ -228,7 +228,7 @@ class MystemTagConverter(TagConverter):
         Returns a list of features, that correspond to this POS
         """
         pos_categories = {
-            "NOUN": [self.gender, self.animacy, self.case, self.number],
+            "NOUN": [self.animacy, self.case, self.gender, self.number],
             "ADJ": [self.case, self.gender, self.number, self.animacy],
             "VERB": [self.gender, self.number, self.tense],
             "NUM": [self.case, self.animacy, self.gender],
