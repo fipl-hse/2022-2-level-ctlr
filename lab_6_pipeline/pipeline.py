@@ -177,156 +177,156 @@ class ConlluSentence(SentenceProtocol):
         self._tokens = tokens
 
     def _format_tokens(self, include_morphological_tags: bool) -> str:
-        """
-        Formats tokens per newline
-        """
-        return '\n'.join(token.get_conllu_text(include_morphological_tags) for token in self._tokens)
+        return '\n'.join(i.get_conllu_text(include_morphological_tags) for i in self._tokens)
 
     def get_conllu_text(self, include_morphological_tags: bool) -> str:
         """
         Creates string representation of the sentence
         """
-        sent_id = f'# sent_id = {self._position}\n'
-        text = f'text = {self._text}\n'
-        tokens = f'tokens = {self._format_tokens(include_morphological_tags)}'
+        return (
+            f'# sent_id = {self._position}\n'
+            f'# text = {self._text}\n'
+            f'{self._format_tokens(include_morphological_tags)}\n'
+        )
 
-        return f'{sent_id}{text}{tokens}'
+        def get_cleaned_sentence(self) -> str:
+            """
+            Returns the lowercase representation of the sentence
+            """
+            sentence = ''
+            for token in self._tokens:
+                cleaned_token = token.get_cleaned()
+                if cleaned_token:
+                    sentence += cleaned_token + ' '
+            sentence = sentence.strip()
+            return sentence
 
-    def get_cleaned_sentence(self) -> str:
+        def get_tokens(self) -> list[ConlluToken]:
+            """
+            Returns sentences from ConlluSentence
+            """
+            return self._tokens
+
+    class MystemTagConverter(TagConverter):
         """
-        Returns the lowercase representation of the sentence
-        """
-        return " ".join(filter(bool, (token.get_cleaned() for token in self._tokens)))
-
-    def get_tokens(self) -> list[ConlluToken]:
-        """
-        Returns sentences from ConlluSentence
-        """
-        return self._tokens
-
-
-class MystemTagConverter(TagConverter):
-    """
-    Mystem Tag Converter
-    """
-
-    def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
-        """
-        Converts the Mystem tags into the UD format
-        """
-
-    def convert_pos(self, tags: str) -> str:  # type: ignore
-        """
-        Extracts and converts the POS from the Mystem tags into the UD format
-        """
-        pos = re.match(r'\w+', tags)[0]
-        return self._tag_mapping[self.pos][pos]
-
-
-class OpenCorporaTagConverter(TagConverter):
-    """
-    OpenCorpora Tag Converter
-    """
-
-    def convert_pos(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
-        """
-        Extracts and converts POS from the OpenCorpora tags into the UD format
+        Mystem Tag Converter
         """
 
-    def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
-        """
-        Converts the OpenCorpora tags into the UD format
-        """
+        def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
+            """
+            Converts the Mystem tags into the UD format
+            """
 
+        def convert_pos(self, tags: str) -> str:  # type: ignore
+            """
+            Extracts and converts the POS from the Mystem tags into the UD format
+            """
+            pos = re.match(r'\w+', tags)[0]
+            return self._tag_mapping[self.pos][pos]
 
-class MorphologicalAnalysisPipeline:
-    """
-    Preprocesses and morphologically annotates sentences into the CONLL-U format
-    """
-
-    def __init__(self, corpus_manager: CorpusManager):
+    class OpenCorporaTagConverter(TagConverter):
         """
-        Initializes MorphologicalAnalysisPipeline
-        """
-        self._corpus = corpus_manager
-        self._stemmer = Mystem()
-        self._converter = MystemTagConverter(Path(__file__).parent / 'data' / 'mystem_tags_mapping.json')
-
-    def _process(self, text: str) -> List[ConlluSentence]:
-        """
-        Returns the text representation as the list of ConlluSentence
-        """
-        conllu_sentences = []
-        for sentence_id, sentence in enumerate(split_by_sentence(text)):
-            mystem_sentence = self._stemmer.analyze(sentence)
-            conllu_tokens = []
-            token_counter = 0
-            for token in mystem_sentence:
-                if not re.match(r'\w+|[.]', token['text']):
-                    continue
-                text = re.sub(r'\s', '', token['text'])
-                token_counter += 1
-                if token['text'].isalpha() and token.get("analysis"):
-                    lemma = token['analysis'][0]['lex']
-                    morph_tags = token['analysis'][0]['gr']
-                    pos = self._converter.convert_pos(morph_tags)
-                elif token['text'].isdigit():
-                    lemma = token['text']
-                    pos = 'NUM'
-                elif '.' in token['text']:
-                    lemma = text
-                    pos = 'PUNCT'
-                else:
-                    lemma = token['text']
-                    pos = 'X'
-
-                conllu_token = ConlluToken(text)
-                conllu_token.set_position(token_counter)
-                conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, ''))
-                conllu_tokens.append(conllu_token)
-            conllu_sentence = ConlluSentence(sentence_id, sentence, conllu_tokens)
-            conllu_sentences.append(conllu_sentence)
-        return conllu_sentences
-
-    def run(self) -> None:
-        """
-        Performs basic preprocessing and writes processed text to files
-        """
-        for article in self._corpus.get_articles().values():
-            article.set_conllu_sentences(self._process(article.text))
-            to_cleaned(article)
-            to_conllu(article, include_morphological_tags=False, include_pymorphy_tags=False)
-
-
-class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
-    """
-    Preprocesses and morphologically annotates sentences into the CONLL-U format
-    """
-
-    def __init__(self, corpus_manager: CorpusManager):
-        """
-        Initializes MorphologicalAnalysisPipeline
+        OpenCorpora Tag Converter
         """
 
-    def _process(self, text: str) -> List[ConlluSentence]:
+        def convert_pos(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
+            """
+            Extracts and converts POS from the OpenCorpora tags into the UD format
+            """
+
+        def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
+            """
+            Converts the OpenCorpora tags into the UD format
+            """
+
+    class MorphologicalAnalysisPipeline:
         """
-        Returns the text representation as the list of ConlluSentence
+        Preprocesses and morphologically annotates sentences into the CONLL-U format
         """
 
-    def run(self) -> None:
+        def __init__(self, corpus_manager: CorpusManager):
+            """
+            Initializes MorphologicalAnalysisPipeline
+            """
+            self._corpus = corpus_manager
+            self._mystem = Mystem()
+            mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+            self._converter = MystemTagConverter(mapping_path)
+
+        def _process(self, text: str) -> List[ConlluSentence]:
+            """
+            Returns the text representation as the list of ConlluSentence
+            """
+            conllu_sentences = []
+            sentences = split_by_sentence(text)
+            for position, sentence in enumerate(sentences):
+                mystem_sentence = self._mystem.analyze(sentence)
+                conllu_tokens = []
+                token_counter = 0
+                for token in mystem_sentence:
+                    if not re.match(r'\w+|[.]', token['text']):
+                        continue
+                    token_counter += 1
+                    if token['text'].isalpha() and token.get("analysis"):
+                        lemma = token['analysis'][0]['lex']
+                        morph_tags = token['analysis'][0]['gr']
+                        pos = self._converter.convert_pos(morph_tags)
+                    elif token['text'].isdigit():
+                        lemma = token['text']
+                        pos = 'NUM'
+                    elif '.' in token['text']:
+                        lemma = token['text'].strip()
+                        pos = 'PUNCT'
+                    else:
+                        lemma = token['text']
+                        pos = 'X'
+
+                    conllu_token = ConlluToken(token['text'])
+                    conllu_token.set_position(token_counter)
+                    conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, ''))
+                    conllu_tokens.append(conllu_token)
+                conllu_sentence = ConlluSentence(position, sentence, conllu_tokens)
+                conllu_sentences.append(conllu_sentence)
+
+            return conllu_sentences
+
+        def run(self) -> None:
+            """
+            Performs basic preprocessing and writes processed text to files
+            """
+            for article in self._corpus.get_articles().values():
+                sentences = self._process(article.text)
+                article.set_conllu_sentences(sentences)
+                to_cleaned(article)
+                to_conllu(article)
+
+    class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         """
-        Performs basic preprocessing and writes processed text to files
+        Preprocesses and morphologically annotates sentences into the CONLL-U format
         """
 
+        def __init__(self, corpus_manager: CorpusManager):
+            """
+            Initializes MorphologicalAnalysisPipeline
+            """
 
-def main() -> None:
-    """
-    Entrypoint for pipeline module
-    """
-    corpus_manager = CorpusManager(ASSETS_PATH)
-    morph_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
-    morph_pipeline.run()
+        def _process(self, text: str) -> List[ConlluSentence]:
+            """
+            Returns the text representation as the list of ConlluSentence
+            """
 
+        def run(self) -> None:
+            """
+            Performs basic preprocessing and writes processed text to files
+            """
 
-if __name__ == "__main__":
-    main()
+    def main() -> None:
+        """
+        Entrypoint for pipeline module
+        """
+        corpus_manager = CorpusManager(ASSETS_PATH)
+        pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+        pipeline.run()
+
+    if __name__ == "__main__":
+        main()
