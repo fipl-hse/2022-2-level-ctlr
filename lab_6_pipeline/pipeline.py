@@ -248,9 +248,8 @@ class MystemTagConverter(TagConverter):
         if not categories:
             return '_'
 
-
         for feature in categories:
-            if len(tags_list)  < 2:
+            if len(tags_list) < 2:
                 return '_'
             for tag in tags_list:
                 if not tag in self._tag_mapping[feature]:
@@ -307,8 +306,6 @@ class OpenCorporaTagConverter(TagConverter):
 
         for feature in categories:
             tag = getattr(tags, feature.lower(), None)
-            # if not tag:
-            #     return '_'
             ud_tag = self._tag_mapping[feature].get(tag)
             if ud_tag:
                 answer.append(f'{feature}={ud_tag}')
