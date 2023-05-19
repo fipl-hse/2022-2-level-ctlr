@@ -234,13 +234,6 @@ class MystemTagConverter(TagConverter):
             "NUM": [self.case, self.number, self.gender],
             "PRON": [self.animacy, self.case, self.gender, self.number]
         }
-        # pos_categories =  {
-        #     'NOUN': [self.gender, self.animacy, self.case, self.number],
-        #     'ADJ': [self.gender, self.animacy, self.case, self.number],
-        #     'VERB': [self.tense, self.number, self.gender],
-        #     'PRON': [self.number, self.case],
-        #     'NUM': [self.gender, self.case, self.animacy]
-        # }
         return pos_categories.get(pos, [])
 
     def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
@@ -313,8 +306,8 @@ class OpenCorporaTagConverter(TagConverter):
         answer = []
         categories = self.feature_from_pos(pos)
 
-        if not categories:
-            return ''
+        # if not categories:
+        #     return ''
 
         for feature in categories:
             tag = getattr(tags, feature.lower(), None)
@@ -481,6 +474,9 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                     morphological_tags = '_'
                     lemma = one_word['text']
 
+                if pos == 'X':
+                    morphological_tags = '_'
+
                 parameters = MorphologicalTokenDTO(lemma=lemma,
                                                    pos=pos_ud,
                                                    tags=morphological_tags)
@@ -513,8 +509,8 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    one_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
-    one_pipeline.run()
+    # one_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    # one_pipeline.run()
     morpho_pipeline = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
     morpho_pipeline.run()
 
