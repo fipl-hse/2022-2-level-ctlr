@@ -9,7 +9,6 @@ from typing import List
 from pymystem3 import Mystem
 
 from core_utils.constants import ASSETS_PATH
-from core_utils.article.article import Article
 from core_utils.article.io import from_raw, from_meta, to_cleaned, to_conllu
 from core_utils.article.article import SentenceProtocol, split_by_sentence
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
@@ -257,7 +256,7 @@ class MystemTagConverter(TagConverter):
                 ud_tag = self._tag_mapping[feature][tag]
                 answer.append(f'{feature}={ud_tag}')
 
-        return '|'.join(answer)
+        return '|'.join(answer) if answer else '_'
 
 
 
@@ -310,7 +309,7 @@ class OpenCorporaTagConverter(TagConverter):
             if ud_tag:
                 answer.append(f'{feature}={ud_tag}')
 
-        return '|'.join(answer)
+        return '|'.join(answer) if answer else '_'
 
 
 class MorphologicalAnalysisPipeline:
