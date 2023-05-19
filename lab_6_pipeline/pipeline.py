@@ -228,11 +228,11 @@ class MystemTagConverter(TagConverter):
         Returns a list of features, that correspond to this POS
         """
         pos_categories = {
-            "NOUN": [self.case, self.number, self.animacy, self.gender],
+            "NOUN": [self.animacy, self.case, self.gender, self.number],
             "ADJ": [self.case, self.gender, self.number],
-            "VERB": [self.tense, self.number, self.gender],
+            "VERB": [self.gender, self.number, self.tense],
             "NUM": [self.case, self.number, self.gender],
-            "PRON": [self.case, self.number, self.gender, self.animacy]
+            "PRON": [self.animacy, self.case, self.gender, self.number]
         }
         # pos_categories =  {
         #     'NOUN': [self.gender, self.animacy, self.case, self.number],
@@ -284,11 +284,16 @@ class OpenCorporaTagConverter(TagConverter):
         Returns a list of features, that correspond to this POS
         """
         pos_categories = {
-            "NOUN": [self.case, self.number, self.animacy, self.gender],
+            "NOUN": [self.animacy, self.case, self.gender, self.number],
             "ADJ": [self.case, self.gender, self.number],
-            "VERB": [self.tense, self.number, self.gender],
+            "VERB": [self.number, self.gender, self.tense],
             "NUM": [self.case, self.number, self.gender],
-            "PRON": [self.case, self.number, self.gender, self.animacy]
+            "PRON": [self.animacy, self.case, self.gender, self.number]
+            # "NOUN": [self.case, self.number, self.gender, self.animacy],
+            # "ADJ": [self.case, self.gender, self.number],
+            # "VERB": [self.tense, self.number, self.gender],
+            # "NUM": [self.case, self.number, self.gender],
+            # "PRON": [self.case, self.number, self.gender, self.animacy]
         }
 
         return pos_categories.get(pos, [])
