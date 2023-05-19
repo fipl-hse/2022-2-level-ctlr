@@ -253,15 +253,8 @@ class HTMLParser:
         title = article_soup.find('h1')
         if not title:
             self.article.title = 'no title'
-        self.article.title = title
+        self.article.title = title.text
         self.article.author = "no_author"
-        tags = article_soup.find_all('div', {'class': 'sh_tb_0'})[0].find_all('a')
-        if len(tags) == 0:
-            self.article.topics = []
-        else:
-            topics = [tag.text for tag in tags]
-            if topics:
-                self.article.topics = topics
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
