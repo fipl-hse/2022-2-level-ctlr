@@ -253,6 +253,8 @@ class MystemTagConverter(TagConverter):
                 if not tag in self._tag_mapping[feature]:
                     continue
                 ud_tag = self._tag_mapping[feature][tag]
+                if not ud_tag:
+                    return '_'
                 answer.append(f'{feature}={ud_tag}')
 
         return '|'.join(answer)
@@ -314,6 +316,8 @@ class OpenCorporaTagConverter(TagConverter):
             if not tag:
                 continue
             ud_tag = self._tag_mapping[feature].get(tag)
+            if not ud_tag:
+                return '_'
             answer.append(f'{feature}={ud_tag}')
 
         return '|'.join(answer)
