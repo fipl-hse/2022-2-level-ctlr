@@ -284,11 +284,6 @@ class OpenCorporaTagConverter(TagConverter):
             "VERB": [self.number, self.gender, self.tense],
             "NUM": [self.case, self.number, self.gender],
             "PRON": [self.animacy, self.case, self.gender, self.number]
-            # "NOUN": [self.case, self.number, self.gender, self.animacy],
-            # "ADJ": [self.case, self.gender, self.number],
-            # "VERB": [self.tense, self.number, self.gender],
-            # "NUM": [self.case, self.number, self.gender],
-            # "PRON": [self.case, self.number, self.gender, self.animacy]
         }
 
         return pos_categories.get(pos, [])
