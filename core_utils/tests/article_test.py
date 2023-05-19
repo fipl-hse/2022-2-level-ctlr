@@ -9,7 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from config.test_params import PROJECT_ROOT, TEST_FILES_FOLDER, TEST_PATH
+from config.test_params import (CORE_UTILS_TEST_FILES_FOLDER, PROJECT_ROOT,
+                                TEST_PATH)
 from core_utils.article import article
 from core_utils.article.article import (Article, ArtifactType, date_from_meta,
                                         get_article_id_from_filepath,
@@ -277,6 +278,16 @@ class IOTest(unittest.TestCase):
         self.assertTrue(self.article.get_meta_file_path().is_file(), error_msg)
 
     @pytest.mark.core_utils
+    def test_full_conllu_file_is_created(self):
+        """
+        Ensure that to_conllu() function saves pymorphy conllu info
+        """
+        error_msg = "File for article morphological conllu info is not created"
+        to_conllu(self.article, include_morphological_tags=True, include_pymorphy_tags=True)
+        self.assertTrue(self.article.get_file_path(ArtifactType.FULL_CONLLU).is_file(),
+                        error_msg)
+
+    @pytest.mark.core_utils
     def test_conllu_file_is_created(self):
         """
         Ensure that to_conllu() function saves morphological conllu info
@@ -305,7 +316,8 @@ class UDTest(unittest.TestCase):
     """
 
     def setUp(self) -> None:
-        self.path = TEST_FILES_FOLDER / "reference_score_six_test.conllu"
+        self.path = CORE_UTILS_TEST_FILES_FOLDER / "reference_score_six_test.conllu"
+        self.path_to_reference = CORE_UTILS_TEST_FILES_FOLDER / "reference_output_article_test.json"
         self.tag_mapping_path = (
                 PROJECT_ROOT / "lab_6_pipeline" / "data" / "mystem_tags_mapping.json"
         )
@@ -328,28 +340,11 @@ class UDTest(unittest.TestCase):
         extracts and stores sentences correctly
         """
         error_msg = "Function stores sentences from the CONLL-U-formatted article incorrectly"
-        expected = [{
-            'position': '0',
-            'text': 'Красивая - мама красиво, училась в ВШЭ по '
-                    'адресу Львовская 10 лет с почтой test .',
-            'tokens': [
-                '1\tКрасивая\tкрасивый\tADJ\t_\t_\t0\troot\t_\t_',
-                '2\tмама\tмама\tNOUN\t_\t_\t0\troot\t_\t_',
-                '3\tкрасиво\tкрасиво\tADV\t_\t_\t0\troot\t_\t_',
-                '4\tучилась\tучиться\tVERB\t_\t_\t0\troot\t_\t_',
-                '5\tв\tв\tADP\t_\t_\t0\troot\t_\t_',
-                '6\tВШЭ\tВШЭ\tNOUN\t_\t_\t0\troot\t_\t_',
-                '7\tпо\tпо\tADP\t_\t_\t0\troot\t_\t_',
-                '8\tадресу\tадрес\tNOUN\t_\t_\t0\troot\t_\t_',
-                '9\tЛьвовская\tльвовский\tADJ\t_\t_\t0\troot\t_\t_',
-                '10\t10\t10\tNUM\t_\t_\t0\troot\t_\t_',
-                '11\tлет\tгод\tNOUN\t_\t_\t0\troot\t_\t_',
-                '12\tс\tс\tADP\t_\t_\t0\troot\t_\t_',
-                '13\tпочтой\tпочта\tNOUN\t_\t_\t0\troot\t_\t_',
-                '14\ttest\ttest\tNOUN\t_\t_\t0\troot\t_\t_',
-                '15\t.\t.\tPUNCT\t_\t_\t0\troot\t_\t_'
-            ]
-        }]
+
+        expected = []
+        with open(self.path_to_reference, "r", encoding="utf-8") as f:
+            extracted_sentences_from_conllu = json.load(f)
+        expected.append(extracted_sentences_from_conllu)
 
         with open(file=self.path,
                   mode='r',
