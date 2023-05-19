@@ -53,9 +53,6 @@ class CorpusManager:
         raw_files = list(self.path_to_raw_txt_data.glob(r'*_raw.txt'))
         meta_files = list(self.path_to_raw_txt_data.glob(r'*_meta.json'))
 
-        if len(raw_files) != len(meta_files):
-            raise InconsistentDatasetError
-
         for files in raw_files, meta_files:
             list_existing = sorted(int(re.search(r'\d+', file.stem)[0])
                                    if re.search(r'\d+', file.stem)[0] else 0 for file in files)
