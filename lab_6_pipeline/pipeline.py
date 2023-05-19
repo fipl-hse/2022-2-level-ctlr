@@ -256,7 +256,7 @@ class MorphologicalAnalysisPipeline:
         """
         self._corpus = corpus_manager
         self._mystem = Mystem()
-        tag_mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+        tag_mapping_path = Path(__file__).parent /'mystem_tags_mapping.json'
         self._tag_converter = MystemTagConverter(tag_mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
