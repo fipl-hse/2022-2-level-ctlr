@@ -251,7 +251,7 @@ class MystemTagConverter(TagConverter):
         for feature in categories:
             for tag in tags_list:
                 if not tag in self._tag_mapping[feature]:
-                    continue
+                    return '_'
                 ud_tag = self._tag_mapping[feature][tag]
                 if not ud_tag:
                     return '_'
@@ -303,13 +303,10 @@ class OpenCorporaTagConverter(TagConverter):
         answer = []
         categories = self.feature_from_pos(pos)
 
-        # if not categories:
-        #     return ''
-
         for feature in categories:
             tag = getattr(tags, feature.lower(), None)
             if not tag:
-                continue
+                return '_'
             ud_tag = self._tag_mapping[feature].get(tag)
             if not ud_tag:
                 return '_'
