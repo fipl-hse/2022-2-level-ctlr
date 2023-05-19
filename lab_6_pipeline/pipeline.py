@@ -13,13 +13,16 @@ from core_utils.constants import ASSETS_PATH
 
 class EmptyDirectoryError(Exception):
     """
-    Daaaaamn yo directory's emptie, maaaan
+    Target directory is empty.
     """
 
 
 class InconsistentDatasetError(Exception):
     """
-    Dis dataset of yours is inconsistent as hell
+    Dataset is inconsistent. Possible reasons:
+    1) slips in the data
+    2) files are not named appropriately
+    3) some files are empty
     """
 
 
