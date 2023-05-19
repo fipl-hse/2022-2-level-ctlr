@@ -11,12 +11,6 @@ from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 from core_utils.constants import ASSETS_PATH
 
 
-class FilesNotFoundError(Exception):
-    """
-    Check if file does not exist
-    """
-
-
 class InconsistentDatasetError(Exception):
     """
     Check if IDs contain slips, number of meta and raw files is not equal, files are empty
@@ -40,9 +34,9 @@ class CorpusManager:
         Initializes CorpusManager
         """
         self.path_to_raw_txt_data = path_to_raw_txt_data
-        self._validate_dataset()
         self._storage = {}
         self._scan_dataset()
+        self._validate_dataset()
 
     def _validate_dataset(self) -> None:
         """
@@ -58,20 +52,21 @@ class CorpusManager:
             raise EmptyDirectoryError
 
         # InconsistentDatasetError: IDs contain slips, number of meta and raw files is not equal, files are empty;
-
-        raw_files = list(self.path_to_raw_txt_data.glob("*_raw.txt"))
-        meta_files = list(self.path_to_raw_txt_data.glob("*_meta.json"))
         # The glob() function returns an array of filenames or directories matching a specified pattern.
 
-        if len(raw_files) != len(meta_files):
+        texts = [i for i in self.path_to_raw_txt_data.glob(r'*_raw.txt')]
+        texts_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in texts)
+
+        metas = [i for i in self.path_to_raw_txt_data.glob(r'*_meta.json')]
+        metas_order = sorted(int(re.match(r'\d+', i.name)[0]) for i in metas)
+
+        if texts_order != list(range(1, len(texts) + 1)):
             raise InconsistentDatasetError
 
-        file_ids = [int(file.name.split("_")[0]) for file in raw_files]
-        if len(file_ids) != len(set(file_ids)):
+        if metas_order != list(range(1, len(metas) + 1)):
             raise InconsistentDatasetError
 
-        empty_files = [file for file in raw_files if file.stat().st_size == 0]
-        if empty_files:
+        if not all(file.stat().st_size for file in texts):
             raise InconsistentDatasetError
 
     def _scan_dataset(self) -> None:
