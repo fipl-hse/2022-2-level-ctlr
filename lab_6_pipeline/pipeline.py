@@ -252,22 +252,23 @@ class MorphologicalAnalysisPipeline:
         Initializes MorphologicalAnalysisPipeline
         """
         self._corpus = corpus_manager
-        self._stemmer = Mystem()
-        self._converter = MystemTagConverter(Path(__file__).parent / 'data' / 'mystem_tags_mapping.json')
+        self._mystem = Mystem()
+        mapping_path = Path(__file__).parent / 'data' / 'mystem_tags_mapping.json'
+        self._converter = MystemTagConverter(mapping_path)
 
     def _process(self, text: str) -> List[ConlluSentence]:
         """
         Returns the text representation as the list of ConlluSentence
         """
         conllu_sentences = []
-        for sentence_id, sentence in enumerate(split_by_sentence(text)):
-            mystem_sentence = self._stemmer.analyze(sentence)
+        sentences = split_by_sentence(text)
+        for position, sentence in enumerate(sentences):
+            mystem_sentence = self._mystem.analyze(sentence)
             conllu_tokens = []
             token_counter = 0
             for token in mystem_sentence:
                 if not re.match(r'\w+|[.]', token['text']):
                     continue
-                text = re.sub(r'\s', '', token['text'])
                 token_counter += 1
                 if token['text'].isalpha() and token.get("analysis"):
                     lemma = token['analysis'][0]['lex']
@@ -277,18 +278,19 @@ class MorphologicalAnalysisPipeline:
                     lemma = token['text']
                     pos = 'NUM'
                 elif '.' in token['text']:
-                    lemma = text
+                    lemma = token['text'].strip()
                     pos = 'PUNCT'
                 else:
                     lemma = token['text']
                     pos = 'X'
 
-                conllu_token = ConlluToken(text)
+                conllu_token = ConlluToken(token['text'])
                 conllu_token.set_position(token_counter)
                 conllu_token.set_morphological_parameters(MorphologicalTokenDTO(lemma, pos, ''))
                 conllu_tokens.append(conllu_token)
-            conllu_sentence = ConlluSentence(sentence_id, sentence, conllu_tokens)
+            conllu_sentence = ConlluSentence(position, sentence, conllu_tokens)
             conllu_sentences.append(conllu_sentence)
+
         return conllu_sentences
 
     def run(self) -> None:
