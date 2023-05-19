@@ -234,6 +234,7 @@ class MystemTagConverter(TagConverter):
             "NUM": [self.case, self.animacy, self.gender],
             "PRON": [self.number, self.case, self.gender]
         }
+
         return pos_categories.get(pos, [])
 
     def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
