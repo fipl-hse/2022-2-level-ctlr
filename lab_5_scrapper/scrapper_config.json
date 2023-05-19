@@ -1,9 +1,19 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://xn--80ady2a0c.xn--p1ai/calendar/2023/01/",
+        "https://xn--80ady2a0c.xn--p1ai/calendar/2023/02/",
+        "https://xn--80ady2a0c.xn--p1ai/calendar/2023/03/",
+        "https://xn--80ady2a0c.xn--p1ai/calendar/2023/04/",
+        "https://xn--80ady2a0c.xn--p1ai/calendar/2023/05/"],
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Cookie": "yandexuid=8420678081655644834; yuidss=8420678081655644834; _ym_uid=1655644837276209348; amcuid=6744272501655972097; gdpr=0; is_gdpr=0; yandex_login=tobakunina@edu.hse.ru; _ym_d=1671479244; ymex=1971004864.yrts.1655644864#1989418962.yrtsi.1674058962; yashr=5224269041674058963; i=Ybc3Aq2nRcLLMt042LiAW9aBcC62ajaAtlIX3WSA3gDepWz5IGrvxUXfv0SRdf3k7Squ3Ng54cT7FP76uNh6cBYxp9k=; is_gdpr_b=CPzoGBCqsAEoAg==; yabs-dsp=mts_banner.di0xU3dkbFVTNjJMdDJfbEJNZzJYZw==; Session_id=3:1683822075.5.0.1670254310733:qVWysg:3f.1.2:1|1130000059540042.-1.0.2:3909715|3:10269707.180547.FxERt-NgA7Gk-9SmBsVcTJP1Bew; sessionid2=3:1683822075.5.0.1670254310733:qVWysg:3f.1.2:1|1130000059540042.-1.0.2:3909715|3:10269707.180547.fakesign0000000000000000000; ys=udn.cDp0b2Jha3VuaW5hQGVkdS5oc2UucnU%3D#c_chck.1454445355; cycada=Obrtydy7yNeDmQhhxpaJH9uOtRuiALd7y2PIszEhAio=; yabs-vdrf=A0; bh=Ej8iR29vZ2xlIENocm9tZSI7dj0iMTEzIiwiQ2hyb21pdW0iO3Y9IjExMyIsIk5vdC1BLkJyYW5kIjt2PSIyNCIaBSJ4ODYiIg8iMTEzLjAuNTY3Mi45MyIqAj8wOgkiV2luZG93cyJCCCIxMC4wLjAiSgQiNjQiUloiR29vZ2xlIENocm9tZSI7dj0iMTEzLjAuNTY3Mi45MyIsIkNocm9taXVtIjt2PSIxMTMuMC41NjcyLjkzIiwiTm90LUEuQnJhbmQiO3Y9IjI0LjAuMC4wIiI=",
+        "Refer": "https://xn--80ady2a0c.xn--p1ai/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
+    },
+    "total_articles_to_find_and_parse": 3,
+    "encoding": "utf-8",
+    "timeout": 20,
     "should_verify_certificate": true,
-    "headless_mode": true
+    "headless_mode": false
 }
