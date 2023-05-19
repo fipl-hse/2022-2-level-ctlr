@@ -227,20 +227,20 @@ class MystemTagConverter(TagConverter):
         """
         Returns a list of features, that correspond to this POS
         """
-        # pos_categories = {
-        #     "NOUN": [self.animacy, self.case, self.gender, self.number],
-        #     "ADJ": [self.case, self.gender, self.number, self.animacy],
-        #     "VERB": [self.gender, self.number, self.tense],
-        #     "NUM": [self.case, self.animacy, self.gender],
-        #     "PRON": [self.number, self.case, self.gender]
-        # }
-        pos_categories =  {
-            "NOUN": [self.case, self.number, self.gender, self.animacy],
+        pos_categories = {
+            "NOUN": [self.case, self.number, self.animacy, self.gender],
+            "ADJ": [self.case, self.gender, self.number],
             "VERB": [self.tense, self.number, self.gender],
-            "ADJ": [self.case, self.number, self.gender],
             "NUM": [self.case, self.number, self.gender],
-            "PRON": [self.case, self.number, self.gender, self.animacy],
+            "PRON": [self.case, self.number, self.gender, self.animacy]
         }
+        # pos_categories =  {
+        #     'NOUN': [self.gender, self.animacy, self.case, self.number],
+        #     'ADJ': [self.gender, self.animacy, self.case, self.number],
+        #     'VERB': [self.tense, self.number, self.gender],
+        #     'PRON': [self.number, self.case],
+        #     'NUM': [self.gender, self.case, self.animacy]
+        # }
         return pos_categories.get(pos, [])
 
     def convert_morphological_tags(self, tags: str) -> str:  # type: ignore
@@ -284,12 +284,13 @@ class OpenCorporaTagConverter(TagConverter):
         Returns a list of features, that correspond to this POS
         """
         pos_categories = {
-            "NOUN": [self.animacy, self.case, self.gender, self.number],
-            "ADJ": [self.case, self.number, self.gender, self.animacy],
+            "NOUN": [self.case, self.number, self.animacy, self.gender],
+            "ADJ": [self.case, self.gender, self.number],
             "VERB": [self.tense, self.number, self.gender],
-            "NUM": [self.case, self.animacy, self.gender],
-            "PRON": [self.number, self.case, self.gender]
+            "NUM": [self.case, self.number, self.gender],
+            "PRON": [self.case, self.number, self.gender, self.animacy]
         }
+
         return pos_categories.get(pos, [])
 
     def convert_pos(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
