@@ -508,8 +508,8 @@ def main() -> None:
     Entrypoint for pipeline module
     """
     corpus_manager = CorpusManager(path_to_raw_txt_data=ASSETS_PATH)
-    # one_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
-    # one_pipeline.run()
+    one_pipeline = MorphologicalAnalysisPipeline(corpus_manager)
+    one_pipeline.run()
     morpho_pipeline = AdvancedMorphologicalAnalysisPipeline(corpus_manager)
     morpho_pipeline.run()
 
