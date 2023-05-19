@@ -39,8 +39,8 @@ class CorpusManager:
         Initializes CorpusManager
         """
         self.path_to_raw_txt_data = path_to_raw_txt_data
-        self._storage = {}
         self._scan_dataset()
+        self._storage = {}
         self._validate_dataset()
 
     def _validate_dataset(self) -> None:
@@ -113,8 +113,8 @@ class ConlluToken:
         Initializes ConlluToken
         """
         self._text = text
-        self._position = 0
         self._morphological_parameters = MorphologicalTokenDTO()
+        self.position = 0
 
     def set_morphological_parameters(self, parameters: MorphologicalTokenDTO) -> None:
         """
@@ -149,7 +149,7 @@ class ConlluToken:
         """
         Returns lowercase original form of a token
         """
-        return re.sub(r'\W+', '', self._text).lower()
+        return re.sub(r'[^\w\s]+', '', self._text).lower().strip()
 
 
 class ConlluSentence(SentenceProtocol):
@@ -193,7 +193,7 @@ class ConlluSentence(SentenceProtocol):
         """
         Returns sentences from ConlluSentence
         """
-
+        return self._tokens
 
 class MystemTagConverter(TagConverter):
     """
