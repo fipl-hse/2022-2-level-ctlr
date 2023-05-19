@@ -87,34 +87,23 @@ class POSFrequencyPipeline:
         """
         articles = self._corpus_manager.get_articles()
         for idx, article in articles.items():
+            path_article = Path(ASSETS_PATH / article.url)
+            if not path_article.stat().st_size:
+                raise EmptyFileError
+
+            conllu_path = ASSETS_PATH / article.get_file_path(kind=ArtifactType.MORPHOLOGICAL_CONLLU)
+            if not conllu_path.stat().st_size:
+                raise EmptyFileError
+
             frequencies = {}
-            conllu_path = article.get_file_path(kind=ArtifactType.MORPHOLOGICAL_CONLLU)
             article = from_conllu(conllu_path, article)
             frequencies = self._count_frequencies(article)
-            # conllu_sentences = article.get_conllu_sentences()
-            #
-            # tokens_sequence = [element.get_tokens() for element in conllu_sentences]
-            # for tokens in tokens_sequence:
-            #     all_pos = [token.get_morphological_parameters().pos for token in tokens]
-            #     frequencies = self.count_pos(all_pos, frequencies)
 
             article.set_pos_info(frequencies)
             to_meta(article)
 
             visualize(article=article, path_to_save=ASSETS_PATH / f'{idx}_image.png')
 
-
-
-    def count_pos(self, pos: list, frequencies: dict) -> dict:
-        """
-        Counts all unique pos and returns a dictionary
-        """
-        parts_of_speech = ['NOUN', 'PRON', 'ADJ', 'ADV', 'VERB', 'NUM', 'ADP', 'CCONJ', 'PART', 'INJ']
-
-        for element in parts_of_speech:
-            frequencies[element] = frequencies.get(element, 0) + pos.count(element)
-
-        return frequencies
 
     def _count_frequencies(self, article: Article) -> dict[str, int]:
         """
@@ -129,7 +118,7 @@ class POSFrequencyPipeline:
             all_pos.extend([token.get_morphological_parameters().pos for token in tokens])
 
 
-        parts_of_speech = ['NOUN', 'PRON', 'ADJ', 'ADV', 'VERB', 'NUM', 'ADP', 'CCONJ', 'PART', 'INTJ', 'X']
+        parts_of_speech = ['NOUN', 'ADJ', 'ADV', 'VERB', 'NUM', 'ADP', 'CCONJ', 'X', 'PUNCT']
 
         for element in parts_of_speech:
             frequencies[element] = frequencies.get(element, 0) + all_pos.count(element)

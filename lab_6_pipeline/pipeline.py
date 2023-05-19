@@ -95,6 +95,7 @@ class CorpusManager:
         """
         for element in self.path.glob("*_raw.txt"):
             article = from_raw(element)
+            article.url = element.name
             self._storage[article.article_id] = article
 
     def get_articles(self) -> dict:
@@ -155,7 +156,7 @@ class ConlluToken:
         lemma = self._morphological_parameters.lemma
         pos = self._morphological_parameters.pos
         xpos = '_'
-        feats = '_'
+        feats = self._morphological_parameters.tags if (include_morphological_tags and pos != 'X') else '_'
         head = '0'
         deprel = 'root'
         deps = '_'
@@ -228,8 +229,8 @@ class MystemTagConverter(TagConverter):
         """
         pos_categories = {
             "NOUN": [self.gender, self.animacy, self.case, self.number],
-            "ADJ": [self.case, self.number, self.gender, self.animacy],
-            "VERB": [self.tense, self.number, self.gender],
+            "ADJ": [self.case, self.gender, self.number, self.animacy],
+            "VERB": [self.gender, self.number, self.tense],
             "NUM": [self.case, self.animacy, self.gender],
             "PRON": [self.number, self.case, self.gender]
         }
@@ -242,16 +243,17 @@ class MystemTagConverter(TagConverter):
         necessary_tags = tags.split('|')[0]
         tags_list = re.findall(r'\w+', necessary_tags)
         pos = self.convert_pos(tags_list[0])
-        answer = [pos]
+        answer = []
         categories = self.feature_from_pos(pos)
         if not categories:
             return '_'
 
         for feature in categories:
-            ud_tag = [self._tag_mapping[feature][tag]
-                      for tag in tags_list
-                      if tag in self._tag_mapping[feature]]
-            answer.append(f'{feature}={str(ud_tag)}')
+            for tag in tags_list:
+                if not tag in self._tag_mapping[feature]:
+                    continue
+                ud_tag = self._tag_mapping[feature][tag]
+                answer.append(f'{feature}={ud_tag}')
 
         return '|'.join(answer)
 
@@ -288,7 +290,7 @@ class OpenCorporaTagConverter(TagConverter):
         Extracts and converts POS from the OpenCorpora tags into the UD format
         """
         pos = tags.POS
-        return self._tag_mapping[self.pos].get(pos, '')
+        return self._tag_mapping[self.pos].get(pos, 'X')
 
     def convert_morphological_tags(self, tags: OpencorporaTagProtocol) -> str:  # type: ignore
         """
@@ -305,7 +307,7 @@ class OpenCorporaTagConverter(TagConverter):
             tag = getattr(tags, feature.lower(), None)
             if not tag:
                 continue
-            ud_tag = self._tag_mapping[feature].get(tag, '')
+            ud_tag = self._tag_mapping[feature].get(tag)
             answer.append(f'{feature}={ud_tag}')
 
         return '|'.join(answer)
@@ -344,14 +346,11 @@ class MorphologicalAnalysisPipeline:
                 conllu_token = ConlluToken(one_word['text'])
                 conllu_token.set_position(token_position)
 
-                # if not one_word['text'].isspace():
                 if 'analysis' in one_word and one_word['analysis']:
                     about_part = one_word['analysis'][0]['gr']
                     part = re.search(r'\w+', about_part)
                     if part:
                         pos = part[0]
-                    else:
-                        pos = 'X'
                     lemma = one_word['analysis'][0]['lex']
                     tags = one_word['analysis'][0]['gr']
                     morphological_tags = self._mystem_tag_converter.convert_morphological_tags(tags)
@@ -366,6 +365,9 @@ class MorphologicalAnalysisPipeline:
                         pos_ud = 'X'
                     morphological_tags = '_'
                     lemma = one_word['text']
+
+                if pos == 'X':
+                    morphological_tags = '_'
 
                 parameters = MorphologicalTokenDTO(lemma=lemma,
                                                    pos=pos_ud,
@@ -436,10 +438,9 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
                     about_part = one_word['analysis'][0]['gr']
                     part = re.search(r'\w+', about_part)
 
-                    if not part:
-                        continue
+                    if part:
+                        pos = part[0]
 
-                    pos = part[0]
                     if pos == 'S':
                         pymorphy_analysis = self._backup_analyzer.parse(one_word['text'])[0]
                         if pymorphy_analysis.normal_form:
@@ -490,9 +491,8 @@ class AdvancedMorphologicalAnalysisPipeline(MorphologicalAnalysisPipeline):
         for article in articles.values():
             sentences = self._process(article.text)
             article.set_conllu_sentences(sentences)
-            to_conllu(article,
-                      include_morphological_tags=True,
-                      include_pymorphy_tags=True)
+            to_cleaned(article)
+            to_conllu(article, include_morphological_tags=True, include_pymorphy_tags=True)
 
 
 def main() -> None:
