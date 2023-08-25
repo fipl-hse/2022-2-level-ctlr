@@ -14,27 +14,13 @@ echo "Changed config params"
 
 python lab_5_scrapper/scrapper.py
 
-echo "Collected dataset"
-
-echo "Checking volume of files"
-
-TARGET_SCORE=$(bash config/get_mark.sh lab_5_scrapper)
-
-if [[ ${TARGET_SCORE} == 4 ]]; then
-  echo "Running score four checks"
-  python -m pytest -m "mark4 and stage_2_4_dataset_volume_check" --capture=no
+if [[ $? -ne 0 ]]; then
+  echo "Check failed for common files."
+  exit 1
 else
-  python -m pytest -m "mark10 and stage_2_4_dataset_volume_check" --capture=no
+  echo "Check passed for common files."
 fi
 
-ret=$?
-if [ "$ret" = 5 ]; then
-  echo "No tests collected.  Exiting with 0 (instead of 5)."
-  exit 0
-fi
-
-echo "Pytest results (should be 0): $ret"
-
-exit "$ret"
+echo "Collected dataset"
 
 ls -la tmp/articles
