@@ -13,7 +13,7 @@ class Config:
         """
         Initializes an instance of the Config class
         """
-        self.path_to_config = path_to_config
+
 
     def _extract_config_content(self) -> ConfigDTO:
         """
