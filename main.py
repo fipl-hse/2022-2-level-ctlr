@@ -33,7 +33,7 @@ def main():
         if link is None:
             print(link_bs)
             continue
-        elif link[0] == '/' and link.count('/') == :
+        elif link[0] == '/' and link.count('/'):
             all_links.append(link_bs['href'])
         print(all_links)
 

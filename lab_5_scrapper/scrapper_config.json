@@ -1,9 +1,20 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": ["https://megapolisonline.ru/category/society/",
+        "https://megapolisonline.ru/category/society/page/2/",
+        "https://megapolisonline.ru/category/society/page/3/",
+        "https://megapolisonline.ru/category/society/page/4/",
+        "https://megapolisonline.ru/category/society/page/5/",
+        "https://megapolisonline.ru/category/society/page/6/"
+    ],
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Cookie": "yabs-sid=526190401693840778; i=65hEY/yFlTlWvYgwihvsFHy4gHZqAoCQj2XCa1Lg7LS9oRFIfgFJTMvXj34zQ0g6vxCY5TkOs06pIH8jOztmb4cbiGo=; yandexuid=7217458471693840778; yuidss=7217458471693840778; ymex=2009200778.yrts.1693840778#2009200778.yrtsi.1693840778; bh=Ej8iQ2hyb21pdW0iO3Y9IjExNiIsIk5vdClBO0JyYW5kIjt2PSIyNCIsIkdvb2dsZSBDaHJvbWUiO3Y9IjExNiIaBSJ4ODYiIhAiMTE2LjAuNTg0NS4xNDEiKgI/MDoJIldpbmRvd3MiQggiMTUuMC4wIkoEIjY0IlJcIkNocm9taXVtIjt2PSIxMTYuMC41ODQ1LjE0MSIsIk5vdClBO0JyYW5kIjt2PSIyNC4wLjAuMCIsIkdvb2dsZSBDaHJvbWUiO3Y9IjExNi4wLjU4NDUuMTQxIiI=",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36}"
+    },
+    "total_articles_to_find_and_parse": 10,
+    "encoding": "utf-8",
+    "timeout": 10,
     "should_verify_certificate": true,
     "headless_mode": true
 }
