@@ -20,27 +20,27 @@ class IncorrectSeedURLError(Exception):
     """
     seed URL does not match standard pattern "https?://(www.)?"
     """
-class NumberOfArticlesOutOfRangeError:
+class NumberOfArticlesOutOfRangeError(Exception):
     """
     total number of articles is out of range from 1 to 150
     """
-class IncorrectNumberOfArticlesError:
+class IncorrectNumberOfArticlesError(Exception):
     """
     total number of articles to parse is not integer
     """
-class IncorrectHeadersError:
+class IncorrectHeadersError(Exception):
     """
     headers are not in a form of dictionary
     """
-class IncorrectEncodingError:
+class IncorrectEncodingError(Exception):
     """
     encoding must be specified as a string
     """
-class IncorrectTimeoutError:
+class IncorrectTimeoutError(Exception):
     """
     timeout value must be a positive integer less than 60
     """
-class IncorrectVerifyError:
+class IncorrectVerifyError(Exception):
     """
     verify certificate value must either be True or False
     """
@@ -174,7 +174,7 @@ class Crawler:
         """
         url = article_bs.get('href')
         if isinstance(url, str):
-            return url
+            return 'https://megapolisonline.ru' + url
         return ''
 
     def find_articles(self) -> None:
@@ -260,8 +260,8 @@ def main() -> None:
     """
     Entrypoint for scrapper module
     """
-    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     prepare_environment(ASSETS_PATH)
+    config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config)
     crawler.find_articles()
     for index, url in enumerate(crawler.urls, 1):
