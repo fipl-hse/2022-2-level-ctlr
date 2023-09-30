@@ -3,9 +3,6 @@ Pipeline for CONLL-U formatting
 """
 from pathlib import Path
 from typing import List
-import pymystem3
-import pymorphy2
-import re
 
 from core_utils.article.article import SentenceProtocol, split_by_sentence, \
     get_article_id_from_filepath
