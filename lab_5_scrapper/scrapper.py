@@ -214,6 +214,7 @@ class Crawler:
                 if href not in self.urls and href != '':
                     self.urls.append(href)
 
+
     def get_search_urls(self) -> list:
         """
         Returns seed_urls param
@@ -234,6 +235,7 @@ class HTMLParser:
         self.article_id = article_id
         self.config = config
         self.article = Article(full_url, article_id)
+
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
@@ -265,7 +267,6 @@ class HTMLParser:
             self.article.title = title.text
 
         self.article.author = ['NOT FOUND']
-
 
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
