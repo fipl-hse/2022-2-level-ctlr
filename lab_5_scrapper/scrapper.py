@@ -275,6 +275,7 @@ class HTMLParser:
         """
         pass
 
+
     def parse(self) -> Union[Article, bool, list]:
         """
         Parses each article

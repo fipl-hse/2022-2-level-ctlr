@@ -7,6 +7,7 @@ from typing import List
 from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
+
 # pylint: disable=too-few-public-methods
 class CorpusManager:
     """
@@ -180,7 +181,6 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-
 
 if __name__ == "__main__":
     main()
