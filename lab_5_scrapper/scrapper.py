@@ -9,8 +9,8 @@ import shutil
 import time
 from pathlib import Path
 from typing import Pattern, Union
-import requests
 
+import requests
 from bs4 import BeautifulSoup
 
 from core_utils.article.article import Article
