@@ -191,9 +191,10 @@ class Crawler:
         Finds and retrieves URL from HTML
         """
         url = article_bs.get('href')
-        if isinstance(url, str) and url.startswith('/news'):
-                return 'https://www.vremyan.ru' + url
+        if isinstance(url, str) and url.startswith('/news/'):
+            return 'https://www.vremyan.ru' + url
         return ''
+
     def find_articles(self) -> None:
         """
         Finds articles
@@ -204,13 +205,12 @@ class Crawler:
                 continue
             main_bs = BeautifulSoup(response.text, 'lxml')
             article_webpage = main_bs.find_all('a')
-            for article in article_webpage:
-                if len(self.urls) >= self._config.get_num_articles():
-                    return
-                required_url = self._extract_url(article)
-                if required_url not in self.urls:
-                    self.urls.append(required_url)
-        self.urls.remove(0)
+            for art in article_webpage:
+                href = self._extract_url(art)
+                if href is None:
+                    continue
+                if href not in self.urls and href != '':
+                    self.urls.append(href)
 
     def get_search_urls(self) -> list:
         """
@@ -228,19 +228,43 @@ class HTMLParser:
         """
         Initializes an instance of the HTMLParser class
         """
-        pass
+        self.full_url = full_url
+        self.article_id = article_id
+        self.config = config
+        self.article = Article(full_url, article_id)
 
     def _fill_article_with_text(self, article_soup: BeautifulSoup) -> None:
         """
         Finds text of article
         """
-        pass
+        text = []
+        text_str = ''
+        text_bs = article_soup.find('article')
+        article = article_soup.find_all("p")
+        if article:
+            for paragraph in article:
+                cleaned_paragraph = paragraph.text.strip()
+                if cleaned_paragraph:
+                    text.append(cleaned_paragraph)
+            text_str = "\n".join(text)
+        if len(text_str) < 50:
+            text_str +=' '*(50-len(text_str))
+        self.article.text = text_str
+
 
     def _fill_article_with_meta_information(self, article_soup: BeautifulSoup) -> None:
         """
         Finds meta information of article
         """
-        pass
+        title = article_soup.find('h1')
+        if title is None:
+            self.article.title = 'NOT FOUND'
+        else:
+            self.article.title = title.text
+
+        self.article.author = ['NOT FOUND']
+
+
 
     def unify_date_format(self, date_str: str) -> datetime.datetime:
         """
@@ -252,7 +276,11 @@ class HTMLParser:
         """
         Parses each article
         """
-        pass
+        response = make_request(self.full_url, self.config)
+        main_bs = BeautifulSoup(response.content, "lxml")
+        self._fill_article_with_text(main_bs)
+        self._fill_article_with_meta_information(main_bs)
+        return self.article
 
 
 def prepare_environment(base_path: Union[Path, str]) -> None:
@@ -273,6 +301,11 @@ def main() -> None:
     config = Config(path_to_config=CRAWLER_CONFIG_PATH)
     crawler = Crawler(config=config)
     crawler.find_articles()
+    for idx, url in enumerate(crawler.urls, 1):
+        parser = HTMLParser(url, idx, config)
+        article = parser.parse()
+        to_raw(article)
+        to_meta(article)
 
 
 if __name__ == "__main__":

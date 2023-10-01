@@ -1,6 +1,5 @@
 {
     "seed_urls": [
-        "https://www.vremyan.ru/news",
         "https://www.vremyan.ru/news?&page201=2",
         "https://www.vremyan.ru/news?&page201=3",
         "https://www.vremyan.ru/news?&page201=4",
@@ -26,7 +25,7 @@
         "sec-fetch-site": "cross-site",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     },
-    "total_articles_to_find_and_parse": 100,
+    "total_articles_to_find_and_parse": 1,
     "encoding": "utf-8",
     "timeout": 5,
     "should_verify_certificate": true,
