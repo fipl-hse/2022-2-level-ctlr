@@ -2,13 +2,7 @@
     "seed_urls": [
         "https://www.vremyan.ru/news?&page201=2",
         "https://www.vremyan.ru/news?&page201=3",
-        "https://www.vremyan.ru/news?&page201=4",
-        "https://www.vremyan.ru/news?&page201=5",
-        "https://www.vremyan.ru/news?&page201=6",
-        "https://www.vremyan.ru/news?&page201=7",
-        "https://www.vremyan.ru/news?&page201=8",
-        "https://www.vremyan.ru/news?&page201=9",
-        "https://www.vremyan.ru/news?&page201=10"
+        "https://www.vremyan.ru/news?&page201=4"
     ],
 
     "headers": {

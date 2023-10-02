@@ -4,6 +4,7 @@ Pipeline for CONLL-U formatting
 from pathlib import Path
 from typing import List
 
+from core_utils.article.article import SentenceProtocol
 from core_utils.article.ud import OpencorporaTagProtocol, TagConverter
 
 
