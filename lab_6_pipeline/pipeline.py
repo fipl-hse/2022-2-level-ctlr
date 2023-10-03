@@ -76,7 +76,6 @@ class ConlluToken:
         Returns lowercase original form of a token
         """
 
-
 class ConlluSentence(SentenceProtocol):
     """
     Representation of a sentence in the CONLL-U format
@@ -181,7 +180,6 @@ def main() -> None:
     """
     Entrypoint for pipeline module
     """
-
 
 if __name__ == "__main__":
     main()

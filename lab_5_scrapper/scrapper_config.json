@@ -1,9 +1,24 @@
 {
-    "seed_urls": [],
-    "headers": {},
-    "total_articles_to_find_and_parse": 0,
-    "encoding": "",
-    "timeout": 0,
+    "seed_urls": [
+        "https://www.vremyan.ru/news?&page201=2",
+        "https://www.vremyan.ru/news?&page201=3",
+        "https://www.vremyan.ru/news?&page201=4"
+    ],
+
+    "headers": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        "sec-ch-ua" : "'Not.A/Brand';v='8', 'Chromium';v='114', 'Google Chrome';v='114'",
+        "sec-ch-ua-platform" : "'Windows'",
+        "sec-fetch-dest" : "empty",
+        "sec-fetch-mode": "no-cors",
+        "sec-fetch-site": "cross-site",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    },
+    "total_articles_to_find_and_parse": 10,
+    "encoding": "utf-8",
+    "timeout": 8,
     "should_verify_certificate": true,
     "headless_mode": true
 }
