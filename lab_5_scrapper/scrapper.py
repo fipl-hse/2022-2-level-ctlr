@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from core_utils.article.article import Article
 from core_utils.article.io import to_meta, to_raw
 from core_utils.config_dto import ConfigDTO
-from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH,
+from core_utils.constants import (ASSETS_PATH, CRAWLER_CONFIG_PATH, NUM_ARTICLES_UPPER_LIMIT,
                                   TIMEOUT_LOWER_LIMIT, TIMEOUT_UPPER_LIMIT)
 
 
@@ -90,7 +90,7 @@ class Config:
         """
         config_content = self._extract_config_content()
 
-        if not isinstance(config_content.seed_urls, list) or not config_content.seed_urls:
+        if not isinstance(config_content.seed_urls, list):
             raise IncorrectSeedURLError
 
         for seed_url in config_content.seed_urls:
@@ -100,10 +100,10 @@ class Config:
         if not isinstance(config_content.headers, dict):
             raise IncorrectHeadersError
 
-        if (not isinstance(config_content.total_articles, int) or isinstance(config_content.total_articles, bool) or config_content.total_articles < 1):
+        if not isinstance(config_content.total_articles, int) or isinstance(config_content.total_articles, bool) or config_content.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_content.total_articles < 1 or config_content.total_articles > 150:
+        if config_content.total_articles > NUM_ARTICLES_UPPER_LIMIT:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(config_content.encoding, str):
@@ -163,7 +163,7 @@ def make_request(url: str, config: Config) -> requests.models.Response:
     Delivers a response from a request
     with given configuration
     """
-    time.sleep(random.randint(1, 8))
+    time.sleep(random.randint(1, 6))
     response = requests.get(url,
                             headers=config.get_headers(),
                             timeout=config.get_timeout(),
