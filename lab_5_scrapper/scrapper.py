@@ -89,31 +89,31 @@ class Config:
         Ensure configuration parameters
         are not corrupt
         """
-        config_content = self._extract_config_content()
+        #config_content = self._extract_config_content()
 
-        if not isinstance(config_content.seed_urls, list):
+        if not isinstance(self.config_content.seed_urls, list):
             raise IncorrectSeedURLError
 
-        for seed_url in config_content.seed_urls:
+        for seed_url in self.config_content.seed_urls:
             if not isinstance(seed_url, str) or not re.match(r'https?://.*/', seed_url):
                 raise IncorrectSeedURLError
 
-        if not isinstance(config_content.headers, dict):
+        if not isinstance(self.config_content.headers, dict):
             raise IncorrectHeadersError
 
-        if not isinstance(config_content.total_articles, int) or isinstance(config_content.total_articles, bool) or config_content.total_articles < 1:
+        if not isinstance(self.config_content.total_articles, int) or isinstance(self.config_content.total_articles, bool) or self.config_content.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_content.total_articles > 149:
+        if self.config_content.total_articles > 149:
             raise NumberOfArticlesOutOfRangeError
 
-        if not isinstance(config_content.encoding, str):
+        if not isinstance(self.config_content.encoding, str):
             raise IncorrectEncodingError
 
-        if (not isinstance(config_content.timeout, int) or config_content.timeout < TIMEOUT_LOWER_LIMIT or config_content.timeout > TIMEOUT_UPPER_LIMIT):
+        if (not isinstance(self.config_content.timeout, int) or self.config_content.timeout < TIMEOUT_LOWER_LIMIT or self.config_content.timeout > TIMEOUT_UPPER_LIMIT):
             raise IncorrectTimeoutError
 
-        if not isinstance(config_content.should_verify_certificate, bool) or not isinstance(config_content.headless_mode, bool):
+        if not isinstance(self.config_content.should_verify_certificate, bool) or not isinstance(self.config_content.headless_mode, bool):
             raise IncorrectVerifyError
 
     def get_seed_urls(self) -> list[str]:
@@ -187,6 +187,7 @@ class Crawler:
         self._config = config
         self._seed_urls = config.get_seed_urls()
         self.urls = []
+        self._num_articles = config._num_articles
 
     def _extract_url(self, article_bs: BeautifulSoup) -> str:
         """
@@ -211,7 +212,7 @@ class Crawler:
                 href = self._extract_url(art)
                 if href is None:
                     continue
-                if href not in self.urls and href != '':
+                if href not in self.urls and href != '' and len(self.urls) < self._num_articles:
                     self.urls.append(href)
 
 
