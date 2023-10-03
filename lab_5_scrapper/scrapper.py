@@ -104,7 +104,7 @@ class Config:
         if not isinstance(config_content.total_articles, int) or isinstance(config_content.total_articles, bool) or config_content.total_articles < 1:
             raise IncorrectNumberOfArticlesError
 
-        if config_content.total_articles > NUM_ARTICLES_UPPER_LIMIT:
+        if config_content.total_articles > 149:
             raise NumberOfArticlesOutOfRangeError
 
         if not isinstance(config_content.encoding, str):
